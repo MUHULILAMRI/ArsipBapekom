@@ -17,6 +17,8 @@ import {
   FileArchive,
   AlertCircle,
   Loader2,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 
 interface ArchiveDetail {
@@ -30,6 +32,7 @@ interface ArchiveDetail {
   fileUrl: string;
   fileId: string;
   createdBy: string;
+  status: string;
   createdAt: string;
   user: {
     name: string;
@@ -186,6 +189,20 @@ export default function ArchiveDetailPage() {
                   }`}
                 >
                   {divisionLabels[archive.division] || archive.division}
+                </span>
+                <span
+                  className={`inline-flex items-center gap-1 text-xs px-2.5 py-1 rounded-lg border font-medium ${
+                    archive.status === "AKTIF"
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                      : "bg-orange-50 text-orange-700 border-orange-200"
+                  }`}
+                >
+                  {archive.status === "AKTIF" ? (
+                    <CheckCircle2 size={12} />
+                  ) : (
+                    <XCircle size={12} />
+                  )}
+                  {archive.status === "AKTIF" ? "Aktif" : "Inaktif"}
                 </span>
                 <span className="text-xs text-gray-400">
                   #{archive.archiveNumber}

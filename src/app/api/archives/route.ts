@@ -12,6 +12,7 @@ export async function GET(req: NextRequest) {
   const { searchParams } = new URL(req.url);
   const division = searchParams.get("division");
   const search = searchParams.get("search");
+  const status = searchParams.get("status");
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
   const sortBy = searchParams.get("sortBy") || "createdAt";
@@ -24,6 +25,11 @@ export async function GET(req: NextRequest) {
     where.division = user.division;
   } else if (division) {
     where.division = division;
+  }
+
+  // Status filter
+  if (status === "AKTIF" || status === "INAKTIF") {
+    where.status = status;
   }
 
   // Search
@@ -68,7 +74,7 @@ export async function POST(req: NextRequest) {
   }
 
   const body = await req.json();
-  const { archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId } = body;
+  const { archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status } = body;
 
   if (!archiveNumber || !title || !letterNumber || !date || !division || !fileUrl || !fileId) {
     return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
@@ -86,6 +92,7 @@ export async function POST(req: NextRequest) {
       letterNumber,
       date: new Date(date),
       division,
+      status: status || "AKTIF",
       description: description || null,
       fileUrl,
       fileId,

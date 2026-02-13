@@ -18,18 +18,20 @@ model User {
 }
 
 model Archive {
-  id            String   @id @default(uuid())
+  id            String        @id @default(uuid())
   archiveNumber String
   title         String
   letterNumber  String
   date          DateTime
   division      Division
+  status        ArchiveStatus @default(AKTIF)
   description   String?
   fileUrl       String
   fileId        String
   createdBy     String
-  user          User     @relation(fields: [createdBy], references: [id])
-  createdAt     DateTime @default(now())
+  user          User          @relation(fields: [createdBy], references: [id])
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
 }
 
 model StorageConfig {
@@ -54,4 +56,9 @@ enum Division {
   PENYELENGGARA
   TATA_USAHA
   UMUM
+}
+
+enum ArchiveStatus {
+  AKTIF
+  INAKTIF
 }

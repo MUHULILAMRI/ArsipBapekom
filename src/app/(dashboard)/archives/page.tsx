@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Archive, FileText } from "lucide-react";
+import { Plus, Archive, FileText, CheckCircle2, XCircle, Loader2 } from "lucide-react";
 import ArchiveTable from "../../../components/ArchiveTable";
 
 interface Archive {
@@ -13,6 +14,7 @@ interface Archive {
   letterNumber: string;
   date: string;
   division: string;
+  status?: string;
   description: string | null;
   fileUrl: string;
   createdAt: string;
@@ -20,12 +22,36 @@ interface Archive {
 }
 
 export default function ArchivesPage() {
+  return (
+    <Suspense
+      fallback={
+        <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
+          <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
+          <p className="text-gray-400 text-sm">Memuat data arsip...</p>
+        </div>
+      }
+    >
+      <ArchivesContent />
+    </Suspense>
+  );
+}
+
+function ArchivesContent() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [archives, setArchives] = useState<Archive[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeTab, setActiveTab] = useState<string>("ALL");
 
+  const urlStatus = searchParams.get("status");
   const userRole = (session?.user as any)?.role;
   const canDelete = userRole === "SUPER_ADMIN" || userRole === "ADMIN";
+
+  useEffect(() => {
+    if (urlStatus === "AKTIF" || urlStatus === "INAKTIF") {
+      setActiveTab(urlStatus);
+    }
+  }, [urlStatus]);
 
   useEffect(() => {
     fetchArchives();
@@ -33,7 +59,7 @@ export default function ArchivesPage() {
 
   const fetchArchives = async () => {
     try {
-      const res = await fetch("/api/archives?limit=100");
+      const res = await fetch("/api/archives?limit=200");
       const data = await res.json();
       setArchives(data.archives || []);
     } catch (error) {
@@ -42,6 +68,13 @@ export default function ArchivesPage() {
       setLoading(false);
     }
   };
+
+  const filteredArchives = activeTab === "ALL"
+    ? archives
+    : archives.filter((a) => a.status === activeTab);
+
+  const activeCount = archives.filter((a) => a.status === "AKTIF").length;
+  const inactiveCount = archives.filter((a) => a.status === "INAKTIF").length;
 
   const handleDelete = async (id: string) => {
     if (!confirm("Yakin ingin menghapus arsip ini?")) return;
@@ -69,7 +102,7 @@ export default function ArchivesPage() {
 
   return (
     <div className="animate-fade-in-up">
-      <div className="flex items-center justify-between mb-8">
+      <div className="flex items-center justify-between mb-6">
         <div>
           <div className="flex items-center gap-3 mb-1">
             <div className="p-2 bg-blue-100 rounded-xl">
@@ -92,8 +125,54 @@ export default function ArchivesPage() {
         </Link>
       </div>
 
+      {/* Status Tabs */}
+      <div className="flex items-center gap-2 mb-6">
+        <button
+          onClick={() => setActiveTab("ALL")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            activeTab === "ALL"
+              ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          <Archive size={14} />
+          Semua
+          <span className={`text-xs px-1.5 py-0.5 rounded-md ${activeTab === "ALL" ? "bg-white/20" : "bg-gray-100"}`}>
+            {archives.length}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab("AKTIF")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            activeTab === "AKTIF"
+              ? "bg-emerald-600 text-white shadow-md shadow-emerald-200"
+              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          <CheckCircle2 size={14} />
+          Aktif
+          <span className={`text-xs px-1.5 py-0.5 rounded-md ${activeTab === "AKTIF" ? "bg-white/20" : "bg-emerald-50 text-emerald-700"}`}>
+            {activeCount}
+          </span>
+        </button>
+        <button
+          onClick={() => setActiveTab("INAKTIF")}
+          className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all ${
+            activeTab === "INAKTIF"
+              ? "bg-orange-600 text-white shadow-md shadow-orange-200"
+              : "bg-white text-gray-600 border border-gray-200 hover:bg-gray-50"
+          }`}
+        >
+          <XCircle size={14} />
+          Inaktif
+          <span className={`text-xs px-1.5 py-0.5 rounded-md ${activeTab === "INAKTIF" ? "bg-white/20" : "bg-orange-50 text-orange-700"}`}>
+            {inactiveCount}
+          </span>
+        </button>
+      </div>
+
       <ArchiveTable
-        data={archives}
+        data={filteredArchives}
         onDelete={handleDelete}
         canDelete={canDelete}
       />

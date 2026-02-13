@@ -23,6 +23,8 @@ import {
   Search,
   Filter,
   FileText,
+  CheckCircle2,
+  XCircle,
 } from "lucide-react";
 import Link from "next/link";
 
@@ -33,6 +35,7 @@ interface Archive {
   letterNumber: string;
   date: string;
   division: string;
+  status?: string;
   description: string | null;
   fileUrl: string;
   createdAt: string;
@@ -62,11 +65,18 @@ export default function ArchiveTable({
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [divisionFilter, setDivisionFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
 
   const filteredData = useMemo(() => {
-    if (!divisionFilter) return data;
-    return data.filter((d) => d.division === divisionFilter);
-  }, [data, divisionFilter]);
+    let result = data;
+    if (divisionFilter) {
+      result = result.filter((d) => d.division === divisionFilter);
+    }
+    if (statusFilter) {
+      result = result.filter((d) => d.status === statusFilter);
+    }
+    return result;
+  }, [data, divisionFilter, statusFilter]);
 
   const columns = useMemo(
     () => [
@@ -124,6 +134,24 @@ export default function ArchiveTable({
               }`}
             >
               {DIVISION_LABELS[div] || div}
+            </span>
+          );
+        },
+      }),
+      columnHelper.accessor("status", {
+        header: "Status",
+        cell: (info) => {
+          const status = info.getValue();
+          return (
+            <span
+              className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${
+                status === "AKTIF"
+                  ? "bg-emerald-50 text-emerald-700 border-emerald-200"
+                  : "bg-orange-50 text-orange-700 border-orange-200"
+              }`}
+            >
+              {status === "AKTIF" ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
+              {status === "AKTIF" ? "Aktif" : "Inaktif"}
             </span>
           );
         },
@@ -210,6 +238,17 @@ export default function ArchiveTable({
             <option value="PENYELENGGARA">Penyelenggara</option>
             <option value="TATA_USAHA">Tata Usaha</option>
             <option value="UMUM">Umum</option>
+          </select>
+        </div>
+        <div className="relative">
+          <select
+            value={statusFilter}
+            onChange={(e) => setStatusFilter(e.target.value)}
+            className="pl-4 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
+          >
+            <option value="">Semua Status</option>
+            <option value="AKTIF">Aktif</option>
+            <option value="INAKTIF">Inaktif</option>
           </select>
         </div>
       </div>

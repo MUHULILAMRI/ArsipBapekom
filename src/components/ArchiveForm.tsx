@@ -27,6 +27,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
     letterNumber: "",
     date: "",
     division: userRole === "USER" ? (userDivision || "") : "",
+    status: "AKTIF",
     description: "",
   });
   const [file, setFile] = useState<File | null>(null);
@@ -192,6 +193,22 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
                 {d.label}
               </option>
             ))}
+          </select>
+        </div>
+
+        {/* Kategori Status */}
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-gray-700">
+            Kategori <span className="text-red-400">*</span>
+          </label>
+          <select
+            required
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+          >
+            <option value="AKTIF">Arsip Aktif</option>
+            <option value="INAKTIF">Arsip Inaktif</option>
           </select>
         </div>
       </div>

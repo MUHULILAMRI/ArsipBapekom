@@ -51,6 +51,7 @@ export async function PUT(
       ...(body.letterNumber && { letterNumber: body.letterNumber }),
       ...(body.date && { date: new Date(body.date) }),
       ...(body.division && { division: body.division }),
+      ...(body.status && { status: body.status }),
       ...(body.description !== undefined && { description: body.description }),
     },
   });

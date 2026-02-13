@@ -13,14 +13,20 @@ import {
   X,
   ChevronRight,
   Sparkles,
+  BarChart3,
+  ClipboardList,
+  Shield,
 } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"] },
-  { name: "Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"] },
-  { name: "Kelola User", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"] },
-  { name: "Storage", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"] },
+  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Analisis", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Kelola User", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
+  { name: "Log Aktivitas", href: "/admin/activity", icon: ClipboardList, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
+  { name: "Hak Akses", href: "/admin/roles", icon: Shield, roles: ["SUPER_ADMIN"], group: "admin" },
+  { name: "Storage", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
 ];
 
 const roleLabels: Record<string, string> = {
@@ -90,9 +96,9 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
             <p className="px-3 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
-              Menu
+              Menu Utama
             </p>
-            {filteredNav.map((item, index) => {
+            {filteredNav.filter((item) => item.group === "menu").map((item, index) => {
               const isActive = pathname.startsWith(item.href);
               return (
                 <Link
@@ -122,6 +128,46 @@ export default function Sidebar() {
                 </Link>
               );
             })}
+
+            {filteredNav.some((item) => item.group === "admin") && (
+              <>
+                <div className="pt-4 pb-2">
+                  <p className="px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
+                    Administrasi
+                  </p>
+                </div>
+                {filteredNav.filter((item) => item.group === "admin").map((item, index) => {
+                  const isActive = pathname.startsWith(item.href);
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={() => setOpen(false)}
+                      className={`group flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 animate-slide-in-left ${
+                        isActive
+                          ? "bg-gradient-to-r from-blue-600/20 to-indigo-600/10 text-white shadow-sm"
+                          : "text-slate-400 hover:bg-white/5 hover:text-white"
+                      }`}
+                      style={{ animationDelay: `${(index + 3) * 0.05}s` }}
+                    >
+                      <div
+                        className={`flex items-center justify-center w-9 h-9 rounded-lg transition-all ${
+                          isActive
+                            ? "bg-gradient-to-br from-blue-500 to-indigo-600 shadow-md shadow-blue-500/20"
+                            : "bg-slate-800 group-hover:bg-slate-700"
+                        }`}
+                      >
+                        <item.icon size={18} />
+                      </div>
+                      <span className="flex-1">{item.name}</span>
+                      {isActive && (
+                        <ChevronRight size={14} className="text-blue-400" />
+                      )}
+                    </Link>
+                  );
+                })}
+              </>
+            )}
           </nav>
 
           {/* User Info */}
