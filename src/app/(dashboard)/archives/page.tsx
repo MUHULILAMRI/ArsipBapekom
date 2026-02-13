@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Archive, FileText, CheckCircle2, XCircle, Loader2 } from "lucide-react";
+import { Plus, Archive, FileText, CheckCircle2, XCircle, Loader2, FolderOpen } from "lucide-react";
 import ArchiveTable from "../../../components/ArchiveTable";
 
 interface Archive {
@@ -116,13 +116,22 @@ function ArchivesContent() {
             Kelola semua arsip surat dan dokumen
           </p>
         </div>
-        <Link
-          href="/archives/create"
-          className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
-        >
-          <Plus size={18} />
-          Tambah Arsip
-        </Link>
+        <div className="flex items-center gap-3">
+          <Link
+            href="/archives/browse"
+            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
+          >
+            <FolderOpen size={18} />
+            Jelajahi
+          </Link>
+          <Link
+            href="/archives/create"
+            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
+          >
+            <Plus size={18} />
+            Tambah Arsip
+          </Link>
+        </div>
       </div>
 
       {/* Status Tabs */}

@@ -17,6 +17,7 @@ import {
   ArrowUpDown,
   Download,
   Eye,
+  Edit3,
   Trash2,
   ChevronLeft,
   ChevronRight,
@@ -167,6 +168,13 @@ export default function ArchiveTable({
               title="Lihat Detail"
             >
               <Eye size={16} />
+            </Link>
+            <Link
+              href={`/archives/${info.row.original.id}/edit`}
+              className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+              title="Edit"
+            >
+              <Edit3 size={16} />
             </Link>
             <a
               href={info.row.original.fileUrl}

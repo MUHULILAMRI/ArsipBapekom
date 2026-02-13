@@ -16,12 +16,14 @@ import {
   BarChart3,
   ClipboardList,
   Shield,
+  FolderOpen,
 } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
   { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Jelajahi Arsip", href: "/archives/browse", icon: FolderOpen, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Analisis", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Kelola User", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
   { name: "Log Aktivitas", href: "/admin/activity", icon: ClipboardList, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },

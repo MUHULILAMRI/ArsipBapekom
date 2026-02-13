@@ -212,6 +212,13 @@ export default function ArchiveDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
+            <Link
+              href={`/archives/${archive.id}/edit`}
+              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all shadow-md shadow-amber-200 hover:shadow-lg hover:shadow-amber-300"
+            >
+              <Edit3 size={16} />
+              <span>Edit</span>
+            </Link>
             <a
               href={archive.fileUrl}
               target="_blank"
