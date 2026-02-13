@@ -2,7 +2,7 @@
 
 import { useState, type FormEvent } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, Loader2 } from "lucide-react";
+import { Upload, Loader2, FileUp, X, CheckCircle } from "lucide-react";
 
 interface ArchiveFormProps {
   userDivision?: string;
@@ -30,6 +30,26 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
     description: "",
   });
   const [file, setFile] = useState<File | null>(null);
+  const [dragActive, setDragActive] = useState(false);
+
+  const handleDrag = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    if (e.type === "dragenter" || e.type === "dragover") {
+      setDragActive(true);
+    } else if (e.type === "dragleave") {
+      setDragActive(false);
+    }
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragActive(false);
+    if (e.dataTransfer.files && e.dataTransfer.files[0]) {
+      setFile(e.dataTransfer.files[0]);
+    }
+  };
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
@@ -37,7 +57,6 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
     setError("");
 
     try {
-      // 1. Upload file
       if (!file) {
         setError("File wajib diupload");
         setLoading(false);
@@ -60,7 +79,6 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
 
       const { fileId, fileUrl } = await uploadRes.json();
 
-      // 2. Create archive record
       const archiveRes = await fetch("/api/archives", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -88,84 +106,85 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
   const canSelectDivision = userRole === "SUPER_ADMIN" || userRole === "ADMIN";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
+    <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
-        <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+        <div className="p-4 bg-red-50 border border-red-200 rounded-2xl text-red-700 text-sm flex items-center gap-3 animate-fade-in-up">
+          <div className="w-2 h-2 bg-red-400 rounded-full flex-shrink-0" />
           {error}
         </div>
       )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Nomor Arsip */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nomor Arsip <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-gray-700">
+            Nomor Arsip <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
             required
             value={form.archiveNumber}
             onChange={(e) => setForm({ ...form, archiveNumber: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
             placeholder="Contoh: ARS-2026-001"
           />
         </div>
 
         {/* Judul */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Judul <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-gray-700">
+            Judul <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
             required
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
             placeholder="Judul arsip"
           />
         </div>
 
         {/* Nomor Surat */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Nomor Surat <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-gray-700">
+            Nomor Surat <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
             required
             value={form.letterNumber}
             onChange={(e) => setForm({ ...form, letterNumber: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
             placeholder="Contoh: 001/BPK/2026"
           />
         </div>
 
         {/* Tanggal */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Tanggal <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-gray-700">
+            Tanggal <span className="text-red-400">*</span>
           </label>
           <input
             type="date"
             required
             value={form.date}
             onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
           />
         </div>
 
         {/* Divisi */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            Divisi <span className="text-red-500">*</span>
+        <div className="space-y-1.5">
+          <label className="block text-sm font-semibold text-gray-700">
+            Divisi <span className="text-red-400">*</span>
           </label>
           <select
             required
             value={form.division}
             onChange={(e) => setForm({ ...form, division: e.target.value })}
             disabled={!canSelectDivision}
-            className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm disabled:bg-gray-100"
+            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm disabled:bg-gray-100 disabled:text-gray-500 transition-all"
           >
             <option value="">Pilih Divisi</option>
             {DIVISIONS.map((d) => (
@@ -175,59 +194,100 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             ))}
           </select>
         </div>
-
-        {/* File Upload */}
-        <div>
-          <label className="block text-sm font-medium text-gray-700 mb-1">
-            File <span className="text-red-500">*</span>
-          </label>
-          <div className="relative">
-            <input
-              type="file"
-              onChange={(e) => setFile(e.target.files?.[0] || null)}
-              className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm file:mr-3 file:py-1 file:px-3 file:rounded-md file:border file:border-gray-300 file:text-sm file:font-medium file:bg-gray-50 file:text-gray-700 hover:file:bg-gray-100"
-            />
-          </div>
-          {file && (
-            <p className="text-xs text-gray-500 mt-1">
-              {file.name} ({(file.size / 1024).toFixed(1)} KB)
-            </p>
-          )}
-        </div>
       </div>
 
       {/* Deskripsi */}
-      <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">
+      <div className="space-y-1.5">
+        <label className="block text-sm font-semibold text-gray-700">
           Deskripsi
         </label>
         <textarea
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={3}
-          className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm resize-none"
+          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
           placeholder="Deskripsi arsip (opsional)"
         />
       </div>
 
-      {/* Submit */}
-      <div className="flex justify-end gap-3">
+      {/* File Upload - Drag & Drop */}
+      <div className="space-y-1.5">
+        <label className="block text-sm font-semibold text-gray-700">
+          Upload File <span className="text-red-400">*</span>
+        </label>
+        <div
+          onDragEnter={handleDrag}
+          onDragLeave={handleDrag}
+          onDragOver={handleDrag}
+          onDrop={handleDrop}
+          className={`relative border-2 border-dashed rounded-2xl p-8 text-center transition-all cursor-pointer ${
+            dragActive
+              ? "border-blue-400 bg-blue-50/50"
+              : file
+              ? "border-emerald-300 bg-emerald-50/30"
+              : "border-gray-200 hover:border-blue-300 hover:bg-blue-50/20"
+          }`}
+        >
+          <input
+            type="file"
+            onChange={(e) => setFile(e.target.files?.[0] || null)}
+            className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+          />
+          {file ? (
+            <div className="flex flex-col items-center">
+              <div className="w-14 h-14 bg-emerald-100 rounded-2xl flex items-center justify-center mb-3">
+                <CheckCircle size={28} className="text-emerald-600" />
+              </div>
+              <p className="text-sm font-semibold text-gray-800">{file.name}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                {(file.size / 1024 / 1024).toFixed(2)} MB
+              </p>
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setFile(null);
+                }}
+                className="mt-3 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"
+              >
+                <X size={12} /> Hapus file
+              </button>
+            </div>
+          ) : (
+            <div className="flex flex-col items-center">
+              <div className="w-14 h-14 bg-blue-100 rounded-2xl flex items-center justify-center mb-3">
+                <FileUp size={28} className="text-blue-500" />
+              </div>
+              <p className="text-sm font-medium text-gray-600">
+                Drag & drop file di sini, atau{" "}
+                <span className="text-blue-600 font-semibold">klik untuk memilih</span>
+              </p>
+              <p className="text-xs text-gray-400 mt-1">
+                PDF, DOC, XLSX, JPG, PNG (Maks. 10MB)
+              </p>
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Submit Buttons */}
+      <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
         <button
           type="button"
           onClick={() => router.back()}
-          className="px-4 py-2 border border-gray-300 rounded-lg text-sm font-medium text-gray-700 hover:bg-gray-50 transition-colors"
+          className="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
         >
           Batal
         </button>
         <button
           type="submit"
           disabled={loading}
-          className="flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg text-sm font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+          className="flex items-center gap-2 px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
         >
           {loading ? (
             <>
               <Loader2 size={16} className="animate-spin" />
-              Menyimpan...
+              Mengunggah...
             </>
           ) : (
             <>
