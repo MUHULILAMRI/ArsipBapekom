@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useSearchParams } from "next/navigation";
 import {
   HardDrive,
   Cloud,
@@ -16,16 +17,29 @@ interface StorageStatus {
 }
 
 export default function StoragePage() {
+  const searchParams = useSearchParams();
   const [status, setStatus] = useState<StorageStatus>({
     google: false,
     onedrive: false,
   });
   const [loading, setLoading] = useState(true);
   const [connecting, setConnecting] = useState<string | null>(null);
+  const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
   useEffect(() => {
+    const connected = searchParams.get("connected");
+    const error = searchParams.get("error");
+
+    if (connected === "google") {
+      setMessage({ type: "success", text: "Google Drive berhasil terhubung!" });
+      setStatus((prev) => ({ ...prev, google: true }));
+    }
+    if (error) {
+      setMessage({ type: "error", text: `Gagal menghubungkan: ${error}` });
+    }
+
     checkStorageStatus();
-  }, []);
+  }, [searchParams]);
 
   const checkStorageStatus = async () => {
     // In a real app, you'd check the StorageConfig table
@@ -38,11 +52,10 @@ export default function StoragePage() {
       const res = await fetch("/api/storage/connect-google");
       const data = await res.json();
       if (data.url) {
-        window.open(data.url, "_blank", "width=600,height=700");
+        window.location.href = data.url;
       }
     } catch (error) {
       console.error("Failed to connect Google:", error);
-    } finally {
       setConnecting(null);
     }
   };
@@ -80,6 +93,18 @@ export default function StoragePage() {
           Hubungkan akun cloud storage untuk menyimpan file arsip
         </p>
       </div>
+
+      {message && (
+        <div
+          className={`mb-6 p-4 rounded-lg border ${
+            message.type === "success"
+              ? "bg-green-50 border-green-200 text-green-800"
+              : "bg-red-50 border-red-200 text-red-800"
+          }`}
+        >
+          {message.text}
+        </div>
+      )}
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {/* Google Drive */}
