@@ -23,6 +23,8 @@ import {
   ChevronRight,
   Search,
   Filter,
+  CalendarDays,
+  X,
   FileText,
   CheckCircle2,
   XCircle,
@@ -67,6 +69,15 @@ export default function ArchiveTable({
   const [globalFilter, setGlobalFilter] = useState("");
   const [divisionFilter, setDivisionFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [dateFrom, setDateFrom] = useState("");
+  const [dateTo, setDateTo] = useState("");
+
+  const hasDateFilter = dateFrom || dateTo;
+
+  const clearDateFilter = () => {
+    setDateFrom("");
+    setDateTo("");
+  };
 
   const filteredData = useMemo(() => {
     let result = data;
@@ -76,8 +87,18 @@ export default function ArchiveTable({
     if (statusFilter) {
       result = result.filter((d) => d.status === statusFilter);
     }
+    if (dateFrom) {
+      const from = new Date(dateFrom);
+      from.setHours(0, 0, 0, 0);
+      result = result.filter((d) => new Date(d.date) >= from);
+    }
+    if (dateTo) {
+      const to = new Date(dateTo);
+      to.setHours(23, 59, 59, 999);
+      result = result.filter((d) => new Date(d.date) <= to);
+    }
     return result;
-  }, [data, divisionFilter, statusFilter]);
+  }, [data, divisionFilter, statusFilter, dateFrom, dateTo]);
 
   const columns = useMemo(
     () => [
@@ -259,6 +280,38 @@ export default function ArchiveTable({
             <option value="INAKTIF">Inaktif</option>
           </select>
         </div>
+      </div>
+
+      {/* Date Range Filter */}
+      <div className="px-4 pb-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
+        <div className="flex items-center gap-1.5 text-gray-400">
+          <CalendarDays size={15} />
+          <span className="text-xs font-semibold uppercase tracking-wider">Filter Tanggal</span>
+        </div>
+        <div className="flex items-center gap-2">
+          <input
+            type="date"
+            value={dateFrom}
+            onChange={(e) => setDateFrom(e.target.value)}
+            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all"
+          />
+          <span className="text-xs text-gray-400 font-medium">s/d</span>
+          <input
+            type="date"
+            value={dateTo}
+            onChange={(e) => setDateTo(e.target.value)}
+            className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all"
+          />
+        </div>
+        {hasDateFilter && (
+          <button
+            onClick={clearDateFilter}
+            className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
+          >
+            <X size={12} />
+            Reset
+          </button>
+        )}
       </div>
 
       {/* Table */}
