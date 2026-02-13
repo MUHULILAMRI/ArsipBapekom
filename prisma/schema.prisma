@@ -1,0 +1,57 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role     @default(USER)
+  division  Division
+  archives  Archive[]
+  createdAt DateTime @default(now())
+}
+
+model Archive {
+  id            String   @id @default(uuid())
+  archiveNumber String
+  title         String
+  letterNumber  String
+  date          DateTime
+  division      Division
+  description   String?
+  fileUrl       String
+  fileId        String
+  createdBy     String
+  user          User     @relation(fields: [createdBy], references: [id])
+  createdAt     DateTime @default(now())
+}
+
+model StorageConfig {
+  id           String   @id @default(uuid())
+  provider     String
+  accessToken  String
+  refreshToken String
+  expiresAt    DateTime?
+  isActive     Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+enum Role {
+  SUPER_ADMIN
+  ADMIN
+  USER
+}
+
+enum Division {
+  KEUANGAN
+  PENYELENGGARA
+  TATA_USAHA
+  UMUM
+}

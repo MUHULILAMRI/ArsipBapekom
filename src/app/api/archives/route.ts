@@ -1,0 +1,97 @@
+import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "../../../lib/prisma";
+import { getCurrentUser, canAccessDivision } from "../../../lib/rbac";
+
+// GET /api/archives - List archives
+export async function GET(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const { searchParams } = new URL(req.url);
+  const division = searchParams.get("division");
+  const search = searchParams.get("search");
+  const page = parseInt(searchParams.get("page") || "1");
+  const limit = parseInt(searchParams.get("limit") || "10");
+  const sortBy = searchParams.get("sortBy") || "createdAt";
+  const sortOrder = (searchParams.get("sortOrder") || "desc") as "asc" | "desc";
+
+  const where: any = {};
+
+  // RBAC: USER can only see their division
+  if (user.role === "USER") {
+    where.division = user.division;
+  } else if (division) {
+    where.division = division;
+  }
+
+  // Search
+  if (search) {
+    where.OR = [
+      { title: { contains: search, mode: "insensitive" } },
+      { archiveNumber: { contains: search, mode: "insensitive" } },
+      { letterNumber: { contains: search, mode: "insensitive" } },
+      { description: { contains: search, mode: "insensitive" } },
+    ];
+  }
+
+  const [archives, total] = await Promise.all([
+    prisma.archive.findMany({
+      where,
+      orderBy: { [sortBy]: sortOrder },
+      skip: (page - 1) * limit,
+      take: limit,
+      include: {
+        user: { select: { name: true, email: true } },
+      },
+    }),
+    prisma.archive.count({ where }),
+  ]);
+
+  return NextResponse.json({
+    archives,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit),
+    },
+  });
+}
+
+// POST /api/archives - Create archive
+export async function POST(req: NextRequest) {
+  const user = await getCurrentUser();
+  if (!user) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
+
+  const body = await req.json();
+  const { archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId } = body;
+
+  if (!archiveNumber || !title || !letterNumber || !date || !division || !fileUrl || !fileId) {
+    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  }
+
+  // Check access
+  if (!canAccessDivision(user.role, user.division, division)) {
+    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+  }
+
+  const archive = await prisma.archive.create({
+    data: {
+      archiveNumber,
+      title,
+      letterNumber,
+      date: new Date(date),
+      division,
+      description: description || null,
+      fileUrl,
+      fileId,
+      createdBy: user.id,
+    },
+  });
+
+  return NextResponse.json(archive, { status: 201 });
+}
