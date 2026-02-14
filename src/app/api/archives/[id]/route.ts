@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../../lib/prisma";
 import { getCurrentUser, canEditArchive, canDeleteArchive } from "../../../../lib/rbac";
+import { notifyAdmins } from "../../../../utils/notificationHelper";
 
 // GET /api/archives/[id]
 export async function GET(
@@ -9,7 +10,7 @@ export async function GET(
 ) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
   }
 
   const { id } = await params;
@@ -20,7 +21,7 @@ export async function GET(
   });
 
   if (!archive) {
-    return NextResponse.json({ error: "Archive not found" }, { status: 404 });
+    return NextResponse.json({ error: "Arsip tidak ditemukan" }, { status: 404 });
   }
 
   return NextResponse.json(archive);
@@ -33,11 +34,11 @@ export async function PUT(
 ) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
   }
 
   if (!canEditArchive(user.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
   }
 
   const { id } = await params;
@@ -56,6 +57,15 @@ export async function PUT(
     },
   });
 
+  // Notifikasi ke admin tentang update
+  await notifyAdmins(
+    "ARCHIVE_UPDATED",
+    "Arsip Diperbarui",
+    `Arsip "${archive.title}" telah diperbarui.`,
+    `/archives/${archive.id}`,
+    user.id
+  );
+
   return NextResponse.json(archive);
 }
 
@@ -66,16 +76,28 @@ export async function DELETE(
 ) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
   }
 
   if (!canDeleteArchive(user.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
   }
 
   const { id } = await params;
 
+  const archive = await prisma.archive.findUnique({ where: { id } });
   await prisma.archive.delete({ where: { id } });
 
-  return NextResponse.json({ message: "Archive deleted" });
+  // Notifikasi ke admin tentang penghapusan
+  if (archive) {
+    await notifyAdmins(
+      "ARCHIVE_DELETED",
+      "Arsip Dihapus",
+      `Arsip "${archive.title}" telah dihapus.`,
+      undefined,
+      user.id
+    );
+  }
+
+  return NextResponse.json({ message: "Arsip berhasil dihapus" });
 }

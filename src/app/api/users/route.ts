@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 export async function GET() {
   const user = await getCurrentUser();
   if (!user || !canManageUsers(user.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
   }
 
   const users = await prisma.user.findMany({
@@ -30,14 +30,14 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !canManageUsers(user.role)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
   }
 
   const body = await req.json();
   const { name, email, password, role, division } = body;
 
   if (!name || !email || !password || !role || !division) {
-    return NextResponse.json({ error: "Missing fields" }, { status: 400 });
+    return NextResponse.json({ error: "Field tidak lengkap" }, { status: 400 });
   }
 
   const exists = await prisma.user.findUnique({ where: { email } });

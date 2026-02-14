@@ -4,7 +4,7 @@ import { useEffect, useState, Suspense } from "react";
 import { useSession } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { Plus, Archive, FileText, CheckCircle2, XCircle, Loader2, FolderOpen } from "lucide-react";
+import { Plus, Archive, FileText, CheckCircle2, XCircle, Loader2, FolderOpen, Download } from "lucide-react";
 import ArchiveTable from "../../../components/ArchiveTable";
 
 interface Archive {
@@ -89,6 +89,13 @@ function ArchivesContent() {
     }
   };
 
+  const handleExport = (format: "csv" | "json") => {
+    const params = new URLSearchParams();
+    params.set("format", format);
+    if (activeTab !== "ALL") params.set("status", activeTab);
+    window.open(`/api/archives/export?${params.toString()}`, "_blank");
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -117,6 +124,26 @@ function ArchivesContent() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <div className="relative group">
+            <button className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all">
+              <Download size={16} />
+              Ekspor
+            </button>
+            <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 w-40 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all z-20">
+              <button
+                onClick={() => handleExport("csv")}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              >
+                📊 Ekspor CSV
+              </button>
+              <button
+                onClick={() => handleExport("json")}
+                className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+              >
+                📋 Ekspor JSON
+              </button>
+            </div>
+          </div>
           <Link
             href="/archives/browse"
             className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"

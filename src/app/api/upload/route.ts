@@ -5,7 +5,7 @@ import { uploadFile } from "../../../utils/uploadHelper";
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
   }
 
   try {

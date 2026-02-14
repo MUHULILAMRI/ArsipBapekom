@@ -1,12 +1,13 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "../../../lib/prisma";
 import { getCurrentUser, canAccessDivision } from "../../../lib/rbac";
+import { createNotification, notifyAdmins } from "../../../utils/notificationHelper";
 
 // GET /api/archives - List archives
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -70,19 +71,19 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
   }
 
   const body = await req.json();
   const { archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status } = body;
 
   if (!archiveNumber || !title || !letterNumber || !date || !division || !fileUrl || !fileId) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+    return NextResponse.json({ error: "Field wajib tidak lengkap" }, { status: 400 });
   }
 
   // Check access
   if (!canAccessDivision(user.role, user.division, division)) {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
+    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
   }
 
   const archive = await prisma.archive.create({
@@ -99,6 +100,24 @@ export async function POST(req: NextRequest) {
       createdBy: user.id,
     },
   });
+
+  // Buat notifikasi untuk user yang membuat
+  await createNotification({
+    userId: user.id,
+    type: "ARCHIVE_CREATED",
+    title: "Arsip Baru Dibuat",
+    message: `Arsip "${title}" berhasil dibuat.`,
+    link: `/archives/${archive.id}`,
+  });
+
+  // Notifikasi ke admin/super admin
+  await notifyAdmins(
+    "ARCHIVE_CREATED",
+    "Arsip Baru Ditambahkan",
+    `Arsip "${title}" ditambahkan oleh ${user.division}.`,
+    `/archives/${archive.id}`,
+    user.id
+  );
 
   return NextResponse.json(archive, { status: 201 });
 }

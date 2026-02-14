@@ -142,3 +142,13 @@ Root Arsip/
 - ✅ Integrasi Google Drive & OneDrive
 - ✅ Manajemen user (Super Admin)
 - ✅ Responsive design
+- ✅ Sistem notifikasi real-time (bell icon + dropdown)
+- ✅ Pencarian arsip global di Navbar
+- ✅ Halaman profil (avatar, ubah password, ubah email/divisi, 6 tab)
+- ✅ Toast notification system
+- ✅ Edit & hapus user (Super Admin)
+- ✅ Ekspor arsip ke CSV / JSON
+- ✅ Log aktivitas admin
+- ✅ Animasi intro welcome screen (10 detik, gradient, partikel emas)
+- ✅ Animasi transisi login (zoom-out & fade)
+- ✅ Seluruh antarmuka dalam Bahasa Indonesia

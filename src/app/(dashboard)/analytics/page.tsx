@@ -356,7 +356,7 @@ export default async function AnalyticsPage() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-medium text-gray-900">Tambah Arsip</p>
-                <p className="text-xs text-gray-400">Upload dokumen baru</p>
+                <p className="text-xs text-gray-400">Unggah dokumen baru</p>
               </div>
               <ArrowUpRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
             </Link>

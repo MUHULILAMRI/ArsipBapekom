@@ -227,10 +227,10 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
         />
       </div>
 
-      {/* File Upload - Drag & Drop */}
+      {/* Unggah File - Drag & Drop */}
       <div className="space-y-1.5">
         <label className="block text-sm font-semibold text-gray-700">
-          Upload File <span className="text-red-400">*</span>
+          Unggah File <span className="text-red-400">*</span>
         </label>
         <div
           onDragEnter={handleDrag}

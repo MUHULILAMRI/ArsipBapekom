@@ -11,7 +11,11 @@ import {
   X,
   Check,
   AlertCircle,
+  Pencil,
+  Trash2,
+  MoreVertical,
 } from "lucide-react";
+import { useToast } from "../../../../components/Toast";
 
 interface User {
   id: string;
@@ -43,7 +47,7 @@ const roleConfig: Record<string, { label: string; color: string; icon: string }>
     icon: "⚙️",
   },
   USER: {
-    label: "Staff",
+    label: "Staf",
     color: "bg-gray-50 text-gray-700 border-gray-200",
     icon: "👤",
   },
@@ -57,11 +61,15 @@ const divisionColors: Record<string, string> = {
 };
 
 export default function UsersPage() {
+  const { showToast } = useToast();
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
+  const [editingUser, setEditingUser] = useState<User | null>(null);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
+  const [menuOpenId, setMenuOpenId] = useState<string | null>(null);
 
   const [form, setForm] = useState({
     name: "",
@@ -95,18 +103,46 @@ export default function UsersPage() {
     setError("");
 
     try {
-      const res = await fetch("/api/users", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(form),
-      });
+      if (editingUser) {
+        // Update user
+        const updateData: any = {
+          name: form.name,
+          email: form.email,
+          role: form.role,
+          division: form.division,
+        };
+        if (form.password) updateData.password = form.password;
 
-      if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error || "Gagal membuat user");
+        const res = await fetch(`/api/users/${editingUser.id}`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(updateData),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Gagal mengubah pengguna");
+        }
+
+        showToast("success", "Pengguna berhasil diperbarui");
+      } else {
+        // Create user
+        const res = await fetch("/api/users", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(form),
+        });
+
+        if (!res.ok) {
+          const data = await res.json();
+          throw new Error(data.error || "Gagal membuat pengguna");
+        }
+
+        showToast("success", "Pengguna berhasil ditambahkan");
       }
 
       setShowForm(false);
+      setEditingUser(null);
       setForm({
         name: "",
         email: "",
@@ -120,6 +156,52 @@ export default function UsersPage() {
     } finally {
       setSaving(false);
     }
+  };
+
+  const handleEdit = (user: User) => {
+    setEditingUser(user);
+    setForm({
+      name: user.name,
+      email: user.email,
+      password: "",
+      role: user.role,
+      division: user.division,
+    });
+    setShowForm(true);
+    setMenuOpenId(null);
+    setError("");
+  };
+
+  const handleDelete = async (userId: string) => {
+    if (!confirm("Yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat dibatalkan.")) return;
+    setDeletingId(userId);
+    try {
+      const res = await fetch(`/api/users/${userId}`, { method: "DELETE" });
+      if (!res.ok) {
+        const data = await res.json();
+        throw new Error(data.error || "Gagal menghapus user");
+      }
+      showToast("success", "Pengguna berhasil dihapus");
+      fetchUsers();
+    } catch (err: any) {
+      showToast("error", "Gagal menghapus pengguna", err.message);
+    } finally {
+      setDeletingId(null);
+      setMenuOpenId(null);
+    }
+  };
+
+  const handleCancelForm = () => {
+    setShowForm(false);
+    setEditingUser(null);
+    setForm({
+      name: "",
+      email: "",
+      password: "",
+      role: "USER",
+      division: "KEUANGAN",
+    });
+    setError("");
   };
 
   if (loading) {
@@ -141,7 +223,7 @@ export default function UsersPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Kelola User
+              Kelola Pengguna
             </h1>
             <p className="text-gray-400 text-sm mt-0.5">
               {users.length} pengguna terdaftar
@@ -149,11 +231,17 @@ export default function UsersPage() {
           </div>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
+          onClick={() => {
+            if (showForm) {
+              handleCancelForm();
+            } else {
+              setShowForm(true);
+            }
+          }}
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
         >
           {showForm ? <X size={16} /> : <UserPlus size={16} />}
-          {showForm ? "Batal" : "Tambah User"}
+          {showForm ? "Batal" : "Tambah Pengguna"}
         </button>
       </div>
 
@@ -161,8 +249,17 @@ export default function UsersPage() {
       {showForm && (
         <div className="bg-white rounded-2xl border border-gray-100 p-8 mb-8 shadow-sm animate-fade-in-up">
           <h2 className="text-lg font-semibold text-gray-900 mb-6 flex items-center gap-2">
-            <UserPlus size={18} className="text-blue-600" />
-            User Baru
+            {editingUser ? (
+              <>
+                <Pencil size={18} className="text-amber-600" />
+                Sunting Pengguna — {editingUser.name}
+              </>
+            ) : (
+              <>
+                <UserPlus size={18} className="text-blue-600" />
+                Pengguna Baru
+              </>
+            )}
           </h2>
 
           {error && (
@@ -202,22 +299,22 @@ export default function UsersPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Password
+                  Kata Sandi {editingUser && <span className="text-gray-400 font-normal">(kosongkan jika tidak diubah)</span>}
                 </label>
                 <input
                   type="password"
-                  required
+                  required={!editingUser}
                   value={form.password}
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
-                  placeholder="Minimal 6 karakter"
+                  placeholder={editingUser ? "Kosongkan jika tidak diubah" : "Minimal 6 karakter"}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Role
+                  Peran
                 </label>
                 <select
                   value={form.role}
@@ -263,7 +360,7 @@ export default function UsersPage() {
                   ) : (
                     <>
                       <Check size={16} />
-                      Simpan User
+                      {editingUser ? "Simpan Perubahan" : "Simpan Pengguna"}
                     </>
                   )}
                 </button>
@@ -282,7 +379,7 @@ export default function UsersPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{users.length}</p>
-          <p className="text-xs text-gray-400 mt-1">Total User</p>
+          <p className="text-xs text-gray-400 mt-1">Total Pengguna</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
@@ -339,6 +436,38 @@ export default function UsersPage() {
                   <p className="text-xs text-gray-400">{u.email}</p>
                 </div>
               </div>
+              {/* Action Menu */}
+              <div className="relative">
+                <button
+                  onClick={() => setMenuOpenId(menuOpenId === u.id ? null : u.id)}
+                  className="p-1.5 text-gray-400 hover:text-gray-600 hover:bg-gray-100 rounded-lg transition-colors"
+                >
+                  <MoreVertical size={16} />
+                </button>
+                {menuOpenId === u.id && (
+                  <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 w-36 z-10">
+                    <button
+                      onClick={() => handleEdit(u)}
+                      className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors"
+                    >
+                      <Pencil size={14} />
+                      Sunting
+                    </button>
+                    <button
+                      onClick={() => handleDelete(u.id)}
+                      disabled={deletingId === u.id}
+                      className="w-full text-left px-3 py-2 text-sm text-red-600 hover:bg-red-50 flex items-center gap-2 transition-colors disabled:opacity-50"
+                    >
+                      {deletingId === u.id ? (
+                        <Loader2 size={14} className="animate-spin" />
+                      ) : (
+                        <Trash2 size={14} />
+                      )}
+                      Hapus
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             <div className="flex items-center gap-2 mb-4">
@@ -383,10 +512,10 @@ export default function UsersPage() {
             <Users size={32} className="text-gray-300" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Belum Ada User
+            Belum Ada Pengguna
           </h3>
           <p className="text-sm text-gray-400">
-            Klik tombol &quot;Tambah User&quot; untuk menambahkan pengguna baru
+            Klik tombol &quot;Tambah Pengguna&quot; untuk menambahkan pengguna baru
           </p>
         </div>
       )}

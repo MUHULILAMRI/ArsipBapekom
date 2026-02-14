@@ -166,7 +166,7 @@ function StorageContent() {
     return (
       <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
         <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Memuat konfigurasi storage...</p>
+        <p className="text-gray-400 text-sm">Memuat konfigurasi penyimpanan...</p>
       </div>
     );
   }
@@ -183,8 +183,8 @@ function StorageContent() {
             <HardDrive size={20} className="text-violet-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Storage</h1>
-            <p className="text-gray-400 text-sm mt-0.5">Konfigurasi & pemantauan cloud storage</p>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Penyimpanan</h1>
+            <p className="text-gray-400 text-sm mt-0.5">Konfigurasi & pemantauan penyimpanan awan</p>
           </div>
         </div>
 
@@ -308,11 +308,11 @@ function StorageContent() {
               {storageInfo?.storage.google.connected ? (
                 <>
                   <p className="text-sm font-bold text-gray-900">
-                    {storageInfo.storage.google.isExpired ? "Kadaluarsa" : "Valid"}
+                    {storageInfo.storage.google.isExpired ? "Kadaluarsa" : "Aktif"}
                   </p>
                   {storageInfo.storage.google.expiresAt && (
                     <p className="text-xs text-gray-400 mt-1">
-                      {storageInfo.storage.google.isExpired ? "Expired" : "Berlaku"} hingga{" "}
+                      {storageInfo.storage.google.isExpired ? "Kadaluarsa" : "Berlaku"} hingga{" "}
                       {format(new Date(storageInfo.storage.google.expiresAt), "dd MMM yyyy HH:mm", {
                         locale: idLocale,
                       })}
@@ -337,12 +337,12 @@ function StorageContent() {
 
           {/* Upload Trend Chart + Division Breakdown */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            {/* Upload Trend */}
+            {/* Tren Unggah */}
             <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                   <TrendingUp size={16} className="text-blue-500" />
-                  Tren Upload 6 Bulan Terakhir
+                  Tren Unggah 6 Bulan Terakhir
                 </h2>
               </div>
               {infoLoading ? (
@@ -438,11 +438,11 @@ function StorageContent() {
             </div>
           </div>
 
-          {/* Recent Uploads */}
+          {/* Unggahan Terbaru */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Clock size={16} className="text-blue-500" />
-              Upload Terbaru
+              Unggahan Terbaru
             </h2>
             {infoLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -453,7 +453,7 @@ function StorageContent() {
                 <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                   <FileText size={24} className="text-gray-300" />
                 </div>
-                <p className="text-gray-400 text-sm font-medium">Belum ada file yang diupload</p>
+                <p className="text-gray-400 text-sm font-medium">Belum ada file yang diunggah</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
@@ -491,7 +491,7 @@ function StorageContent() {
       {/* ─── CONFIG TAB ─── */}
       {activeTab === "config" && (
         <div className="space-y-6">
-          {/* Storage Cards */}
+          {/* Kartu Penyimpanan */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Google Drive Card */}
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden group hover:shadow-md transition-all hover:border-gray-200">
@@ -531,7 +531,7 @@ function StorageContent() {
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Zap size={14} className="text-blue-400" />
-                    <span>Upload cepat & reliable</span>
+                    <span>Unggah cepat & andal</span>
                   </div>
                 </div>
 
@@ -681,7 +681,7 @@ export default function StoragePage() {
       fallback={
         <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
           <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-          <p className="text-gray-400 text-sm">Memuat konfigurasi storage...</p>
+          <p className="text-gray-400 text-sm">Memuat konfigurasi penyimpanan...</p>
         </div>
       }
     >

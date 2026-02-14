@@ -7,14 +7,30 @@ datasource db {
 }
 
 model User {
+  id            String         @id @default(uuid())
+  name          String
+  email         String         @unique
+  password      String
+  role          Role           @default(USER)
+  division      Division
+  profileImage  String?        @db.Text
+  archives      Archive[]
+  notifications Notification[]
+  createdAt     DateTime       @default(now())
+}
+
+model Notification {
   id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  password  String
-  role      Role     @default(USER)
-  division  Division
-  archives  Archive[]
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  type      String   // ARCHIVE_CREATED, ARCHIVE_UPDATED, ARCHIVE_DELETED, INFO
+  title     String
+  message   String
+  isRead    Boolean  @default(false)
+  link      String?
   createdAt DateTime @default(now())
+
+  @@index([userId, isRead])
 }
 
 model Archive {

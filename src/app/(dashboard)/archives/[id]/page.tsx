@@ -217,7 +217,7 @@ export default function ArchiveDetailPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all shadow-md shadow-amber-200 hover:shadow-lg hover:shadow-amber-300"
             >
               <Edit3 size={16} />
-              <span>Edit</span>
+              <span>Sunting</span>
             </Link>
             <a
               href={archive.fileUrl}
@@ -226,7 +226,7 @@ export default function ArchiveDetailPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
             >
               <Download size={16} />
-              <span>Download</span>
+              <span>Unduh</span>
             </a>
             <button
               onClick={handleDelete}

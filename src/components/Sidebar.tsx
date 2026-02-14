@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
 import {
@@ -17,6 +18,7 @@ import {
   ClipboardList,
   Shield,
   FolderOpen,
+  UserCircle,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -25,16 +27,17 @@ const navigation = [
   { name: "Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Jelajahi Arsip", href: "/archives/browse", icon: FolderOpen, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Analisis", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Kelola User", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
+  { name: "Profil Saya", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Kelola Pengguna", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
   { name: "Log Aktivitas", href: "/admin/activity", icon: ClipboardList, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
   { name: "Hak Akses", href: "/admin/roles", icon: Shield, roles: ["SUPER_ADMIN"], group: "admin" },
-  { name: "Storage", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
+  { name: "Penyimpanan", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
 ];
 
 const roleLabels: Record<string, string> = {
   SUPER_ADMIN: "Super Admin",
   ADMIN: "Admin",
-  USER: "Staff",
+  USER: "Staf",
 };
 
 const divisionLabels: Record<string, string> = {
@@ -76,8 +79,8 @@ export default function Sidebar() {
 
           {/* Logo */}
           <div className="relative flex items-center gap-3 px-6 py-6">
-            <div className="flex items-center justify-center w-11 h-11 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl shadow-lg shadow-blue-500/20">
-              <Archive className="text-white" size={22} />
+            <div className="flex items-center justify-center w-11 h-11 bg-white rounded-xl shadow-lg shadow-blue-500/20 overflow-hidden">
+              <Image src="/pu-logo-png_seeklogo-355609.png" alt="Logo" width={32} height={32} className="object-contain" />
             </div>
             <div>
               <span className="text-lg font-bold text-white tracking-tight">
@@ -86,7 +89,7 @@ export default function Sidebar() {
               <div className="flex items-center gap-1 mt-0.5">
                 <Sparkles size={10} className="text-blue-400" />
                 <span className="text-[10px] font-medium text-blue-400/70 uppercase tracking-widest">
-                  Digital Archive
+                  Arsip Digital
                 </span>
               </div>
             </div>

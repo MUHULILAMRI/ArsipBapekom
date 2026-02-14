@@ -520,7 +520,7 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
             <Link
               href={`/archives/${archive.id}/edit`}
               className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-              title="Edit"
+              title="Sunting"
             >
               <Edit3 size={16} />
             </Link>
@@ -529,7 +529,7 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-              title="Download"
+              title="Unduh"
             >
               <Download size={16} />
             </a>

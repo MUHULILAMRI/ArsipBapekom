@@ -193,7 +193,7 @@ export default function ArchiveTable({
             <Link
               href={`/archives/${info.row.original.id}/edit`}
               className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-              title="Edit"
+              title="Sunting"
             >
               <Edit3 size={16} />
             </Link>
@@ -202,7 +202,7 @@ export default function ArchiveTable({
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-              title="Download"
+              title="Unduh"
             >
               <Download size={16} />
             </a>
@@ -309,7 +309,7 @@ export default function ArchiveTable({
             className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
           >
             <X size={12} />
-            Reset
+            Atur Ulang
           </button>
         )}
       </div>

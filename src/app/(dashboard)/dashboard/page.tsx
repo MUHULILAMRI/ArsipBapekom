@@ -91,12 +91,12 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-              Online
+              Daring
             </span>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-          Selamat datang, {user?.name || "User"} 👋
+          Selamat datang, {user?.name || "Pengguna"} 👋
         </h1>
         <p className="text-gray-500 mt-1">
           Pantau aktivitas pengarsipan dokumen Anda hari ini
@@ -147,7 +147,7 @@ export default async function DashboardPage() {
               </div>
               <div className="flex-1">
                 <p className="text-sm font-semibold text-gray-900">Tambah Arsip Baru</p>
-                <p className="text-xs text-gray-400 mt-0.5">Upload dokumen ke cloud storage</p>
+                <p className="text-xs text-gray-400 mt-0.5">Unggah dokumen ke penyimpanan awan</p>
               </div>
               <ArrowUpRight size={16} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
             </Link>
