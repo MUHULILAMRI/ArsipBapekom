@@ -2,6 +2,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "../../../lib/auth";
 import { prisma } from "../../../lib/prisma";
 import DashboardCard from "../../../components/DashboardCard";
+import { DashboardSkeleton } from "../../../components/Skeletons";
 import {
   Archive,
   Wallet,
@@ -19,10 +20,19 @@ import {
   Plus,
 } from "lucide-react";
 import { format, subDays } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 import Link from "next/link";
+import { Suspense } from "react";
 
-export default async function DashboardPage() {
+export default function DashboardPage() {
+  return (
+    <Suspense fallback={<DashboardSkeleton />}>
+      <DashboardContent />
+    </Suspense>
+  );
+}
+
+async function DashboardContent() {
   const session = await getServerSession(authOptions);
   const user = session?.user as any;
 
@@ -43,7 +53,7 @@ export default async function DashboardPage() {
 
   const cards = [
     {
-      title: "Total Arsip",
+      title: "Total Archives",
       value: total,
       icon: Archive,
       color: "text-blue-600",
@@ -51,7 +61,7 @@ export default async function DashboardPage() {
       gradient: "from-blue-500 to-cyan-500",
     },
     {
-      title: "Arsip Aktif",
+      title: "Active Archives",
       value: activeCount,
       icon: CheckCircle2,
       color: "text-emerald-600",
@@ -59,7 +69,7 @@ export default async function DashboardPage() {
       gradient: "from-emerald-500 to-teal-500",
     },
     {
-      title: "Arsip Inaktif",
+      title: "Inactive Archives",
       value: inactiveCount,
       icon: XCircle,
       color: "text-orange-600",
@@ -67,7 +77,7 @@ export default async function DashboardPage() {
       gradient: "from-orange-500 to-amber-500",
     },
     {
-      title: "Minggu Ini",
+      title: "This Week",
       value: recentWeek,
       icon: TrendingUp,
       color: "text-violet-600",
@@ -91,15 +101,15 @@ export default async function DashboardPage() {
           <div className="flex items-center gap-2">
             <div className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
             <span className="text-xs font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">
-              Daring
+              Online
             </span>
           </div>
         </div>
         <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-          Selamat datang, {user?.name || "Pengguna"} 👋
+          Welcome, {user?.name || "User"} 👋
         </h1>
         <p className="text-gray-500 mt-1">
-          Pantau aktivitas pengarsipan dokumen Anda hari ini
+          Monitor your document archiving activity today
         </p>
       </div>
 
@@ -135,7 +145,7 @@ export default async function DashboardPage() {
         <div className="animate-fade-in-up" style={{ animationDelay: "0.3s" }}>
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Zap size={20} className="text-amber-500" />
-            Akses Cepat
+            Quick Access
           </h2>
           <div className="space-y-3">
             <Link
@@ -146,8 +156,8 @@ export default async function DashboardPage() {
                 <Plus size={20} className="text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">Tambah Arsip Baru</p>
-                <p className="text-xs text-gray-400 mt-0.5">Unggah dokumen ke penyimpanan awan</p>
+                <p className="text-sm font-semibold text-gray-900">Add New Archive</p>
+                <p className="text-xs text-gray-400 mt-0.5">Upload documents to cloud storage</p>
               </div>
               <ArrowUpRight size={16} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
             </Link>
@@ -160,8 +170,8 @@ export default async function DashboardPage() {
                 <CheckCircle2 size={20} className="text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">Arsip Aktif</p>
-                <p className="text-xs text-gray-400 mt-0.5">{activeCount} dokumen aktif</p>
+                <p className="text-sm font-semibold text-gray-900">Active Archives</p>
+                <p className="text-xs text-gray-400 mt-0.5">{activeCount} active documents</p>
               </div>
               <ArrowUpRight size={16} className="text-gray-300 group-hover:text-emerald-500 transition-colors" />
             </Link>
@@ -174,8 +184,8 @@ export default async function DashboardPage() {
                 <XCircle size={20} className="text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">Arsip Inaktif</p>
-                <p className="text-xs text-gray-400 mt-0.5">{inactiveCount} dokumen inaktif</p>
+                <p className="text-sm font-semibold text-gray-900">Inactive Archives</p>
+                <p className="text-xs text-gray-400 mt-0.5">{inactiveCount} inactive documents</p>
               </div>
               <ArrowUpRight size={16} className="text-gray-300 group-hover:text-orange-500 transition-colors" />
             </Link>
@@ -188,8 +198,8 @@ export default async function DashboardPage() {
                 <BarChart3 size={20} className="text-white" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-semibold text-gray-900">Lihat Analisis</p>
-                <p className="text-xs text-gray-400 mt-0.5">Statistik & tren lengkap</p>
+                <p className="text-sm font-semibold text-gray-900">View Analytics</p>
+                <p className="text-xs text-gray-400 mt-0.5">Full statistics & trends</p>
               </div>
               <ArrowUpRight size={16} className="text-gray-300 group-hover:text-violet-500 transition-colors" />
             </Link>
@@ -200,7 +210,7 @@ export default async function DashboardPage() {
         <div className="animate-fade-in-up" style={{ animationDelay: "0.35s" }}>
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <BarChart3 size={20} className="text-blue-500" />
-            Ringkasan Status
+            Status Overview
           </h2>
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm h-[calc(100%-44px)]">
             {/* Status Bars */}
@@ -209,7 +219,7 @@ export default async function DashboardPage() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-emerald-500 rounded-full" />
-                    <span className="text-sm font-medium text-gray-700">Arsip Aktif</span>
+                    <span className="text-sm font-medium text-gray-700">Active Archives</span>
                   </div>
                   <span className="text-sm font-bold text-gray-900">{activeCount}</span>
                 </div>
@@ -225,7 +235,7 @@ export default async function DashboardPage() {
                 <div className="flex items-center justify-between mb-2">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-orange-500 rounded-full" />
-                    <span className="text-sm font-medium text-gray-700">Arsip Inaktif</span>
+                    <span className="text-sm font-medium text-gray-700">Inactive Archives</span>
                   </div>
                   <span className="text-sm font-bold text-gray-900">{inactiveCount}</span>
                 </div>
@@ -245,7 +255,7 @@ export default async function DashboardPage() {
                   {total > 0 ? Math.round((activeCount / total) * 100) : 0}%
                 </p>
                 <p className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide mt-0.5">
-                  Aktif
+                  Active
                 </p>
               </div>
               <div className="text-center p-4 bg-orange-50 rounded-xl">
@@ -253,14 +263,14 @@ export default async function DashboardPage() {
                   {total > 0 ? Math.round((inactiveCount / total) * 100) : 0}%
                 </p>
                 <p className="text-[10px] text-orange-600 font-medium uppercase tracking-wide mt-0.5">
-                  Inaktif
+                  Inactive
                 </p>
               </div>
             </div>
 
             {/* Division mini-stats */}
             <div className="mt-6 pt-5 border-t border-gray-50">
-              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Per Divisi</p>
+              <p className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-3">Per Division</p>
               <div className="space-y-2">
                 {[
                   { name: "Keuangan", value: keuangan, color: "bg-emerald-500" },
@@ -285,7 +295,7 @@ export default async function DashboardPage() {
         <div className="animate-fade-in-up" style={{ animationDelay: "0.4s" }}>
           <h2 className="text-lg font-semibold text-gray-900 mb-4 flex items-center gap-2">
             <Clock size={20} className="text-blue-500" />
-            Arsip Terbaru
+            Recent Archives
           </h2>
           <RecentArchives />
         </div>
@@ -307,8 +317,8 @@ async function RecentArchives() {
         <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Archive size={28} className="text-gray-300" />
         </div>
-        <p className="text-gray-400 font-medium">Belum ada arsip</p>
-        <p className="text-gray-300 text-sm mt-1">Mulai dengan menambahkan arsip pertama Anda</p>
+        <p className="text-gray-400 font-medium">No archives yet</p>
+        <p className="text-gray-300 text-sm mt-1">Start by adding your first archive</p>
       </div>
     );
   }
@@ -339,12 +349,12 @@ async function RecentArchives() {
                   {archive.archiveNumber}
                 </span>
                 <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${statusColors[archive.status] || ""}`}>
-                  {archive.status === "AKTIF" ? "Aktif" : "Inaktif"}
+                  {archive.status === "AKTIF" ? "Active" : "Inactive"}
                 </span>
               </div>
               <p className="text-[11px] text-gray-400 mt-1">
                 {archive.user.name} &middot;{" "}
-                {format(new Date(archive.createdAt), "dd MMM yyyy", { locale: idLocale })}
+                {format(new Date(archive.createdAt), "dd MMM yyyy", { locale: enLocale })}
               </p>
             </div>
           </Link>
@@ -355,7 +365,7 @@ async function RecentArchives() {
           href="/archives"
           className="flex items-center justify-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700 transition-colors"
         >
-          Lihat Semua Arsip
+          View All Archives
           <ArrowUpRight size={12} />
         </Link>
       </div>

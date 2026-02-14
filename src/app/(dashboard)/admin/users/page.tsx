@@ -29,10 +29,10 @@ interface User {
 
 const ROLES = ["SUPER_ADMIN", "ADMIN", "USER"];
 const DIVISIONS = [
-  { value: "KEUANGAN", label: "Keuangan" },
-  { value: "PENYELENGGARA", label: "Penyelenggara" },
-  { value: "TATA_USAHA", label: "Tata Usaha" },
-  { value: "UMUM", label: "Umum" },
+  { value: "KEUANGAN", label: "Finance" },
+  { value: "PENYELENGGARA", label: "Operations" },
+  { value: "TATA_USAHA", label: "Administration" },
+  { value: "UMUM", label: "General" },
 ];
 
 const roleConfig: Record<string, { label: string; color: string; icon: string }> = {
@@ -47,7 +47,7 @@ const roleConfig: Record<string, { label: string; color: string; icon: string }>
     icon: "⚙️",
   },
   USER: {
-    label: "Staf",
+    label: "Staff",
     color: "bg-gray-50 text-gray-700 border-gray-200",
     icon: "👤",
   },
@@ -121,10 +121,10 @@ export default function UsersPage() {
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Gagal mengubah pengguna");
+          throw new Error(data.error || "Failed to update user");
         }
 
-        showToast("success", "Pengguna berhasil diperbarui");
+        showToast("success", "User updated successfully");
       } else {
         // Create user
         const res = await fetch("/api/users", {
@@ -135,10 +135,10 @@ export default function UsersPage() {
 
         if (!res.ok) {
           const data = await res.json();
-          throw new Error(data.error || "Gagal membuat pengguna");
+          throw new Error(data.error || "Failed to create user");
         }
 
-        showToast("success", "Pengguna berhasil ditambahkan");
+        showToast("success", "User added successfully");
       }
 
       setShowForm(false);
@@ -173,18 +173,18 @@ export default function UsersPage() {
   };
 
   const handleDelete = async (userId: string) => {
-    if (!confirm("Yakin ingin menghapus pengguna ini? Tindakan ini tidak dapat dibatalkan.")) return;
+    if (!confirm("Are you sure you want to delete this user? This action cannot be undone.")) return;
     setDeletingId(userId);
     try {
       const res = await fetch(`/api/users/${userId}`, { method: "DELETE" });
       if (!res.ok) {
         const data = await res.json();
-        throw new Error(data.error || "Gagal menghapus user");
+        throw new Error(data.error || "Failed to delete user");
       }
-      showToast("success", "Pengguna berhasil dihapus");
+      showToast("success", "User deleted successfully");
       fetchUsers();
     } catch (err: any) {
-      showToast("error", "Gagal menghapus pengguna", err.message);
+      showToast("error", "Failed to delete user", err.message);
     } finally {
       setDeletingId(null);
       setMenuOpenId(null);
@@ -208,7 +208,7 @@ export default function UsersPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
         <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Memuat data pengguna...</p>
+        <p className="text-gray-400 text-sm">Loading users...</p>
       </div>
     );
   }
@@ -223,10 +223,10 @@ export default function UsersPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Kelola Pengguna
+              Manage Users
             </h1>
             <p className="text-gray-400 text-sm mt-0.5">
-              {users.length} pengguna terdaftar
+              {users.length} registered users
             </p>
           </div>
         </div>
@@ -241,7 +241,7 @@ export default function UsersPage() {
           className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
         >
           {showForm ? <X size={16} /> : <UserPlus size={16} />}
-          {showForm ? "Batal" : "Tambah Pengguna"}
+          {showForm ? "Cancel" : "Add User"}
         </button>
       </div>
 
@@ -252,12 +252,12 @@ export default function UsersPage() {
             {editingUser ? (
               <>
                 <Pencil size={18} className="text-amber-600" />
-                Sunting Pengguna — {editingUser.name}
+                Edit User — {editingUser.name}
               </>
             ) : (
               <>
                 <UserPlus size={18} className="text-blue-600" />
-                Pengguna Baru
+                New User
               </>
             )}
           </h2>
@@ -273,14 +273,14 @@ export default function UsersPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Nama Lengkap
+                  Full Name
                 </label>
                 <input
                   type="text"
                   required
                   value={form.name}
                   onChange={(e) => setForm({ ...form, name: e.target.value })}
-                  placeholder="Masukkan nama..."
+                  placeholder="Enter name..."
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all"
                 />
               </div>
@@ -293,13 +293,13 @@ export default function UsersPage() {
                   required
                   value={form.email}
                   onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  placeholder="email@contoh.com"
+                  placeholder="email@example.com"
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Kata Sandi {editingUser && <span className="text-gray-400 font-normal">(kosongkan jika tidak diubah)</span>}
+                  Password {editingUser && <span className="text-gray-400 font-normal">(leave blank to keep current)</span>}
                 </label>
                 <input
                   type="password"
@@ -308,13 +308,13 @@ export default function UsersPage() {
                   onChange={(e) =>
                     setForm({ ...form, password: e.target.value })
                   }
-                  placeholder={editingUser ? "Kosongkan jika tidak diubah" : "Minimal 6 karakter"}
+                  placeholder={editingUser ? "Leave blank to keep current" : "Min. 6 characters"}
                   className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent focus:bg-white transition-all"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Peran
+                  Role
                 </label>
                 <select
                   value={form.role}
@@ -330,7 +330,7 @@ export default function UsersPage() {
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Divisi
+                  Division
                 </label>
                 <select
                   value={form.division}
@@ -355,12 +355,12 @@ export default function UsersPage() {
                   {saving ? (
                     <>
                       <Loader2 size={16} className="animate-spin" />
-                      Menyimpan...
+                      Saving...
                     </>
                   ) : (
                     <>
                       <Check size={16} />
-                      {editingUser ? "Simpan Perubahan" : "Simpan Pengguna"}
+                      {editingUser ? "Save Changes" : "Save User"}
                     </>
                   )}
                 </button>
@@ -379,7 +379,7 @@ export default function UsersPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{users.length}</p>
-          <p className="text-xs text-gray-400 mt-1">Total Pengguna</p>
+          <p className="text-xs text-gray-400 mt-1">Total Users</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
@@ -401,7 +401,7 @@ export default function UsersPage() {
           <p className="text-2xl font-bold text-gray-900">
             {new Set(users.map((u) => u.division)).size}
           </p>
-          <p className="text-xs text-gray-400 mt-1">Divisi Aktif</p>
+          <p className="text-xs text-gray-400 mt-1">Active Divisions</p>
         </div>
         <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
           <div className="flex items-center justify-between mb-3">
@@ -412,7 +412,7 @@ export default function UsersPage() {
           <p className="text-2xl font-bold text-gray-900">
             {users.reduce((sum, u) => sum + u._count.archives, 0)}
           </p>
-          <p className="text-xs text-gray-400 mt-1">Total Arsip</p>
+          <p className="text-xs text-gray-400 mt-1">Total Archives</p>
         </div>
       </div>
 
@@ -451,7 +451,7 @@ export default function UsersPage() {
                       className="w-full text-left px-3 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 flex items-center gap-2 transition-colors"
                     >
                       <Pencil size={14} />
-                      Sunting
+                      Edit
                     </button>
                     <button
                       onClick={() => handleDelete(u.id)}
@@ -463,7 +463,7 @@ export default function UsersPage() {
                       ) : (
                         <Trash2 size={14} />
                       )}
-                      Hapus
+                      Delete
                     </button>
                   </div>
                 )}
@@ -492,10 +492,10 @@ export default function UsersPage() {
             <div className="flex items-center justify-between pt-4 border-t border-gray-50">
               <div className="flex items-center gap-1.5 text-xs text-gray-400">
                 <Archive size={14} />
-                <span>{u._count.archives} arsip</span>
+                <span>{u._count.archives} archives</span>
               </div>
               <p className="text-xs text-gray-300">
-                {new Date(u.createdAt).toLocaleDateString("id-ID", {
+                {new Date(u.createdAt).toLocaleDateString("en-US", {
                   day: "numeric",
                   month: "short",
                   year: "numeric",
@@ -512,10 +512,10 @@ export default function UsersPage() {
             <Users size={32} className="text-gray-300" />
           </div>
           <h3 className="text-lg font-semibold text-gray-900 mb-1">
-            Belum Ada Pengguna
+            No Users Yet
           </h3>
           <p className="text-sm text-gray-400">
-            Klik tombol &quot;Tambah Pengguna&quot; untuk menambahkan pengguna baru
+            Click the &quot;Add User&quot; button to add a new user
           </p>
         </div>
       )}

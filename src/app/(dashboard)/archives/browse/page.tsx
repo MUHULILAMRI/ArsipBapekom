@@ -21,7 +21,7 @@ import {
   Download,
 } from "lucide-react";
 import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 
 interface Archive {
   id: string;
@@ -38,10 +38,10 @@ interface Archive {
 }
 
 const DIVISION_LABELS: Record<string, string> = {
-  KEUANGAN: "Keuangan",
-  PENYELENGGARA: "Penyelenggara",
-  TATA_USAHA: "Tata Usaha",
-  UMUM: "Umum",
+  KEUANGAN: "Finance",
+  PENYELENGGARA: "Operations",
+  TATA_USAHA: "Administration",
+  UMUM: "General",
 };
 
 const DIVISION_COLORS: Record<string, { bg: string; icon: string; border: string }> = {
@@ -157,11 +157,11 @@ export default function BrowseArchivesPage() {
 
   // Breadcrumb
   const breadcrumbs: { label: string; action: () => void }[] = [
-    { label: "Arsip", action: () => navigateTo("root") },
+    { label: "Archives", action: () => navigateTo("root") },
   ];
   if (selectedStatus) {
     breadcrumbs.push({
-      label: selectedStatus === "AKTIF" ? "Aktif" : "Inaktif",
+      label: selectedStatus === "AKTIF" ? "Active" : "Inactive",
       action: () => {
         setLevel("status");
         setSelectedDivision("");
@@ -189,7 +189,7 @@ export default function BrowseArchivesPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
         <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Memuat data arsip...</p>
+        <p className="text-gray-400 text-sm">Loading archives...</p>
       </div>
     );
   }
@@ -204,11 +204,11 @@ export default function BrowseArchivesPage() {
               <Folder size={20} className="text-indigo-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Jelajahi Arsip
+              Browse Archives
             </h1>
           </div>
           <p className="text-gray-500 mt-1 ml-12">
-            Telusuri arsip berdasarkan kategori, divisi, dan tahun
+            Browse archives by category, division, and year
           </p>
         </div>
         <Link
@@ -216,7 +216,7 @@ export default function BrowseArchivesPage() {
           className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
         >
           <Plus size={18} />
-          Tambah Arsip
+          Add Archive
         </Link>
       </div>
 
@@ -252,7 +252,7 @@ export default function BrowseArchivesPage() {
           className="flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 mb-4 transition-colors"
         >
           <ArrowLeft size={16} />
-          Kembali
+          Back
         </button>
       )}
 
@@ -294,8 +294,8 @@ function StatusFolders({
   const folders = [
     {
       key: "AKTIF",
-      label: "Arsip Aktif",
-      description: "Dokumen yang masih berlaku dan digunakan",
+      label: "Active Archives",
+      description: "Documents that are still valid and in use",
       icon: CheckCircle2,
       gradient: "from-emerald-500 to-teal-600",
       bgHover: "hover:border-emerald-300 hover:bg-emerald-50/30",
@@ -305,8 +305,8 @@ function StatusFolders({
     },
     {
       key: "INAKTIF",
-      label: "Arsip Inaktif",
-      description: "Dokumen yang sudah tidak aktif atau kadaluarsa",
+      label: "Inactive Archives",
+      description: "Documents that are no longer active or expired",
       icon: XCircle,
       gradient: "from-orange-500 to-amber-600",
       bgHover: "hover:border-orange-300 hover:bg-orange-50/30",
@@ -335,7 +335,7 @@ function StatusFolders({
               <div className="flex items-center gap-3 mb-1">
                 <h3 className="text-lg font-bold text-gray-900">{folder.label}</h3>
                 <span className={`text-xs font-bold px-2.5 py-1 rounded-lg ${folder.countBg}`}>
-                  {count} arsip
+                  {count} archives
                 </span>
               </div>
               <p className="text-sm text-gray-400">{folder.description}</p>
@@ -369,7 +369,7 @@ function DivisionFolders({
         <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Folder size={28} className="text-gray-300" />
         </div>
-        <p className="text-gray-400 font-medium">Tidak ada data untuk kategori ini</p>
+        <p className="text-gray-400 font-medium">No data for this category</p>
       </div>
     );
   }
@@ -402,7 +402,7 @@ function DivisionFolders({
               <h3 className="text-sm font-bold text-gray-900">
                 {DIVISION_LABELS[division]}
               </h3>
-              <p className="text-xs text-gray-400 mt-1">{count} arsip</p>
+              <p className="text-xs text-gray-400 mt-1">{count} archives</p>
             </div>
           </button>
         );
@@ -427,7 +427,7 @@ function YearFolders({
         <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <Calendar size={28} className="text-gray-300" />
         </div>
-        <p className="text-gray-400 font-medium">Tidak ada arsip di divisi ini</p>
+        <p className="text-gray-400 font-medium">No archives in this division</p>
       </div>
     );
   }
@@ -448,7 +448,7 @@ function YearFolders({
             </div>
             <div>
               <h3 className="text-lg font-bold text-gray-900">{year}</h3>
-              <p className="text-xs text-gray-400 mt-0.5">{count} arsip</p>
+              <p className="text-xs text-gray-400 mt-0.5">{count} archives</p>
             </div>
           </button>
         );
@@ -465,7 +465,7 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
         <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
           <FileText size={28} className="text-gray-300" />
         </div>
-        <p className="text-gray-400 font-medium">Tidak ada arsip</p>
+        <p className="text-gray-400 font-medium">No archives</p>
       </div>
     );
   }
@@ -473,7 +473,7 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
   return (
     <div className="space-y-3">
       <p className="text-sm text-gray-400 font-medium mb-4">
-        {archives.length} dokumen ditemukan
+        {archives.length} documents found
       </p>
       {archives.map((archive, index) => (
         <div
@@ -497,7 +497,7 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
               </span>
               <span className="text-[10px] text-gray-300">&middot;</span>
               <span className="text-[10px] text-gray-400">
-                {format(new Date(archive.date), "dd MMM yyyy", { locale: idLocale })}
+                {format(new Date(archive.date), "dd MMM yyyy", { locale: enLocale })}
               </span>
               {archive.user && (
                 <>
@@ -513,14 +513,14 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
             <Link
               href={`/archives/${archive.id}`}
               className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-              title="Lihat Detail"
+              title="View Details"
             >
               <Eye size={16} />
             </Link>
             <Link
               href={`/archives/${archive.id}/edit`}
               className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-              title="Sunting"
+              title="Edit"
             >
               <Edit3 size={16} />
             </Link>
@@ -529,7 +529,7 @@ function ArchiveList({ archives }: { archives: Archive[] }) {
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-              title="Unduh"
+              title="Download"
             >
               <Download size={16} />
             </a>

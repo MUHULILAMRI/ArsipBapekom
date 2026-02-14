@@ -7,7 +7,7 @@ import bcrypt from "bcryptjs";
 export async function GET() {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) {
-    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const user = await prisma.user.findUnique({
@@ -25,7 +25,7 @@ export async function GET() {
   });
 
   if (!user) {
-    return NextResponse.json({ error: "Pengguna tidak ditemukan" }, { status: 404 });
+    return NextResponse.json({ error: "User not found" }, { status: 404 });
   }
 
   return NextResponse.json(user);
@@ -35,7 +35,7 @@ export async function GET() {
 export async function PATCH(req: Request) {
   const sessionUser = await getCurrentUser();
   if (!sessionUser) {
-    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const body = await req.json();
@@ -57,7 +57,7 @@ export async function PATCH(req: Request) {
     });
     if (existing) {
       return NextResponse.json(
-        { error: "Email sudah digunakan oleh pengguna lain" },
+        { error: "Email is already used by another user" },
         { status: 400 }
       );
     }
@@ -69,7 +69,7 @@ export async function PATCH(req: Request) {
     const validDivisions = ["KEUANGAN", "PENYELENGGARA", "TATA_USAHA", "UMUM"];
     if (!validDivisions.includes(division)) {
       return NextResponse.json(
-        { error: "Divisi tidak valid" },
+        { error: "Invalid division" },
         { status: 400 }
       );
     }
@@ -102,7 +102,7 @@ export async function PATCH(req: Request) {
   if (currentPassword && newPassword) {
     if (newPassword.length < 6) {
       return NextResponse.json(
-        { error: "Kata sandi baru minimal 6 karakter" },
+        { error: "New password must be at least 6 characters" },
         { status: 400 }
       );
     }
@@ -111,13 +111,13 @@ export async function PATCH(req: Request) {
       where: { id: sessionUser.id },
     });
     if (!user) {
-      return NextResponse.json({ error: "Pengguna tidak ditemukan" }, { status: 404 });
+      return NextResponse.json({ error: "User not found" }, { status: 404 });
     }
 
     const isValid = await bcrypt.compare(currentPassword, user.password);
     if (!isValid) {
       return NextResponse.json(
-        { error: "Kata sandi saat ini salah" },
+        { error: "Current password is incorrect" },
         { status: 400 }
       );
     }
@@ -127,7 +127,7 @@ export async function PATCH(req: Request) {
 
   if (Object.keys(updateData).length === 0) {
     return NextResponse.json(
-      { error: "Tidak ada data yang diubah" },
+      { error: "No data was changed" },
       { status: 400 }
     );
   }

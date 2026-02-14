@@ -30,7 +30,7 @@ export default function DashboardCard({
           </p>
           <div className="flex items-center gap-1.5 mt-2">
             <div className={`w-1.5 h-1.5 rounded-full ${bgColor}`} />
-            <span className="text-xs text-gray-400">dokumen</span>
+            <span className="text-xs text-gray-400">documents</span>
           </div>
         </div>
         <div className={`p-3 rounded-2xl ${bgColor} group-hover:scale-110 transition-transform duration-300`}>

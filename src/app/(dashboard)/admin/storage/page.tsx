@@ -26,7 +26,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 
 interface StorageStatus {
   google: boolean;
@@ -62,10 +62,10 @@ interface StorageInfo {
 }
 
 const DIVISION_LABELS: Record<string, string> = {
-  KEUANGAN: "Keuangan",
-  PENYELENGGARA: "Penyelenggara",
-  TATA_USAHA: "Tata Usaha",
-  UMUM: "Umum",
+  KEUANGAN: "Finance",
+  PENYELENGGARA: "Operations",
+  TATA_USAHA: "Administration",
+  UMUM: "General",
 };
 
 const DIVISION_COLORS: Record<string, string> = {
@@ -76,8 +76,8 @@ const DIVISION_COLORS: Record<string, string> = {
 };
 
 const MONTH_NAMES = [
-  "Jan", "Feb", "Mar", "Apr", "Mei", "Jun",
-  "Jul", "Agu", "Sep", "Okt", "Nov", "Des",
+  "Jan", "Feb", "Mar", "Apr", "May", "Jun",
+  "Jul", "Aug", "Sep", "Oct", "Nov", "Dec",
 ];
 
 function getMonthlyChartData(monthlyUploads: Record<string, number>) {
@@ -109,11 +109,11 @@ function StorageContent() {
     const error = searchParams.get("error");
 
     if (connected === "google") {
-      setMessage({ type: "success", text: "Google Drive berhasil terhubung!" });
+      setMessage({ type: "success", text: "Google Drive connected successfully!" });
       setStatus((prev) => ({ ...prev, google: true }));
     }
     if (error) {
-      setMessage({ type: "error", text: `Gagal menghubungkan: ${error}` });
+      setMessage({ type: "error", text: `Failed to connect: ${error}` });
     }
 
     setLoading(false);
@@ -166,7 +166,7 @@ function StorageContent() {
     return (
       <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
         <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Memuat konfigurasi penyimpanan...</p>
+        <p className="text-gray-400 text-sm">Loading storage configuration...</p>
       </div>
     );
   }
@@ -183,8 +183,8 @@ function StorageContent() {
             <HardDrive size={20} className="text-violet-600" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Penyimpanan</h1>
-            <p className="text-gray-400 text-sm mt-0.5">Konfigurasi & pemantauan penyimpanan awan</p>
+            <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Storage</h1>
+            <p className="text-gray-400 text-sm mt-0.5">Cloud storage configuration & monitoring</p>
           </div>
         </div>
 
@@ -199,7 +199,7 @@ function StorageContent() {
             }`}
           >
             <Activity size={15} />
-            Pemantauan
+            Monitoring
           </button>
           <button
             onClick={() => setActiveTab("config")}
@@ -210,7 +210,7 @@ function StorageContent() {
             }`}
           >
             <Settings size={15} />
-            Konfigurasi
+            Configuration
           </button>
         </div>
       </div>
@@ -242,7 +242,7 @@ function StorageContent() {
             <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Status Koneksi
+                  Connection Status
                 </span>
                 {status.google ? (
                   <Wifi size={16} className="text-emerald-500" />
@@ -258,7 +258,7 @@ function StorageContent() {
                 />
                 <div>
                   <p className="text-sm font-bold text-gray-900">
-                    {status.google ? "Terhubung" : "Tidak Terhubung"}
+                    {status.google ? "Connected" : "Not Connected"}
                   </p>
                   <p className="text-xs text-gray-400">Google Drive</p>
                 </div>
@@ -266,9 +266,9 @@ function StorageContent() {
               {storageInfo?.storage.google.connected &&
                 storageInfo.storage.google.connectedSince && (
                   <p className="text-[10px] text-gray-400 mt-3">
-                    Terhubung sejak{" "}
+                    Connected since{" "}
                     {format(new Date(storageInfo.storage.google.connectedSince), "dd MMM yyyy", {
-                      locale: idLocale,
+                      locale: enLocale,
                     })}
                   </p>
                 )}
@@ -278,14 +278,14 @@ function StorageContent() {
             <div className="bg-white rounded-2xl border border-gray-100 p-5 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                  Total File
+                  Total Files
                 </span>
                 <Database size={16} className="text-blue-500" />
               </div>
               <p className="text-3xl font-bold text-gray-900">
                 {infoLoading ? "..." : storageInfo?.stats.totalFiles || 0}
               </p>
-              <p className="text-xs text-gray-400 mt-1">dokumen tersimpan</p>
+              <p className="text-xs text-gray-400 mt-1">documents stored</p>
             </div>
 
             {/* Token Status */}
@@ -308,29 +308,29 @@ function StorageContent() {
               {storageInfo?.storage.google.connected ? (
                 <>
                   <p className="text-sm font-bold text-gray-900">
-                    {storageInfo.storage.google.isExpired ? "Kadaluarsa" : "Aktif"}
+                    {storageInfo.storage.google.isExpired ? "Expired" : "Active"}
                   </p>
                   {storageInfo.storage.google.expiresAt && (
                     <p className="text-xs text-gray-400 mt-1">
-                      {storageInfo.storage.google.isExpired ? "Kadaluarsa" : "Berlaku"} hingga{" "}
+                      {storageInfo.storage.google.isExpired ? "Expired" : "Valid"} until{" "}
                       {format(new Date(storageInfo.storage.google.expiresAt), "dd MMM yyyy HH:mm", {
-                        locale: idLocale,
+                        locale: enLocale,
                       })}
                     </p>
                   )}
                   {storageInfo.storage.google.lastUpdated && (
                     <p className="text-[10px] text-gray-400 mt-1">
-                      Terakhir diperbarui:{" "}
+                      Last updated:{" "}
                       {format(
                         new Date(storageInfo.storage.google.lastUpdated),
                         "dd MMM yyyy HH:mm",
-                        { locale: idLocale }
+                        { locale: enLocale }
                       )}
                     </p>
                   )}
                 </>
               ) : (
-                <p className="text-sm font-medium text-gray-400">Belum dikonfigurasi</p>
+                <p className="text-sm font-medium text-gray-400">Not configured</p>
               )}
             </div>
           </div>
@@ -342,7 +342,7 @@ function StorageContent() {
               <div className="flex items-center justify-between mb-6">
                 <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
                   <TrendingUp size={16} className="text-blue-500" />
-                  Tren Unggah 6 Bulan Terakhir
+                  Upload Trend - Last 6 Months
                 </h2>
               </div>
               {infoLoading ? (
@@ -371,7 +371,7 @@ function StorageContent() {
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <h2 className="text-sm font-semibold text-gray-900 mb-5 flex items-center gap-2">
                 <BarChart3 size={16} className="text-violet-500" />
-                Per Divisi
+                By Division
               </h2>
               {infoLoading ? (
                 <div className="flex items-center justify-center py-16">
@@ -427,7 +427,7 @@ function StorageContent() {
                               s.status === "AKTIF" ? "text-emerald-600" : "text-orange-600"
                             }`}
                           >
-                            {s.status === "AKTIF" ? "Aktif" : "Inaktif"}
+                            {s.status === "AKTIF" ? "Active" : "Inactive"}
                           </p>
                         </div>
                       ))}
@@ -442,7 +442,7 @@ function StorageContent() {
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-gray-900 mb-4 flex items-center gap-2">
               <Clock size={16} className="text-blue-500" />
-              Unggahan Terbaru
+              Recent Uploads
             </h2>
             {infoLoading ? (
               <div className="flex items-center justify-center py-12">
@@ -453,7 +453,7 @@ function StorageContent() {
                 <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-3">
                   <FileText size={24} className="text-gray-300" />
                 </div>
-                <p className="text-gray-400 text-sm font-medium">Belum ada file yang diunggah</p>
+                <p className="text-gray-400 text-sm font-medium">No files uploaded yet</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
@@ -468,7 +468,7 @@ function StorageContent() {
                         {upload.user.name} &middot;{" "}
                         {DIVISION_LABELS[upload.division] || upload.division} &middot;{" "}
                         {format(new Date(upload.createdAt), "dd MMM yyyy HH:mm", {
-                          locale: idLocale,
+                          locale: enLocale,
                         })}
                       </p>
                     </div>
@@ -502,7 +502,7 @@ function StorageContent() {
                   </div>
                   <div className="flex-1">
                     <h2 className="text-lg font-semibold text-gray-900">Google Drive</h2>
-                    <p className="text-sm text-gray-400">Simpan file arsip ke Google Drive</p>
+                    <p className="text-sm text-gray-400">Store archive files to Google Drive</p>
                   </div>
                 </div>
 
@@ -510,12 +510,12 @@ function StorageContent() {
                   {status.google ? (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                      <span className="text-sm text-emerald-700 font-medium">Terhubung</span>
+                      <span className="text-sm text-emerald-700 font-medium">Connected</span>
                     </div>
                   ) : (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl">
                       <div className="w-2 h-2 bg-gray-300 rounded-full" />
-                      <span className="text-sm text-gray-500">Belum terhubung</span>
+                      <span className="text-sm text-gray-500">Not connected</span>
                     </div>
                   )}
                 </div>
@@ -523,15 +523,15 @@ function StorageContent() {
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <FolderSync size={14} className="text-blue-400" />
-                    <span>Auto-organisasi folder per divisi</span>
+                    <span>Auto-organize folders by division</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <ShieldCheck size={14} className="text-blue-400" />
-                    <span>Enkripsi & keamanan Google</span>
+                    <span>Google encryption & security</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Zap size={14} className="text-blue-400" />
-                    <span>Unggah cepat & andal</span>
+                    <span>Fast & reliable upload</span>
                   </div>
                 </div>
 
@@ -546,15 +546,15 @@ function StorageContent() {
                 >
                   {connecting === "google" ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> Menghubungkan...
+                      <Loader2 size={16} className="animate-spin" /> Connecting...
                     </>
                   ) : status.google ? (
                     <>
-                      <RefreshCw size={16} /> Hubungkan Ulang
+                      <RefreshCw size={16} /> Reconnect
                     </>
                   ) : (
                     <>
-                      <ExternalLink size={16} /> Hubungkan Google Account
+                      <ExternalLink size={16} /> Connect Google Account
                     </>
                   )}
                 </button>
@@ -571,7 +571,7 @@ function StorageContent() {
                   <div className="flex-1">
                     <h2 className="text-lg font-semibold text-gray-900">OneDrive</h2>
                     <p className="text-sm text-gray-400">
-                      Simpan file arsip ke Microsoft OneDrive
+                      Store archive files to Microsoft OneDrive
                     </p>
                   </div>
                 </div>
@@ -580,12 +580,12 @@ function StorageContent() {
                   {status.onedrive ? (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-emerald-50 border border-emerald-200 rounded-xl">
                       <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                      <span className="text-sm text-emerald-700 font-medium">Terhubung</span>
+                      <span className="text-sm text-emerald-700 font-medium">Connected</span>
                     </div>
                   ) : (
                     <div className="inline-flex items-center gap-2 px-3 py-1.5 bg-gray-50 border border-gray-200 rounded-xl">
                       <div className="w-2 h-2 bg-gray-300 rounded-full" />
-                      <span className="text-sm text-gray-500">Belum terhubung</span>
+                      <span className="text-sm text-gray-500">Not connected</span>
                     </div>
                   )}
                 </div>
@@ -593,15 +593,15 @@ function StorageContent() {
                 <div className="space-y-2 mb-6">
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <FolderSync size={14} className="text-sky-400" />
-                    <span>Sinkronisasi otomatis</span>
+                    <span>Automatic synchronization</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <ShieldCheck size={14} className="text-sky-400" />
-                    <span>Keamanan Microsoft 365</span>
+                    <span>Microsoft 365 security</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-gray-500">
                     <Zap size={14} className="text-sky-400" />
-                    <span>Integrasi Office 365</span>
+                    <span>Office 365 integration</span>
                   </div>
                 </div>
 
@@ -616,15 +616,15 @@ function StorageContent() {
                 >
                   {connecting === "onedrive" ? (
                     <>
-                      <Loader2 size={16} className="animate-spin" /> Menghubungkan...
+                      <Loader2 size={16} className="animate-spin" /> Connecting...
                     </>
                   ) : status.onedrive ? (
                     <>
-                      <RefreshCw size={16} /> Hubungkan Ulang
+                      <RefreshCw size={16} /> Reconnect
                     </>
                   ) : (
                     <>
-                      <ExternalLink size={16} /> Hubungkan Microsoft Account
+                      <ExternalLink size={16} /> Connect Microsoft Account
                     </>
                   )}
                 </button>
@@ -640,30 +640,30 @@ function StorageContent() {
               </div>
               <div>
                 <h3 className="text-sm font-semibold text-amber-900 mb-3">
-                  Petunjuk Konfigurasi
+                  Configuration Guide
                 </h3>
                 <ul className="text-sm text-amber-700/80 space-y-2">
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 shrink-0" />
                     <span>
-                      Pastikan Anda sudah mengatur Google Cloud Console / Azure AD untuk
-                      mendapatkan Client ID dan Secret.
+                      Make sure you have set up Google Cloud Console / Azure AD to obtain
+                      Client ID and Secret.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 shrink-0" />
-                    <span>Hanya satu storage yang bisa aktif pada satu waktu.</span>
+                    <span>Only one storage can be active at a time.</span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 shrink-0" />
                     <span>
-                      File arsip akan otomatis diorganisir berdasarkan folder divisi di cloud
+                      Archive files will be automatically organized by division folder in cloud
                       storage.
                     </span>
                   </li>
                   <li className="flex items-start gap-2">
                     <span className="w-1.5 h-1.5 bg-amber-400 rounded-full mt-1.5 shrink-0" />
-                    <span>Token akan di-refresh otomatis saat kedaluwarsa.</span>
+                    <span>Tokens will be automatically refreshed when expired.</span>
                   </li>
                 </ul>
               </div>
@@ -681,7 +681,7 @@ export default function StoragePage() {
       fallback={
         <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
           <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-          <p className="text-gray-400 text-sm">Memuat konfigurasi penyimpanan...</p>
+          <p className="text-gray-400 text-sm">Loading storage configuration...</p>
         </div>
       }
     >

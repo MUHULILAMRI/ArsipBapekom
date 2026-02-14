@@ -10,10 +10,10 @@ interface ArchiveFormProps {
 }
 
 const DIVISIONS = [
-  { value: "KEUANGAN", label: "Divisi Keuangan" },
-  { value: "PENYELENGGARA", label: "Divisi Penyelenggara" },
-  { value: "TATA_USAHA", label: "Divisi Tata Usaha" },
-  { value: "UMUM", label: "Divisi Umum" },
+  { value: "KEUANGAN", label: "Keuangan" },
+  { value: "PENYELENGGARA", label: "Penyelenggara" },
+  { value: "TATA_USAHA", label: "Tata Usaha" },
+  { value: "UMUM", label: "Umum" },
 ];
 
 export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps) {
@@ -59,7 +59,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
 
     try {
       if (!file) {
-        setError("File wajib diupload");
+        setError("File is required");
         setLoading(false);
         return;
       }
@@ -75,7 +75,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
 
       if (!uploadRes.ok) {
         const err = await uploadRes.json();
-        throw new Error(err.error || "Upload gagal");
+        throw new Error(err.error || "Upload failed");
       }
 
       const { fileId, fileUrl } = await uploadRes.json();
@@ -92,7 +92,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
 
       if (!archiveRes.ok) {
         const err = await archiveRes.json();
-        throw new Error(err.error || "Gagal menyimpan arsip");
+        throw new Error(err.error || "Failed to save archive");
       }
 
       router.push("/archives");
@@ -119,7 +119,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
         {/* Nomor Arsip */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Nomor Arsip <span className="text-red-400">*</span>
+            Archive No. <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
@@ -127,14 +127,14 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             value={form.archiveNumber}
             onChange={(e) => setForm({ ...form, archiveNumber: e.target.value })}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-            placeholder="Contoh: ARS-2026-001"
+            placeholder="e.g. ARS-2026-001"
           />
         </div>
 
         {/* Judul */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Judul <span className="text-red-400">*</span>
+            Title <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
@@ -142,14 +142,14 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             value={form.title}
             onChange={(e) => setForm({ ...form, title: e.target.value })}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-            placeholder="Judul arsip"
+            placeholder="Archive title"
           />
         </div>
 
         {/* Nomor Surat */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Nomor Surat <span className="text-red-400">*</span>
+            Letter No. <span className="text-red-400">*</span>
           </label>
           <input
             type="text"
@@ -157,14 +157,14 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             value={form.letterNumber}
             onChange={(e) => setForm({ ...form, letterNumber: e.target.value })}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-            placeholder="Contoh: 001/BPK/2026"
+            placeholder="e.g. 001/BPK/2026"
           />
         </div>
 
         {/* Tanggal */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Tanggal <span className="text-red-400">*</span>
+            Date <span className="text-red-400">*</span>
           </label>
           <input
             type="date"
@@ -178,7 +178,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
         {/* Divisi */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Divisi <span className="text-red-400">*</span>
+            Division <span className="text-red-400">*</span>
           </label>
           <select
             required
@@ -187,7 +187,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             disabled={!canSelectDivision}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm disabled:bg-gray-100 disabled:text-gray-500 transition-all"
           >
-            <option value="">Pilih Divisi</option>
+            <option value="">Select Division</option>
             {DIVISIONS.map((d) => (
               <option key={d.value} value={d.value}>
                 {d.label}
@@ -199,7 +199,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
         {/* Kategori Status */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Kategori <span className="text-red-400">*</span>
+            Category <span className="text-red-400">*</span>
           </label>
           <select
             required
@@ -207,8 +207,8 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             onChange={(e) => setForm({ ...form, status: e.target.value })}
             className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
           >
-            <option value="AKTIF">Arsip Aktif</option>
-            <option value="INAKTIF">Arsip Inaktif</option>
+            <option value="AKTIF">Active Archive</option>
+            <option value="INAKTIF">Inactive Archive</option>
           </select>
         </div>
       </div>
@@ -216,21 +216,21 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
       {/* Deskripsi */}
       <div className="space-y-1.5">
         <label className="block text-sm font-semibold text-gray-700">
-          Deskripsi
+          Description
         </label>
         <textarea
           value={form.description}
           onChange={(e) => setForm({ ...form, description: e.target.value })}
           rows={3}
           className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
-          placeholder="Deskripsi arsip (opsional)"
+          placeholder="Archive description (optional)"
         />
       </div>
 
       {/* Unggah File - Drag & Drop */}
       <div className="space-y-1.5">
         <label className="block text-sm font-semibold text-gray-700">
-          Unggah File <span className="text-red-400">*</span>
+          Upload File <span className="text-red-400">*</span>
         </label>
         <div
           onDragEnter={handleDrag}
@@ -267,7 +267,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
                 }}
                 className="mt-3 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"
               >
-                <X size={12} /> Hapus file
+                <X size={12} /> Remove file
               </button>
             </div>
           ) : (
@@ -276,11 +276,11 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
                 <FileUp size={28} className="text-blue-500" />
               </div>
               <p className="text-sm font-medium text-gray-600">
-                Drag & drop file di sini, atau{" "}
-                <span className="text-blue-600 font-semibold">klik untuk memilih</span>
+                Drag & drop file here, or{" "}
+                <span className="text-blue-600 font-semibold">click to select</span>
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                PDF, DOC, XLSX, JPG, PNG (Maks. 10MB)
+                PDF, DOC, XLSX, JPG, PNG (Max. 10MB)
               </p>
             </div>
           )}
@@ -294,7 +294,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
           onClick={() => router.back()}
           className="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
         >
-          Batal
+          Cancel
         </button>
         <button
           type="submit"
@@ -304,12 +304,12 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
           {loading ? (
             <>
               <Loader2 size={16} className="animate-spin" />
-              Mengunggah...
+              Uploading...
             </>
           ) : (
             <>
               <Upload size={16} />
-              Simpan Arsip
+              Save Archive
             </>
           )}
         </button>

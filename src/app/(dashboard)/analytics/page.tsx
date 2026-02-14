@@ -18,7 +18,7 @@ import {
   ArrowUpRight,
 } from "lucide-react";
 import { format, subDays, startOfMonth, endOfMonth, subMonths } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 import Link from "next/link";
 
 export default async function AnalyticsPage() {
@@ -90,7 +90,7 @@ export default async function AnalyticsPage() {
         return prisma.archive.count({
           where: { ...baseWhere, createdAt: { gte: monthStart, lte: monthEnd } },
         }).then((count) => ({
-          month: format(monthStart, "MMM", { locale: idLocale }),
+          month: format(monthStart, "MMM", { locale: enLocale }),
           count,
         }));
       })
@@ -115,10 +115,10 @@ export default async function AnalyticsPage() {
       : 0;
 
   const divisions = [
-    { name: "Keuangan", value: keuangan, color: "bg-emerald-500", lightColor: "bg-emerald-100 text-emerald-700" },
-    { name: "Penyelenggara", value: penyelenggara, color: "bg-blue-500", lightColor: "bg-blue-100 text-blue-700" },
-    { name: "Tata Usaha", value: tataUsaha, color: "bg-amber-500", lightColor: "bg-amber-100 text-amber-700" },
-    { name: "Umum", value: umum, color: "bg-purple-500", lightColor: "bg-purple-100 text-purple-700" },
+    { name: "Finance", value: keuangan, color: "bg-emerald-500", lightColor: "bg-emerald-100 text-emerald-700" },
+    { name: "Operations", value: penyelenggara, color: "bg-blue-500", lightColor: "bg-blue-100 text-blue-700" },
+    { name: "Administration", value: tataUsaha, color: "bg-amber-500", lightColor: "bg-amber-100 text-amber-700" },
+    { name: "General", value: umum, color: "bg-purple-500", lightColor: "bg-purple-100 text-purple-700" },
   ];
 
   const activePercent = totalArchives > 0 ? Math.round((activeArchives / totalArchives) * 100) : 0;
@@ -134,16 +134,16 @@ export default async function AnalyticsPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Analisis Arsip
+              Archive Analytics
             </h1>
             <p className="text-gray-400 text-sm mt-0.5">
-              Ringkasan dan statistik pengarsipan dokumen
+              Summary and statistics of document archiving
             </p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-2 text-xs text-gray-400 bg-white rounded-xl px-4 py-2 border border-gray-100">
           <Calendar size={14} />
-          <span>{format(now, "dd MMMM yyyy", { locale: idLocale })}</span>
+          <span>{format(now, "dd MMMM yyyy", { locale: enLocale })}</span>
         </div>
       </div>
 
@@ -161,7 +161,7 @@ export default async function AnalyticsPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{totalArchives}</p>
-          <p className="text-xs text-gray-400 mt-1">Total Arsip</p>
+          <p className="text-xs text-gray-400 mt-1">Total Archives</p>
         </div>
 
         {/* Active */}
@@ -175,7 +175,7 @@ export default async function AnalyticsPage() {
             </span>
           </div>
           <p className="text-2xl font-bold text-gray-900">{activeArchives}</p>
-          <p className="text-xs text-gray-400 mt-1">Arsip Aktif</p>
+          <p className="text-xs text-gray-400 mt-1">Active Archives</p>
         </div>
 
         {/* Inactive */}
@@ -189,7 +189,7 @@ export default async function AnalyticsPage() {
             </span>
           </div>
           <p className="text-2xl font-bold text-gray-900">{inactiveArchives}</p>
-          <p className="text-xs text-gray-400 mt-1">Arsip Inaktif</p>
+          <p className="text-xs text-gray-400 mt-1">Inactive Archives</p>
         </div>
 
         {/* This Month */}
@@ -204,7 +204,7 @@ export default async function AnalyticsPage() {
             </div>
           </div>
           <p className="text-2xl font-bold text-gray-900">{thisMonthCount}</p>
-          <p className="text-xs text-gray-400 mt-1">Bulan Ini</p>
+          <p className="text-xs text-gray-400 mt-1">This Month</p>
         </div>
       </div>
 
@@ -214,7 +214,7 @@ export default async function AnalyticsPage() {
           <div className="flex items-center justify-between mb-6">
             <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
               <Activity size={16} className="text-blue-500" />
-              Tren Arsip 6 Bulan Terakhir
+              Archive Trend - Last 6 Months
             </h2>
           </div>
           <div className="flex items-end gap-3 h-48">
@@ -235,7 +235,7 @@ export default async function AnalyticsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-6">
             <PieChart size={16} className="text-violet-500" />
-            Kategori Status
+            Status Category
           </h2>
 
           <div className="space-y-5">
@@ -244,7 +244,7 @@ export default async function AnalyticsPage() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-emerald-500 rounded-full" />
-                  <span className="text-sm font-medium text-gray-700">Aktif</span>
+                  <span className="text-sm font-medium text-gray-700">Active</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">{activeArchives}</span>
               </div>
@@ -261,7 +261,7 @@ export default async function AnalyticsPage() {
               <div className="flex items-center justify-between mb-2">
                 <div className="flex items-center gap-2">
                   <div className="w-3 h-3 bg-orange-500 rounded-full" />
-                  <span className="text-sm font-medium text-gray-700">Inaktif</span>
+                  <span className="text-sm font-medium text-gray-700">Inactive</span>
                 </div>
                 <span className="text-sm font-bold text-gray-900">{inactiveArchives}</span>
               </div>
@@ -278,11 +278,11 @@ export default async function AnalyticsPage() {
             <div className="grid grid-cols-2 gap-4">
               <div className="text-center p-3 bg-emerald-50 rounded-xl">
                 <p className="text-lg font-bold text-emerald-700">{activePercent}%</p>
-                <p className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide mt-0.5">Aktif</p>
+                <p className="text-[10px] text-emerald-600 font-medium uppercase tracking-wide mt-0.5">Active</p>
               </div>
               <div className="text-center p-3 bg-orange-50 rounded-xl">
                 <p className="text-lg font-bold text-orange-700">{inactivePercent}%</p>
-                <p className="text-[10px] text-orange-600 font-medium uppercase tracking-wide mt-0.5">Inaktif</p>
+                <p className="text-[10px] text-orange-600 font-medium uppercase tracking-wide mt-0.5">Inactive</p>
               </div>
             </div>
           </div>
@@ -294,7 +294,7 @@ export default async function AnalyticsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-6">
             <Building2 size={16} className="text-blue-500" />
-            Distribusi per Divisi
+            Distribution by Division
           </h2>
           <div className="space-y-4">
             {divisions.map((div) => (
@@ -318,7 +318,7 @@ export default async function AnalyticsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-6">
             <ArrowUpRight size={16} className="text-blue-500" />
-            Akses Cepat
+            Quick Access
           </h2>
           <div className="space-y-3">
             <Link
@@ -329,8 +329,8 @@ export default async function AnalyticsPage() {
                 <CheckCircle2 size={16} className="text-emerald-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Arsip Aktif</p>
-                <p className="text-xs text-gray-400">{activeArchives} dokumen</p>
+                <p className="text-sm font-medium text-gray-900">Active Archives</p>
+                <p className="text-xs text-gray-400">{activeArchives} documents</p>
               </div>
               <ArrowUpRight size={14} className="text-gray-300 group-hover:text-emerald-500 transition-colors" />
             </Link>
@@ -342,8 +342,8 @@ export default async function AnalyticsPage() {
                 <XCircle size={16} className="text-orange-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Arsip Inaktif</p>
-                <p className="text-xs text-gray-400">{inactiveArchives} dokumen</p>
+                <p className="text-sm font-medium text-gray-900">Inactive Archives</p>
+                <p className="text-xs text-gray-400">{inactiveArchives} documents</p>
               </div>
               <ArrowUpRight size={14} className="text-gray-300 group-hover:text-orange-500 transition-colors" />
             </Link>
@@ -355,8 +355,8 @@ export default async function AnalyticsPage() {
                 <FileText size={16} className="text-blue-600" />
               </div>
               <div className="flex-1">
-                <p className="text-sm font-medium text-gray-900">Tambah Arsip</p>
-                <p className="text-xs text-gray-400">Unggah dokumen baru</p>
+                <p className="text-sm font-medium text-gray-900">Add Archive</p>
+                <p className="text-xs text-gray-400">Upload new document</p>
               </div>
               <ArrowUpRight size={14} className="text-gray-300 group-hover:text-blue-500 transition-colors" />
             </Link>
@@ -369,8 +369,8 @@ export default async function AnalyticsPage() {
                   <Users size={16} className="text-indigo-600" />
                 </div>
                 <div className="flex-1">
-                  <p className="text-sm font-medium text-gray-900">Kelola User</p>
-                  <p className="text-xs text-gray-400">{totalUsers} pengguna</p>
+                  <p className="text-sm font-medium text-gray-900">Manage Users</p>
+                  <p className="text-xs text-gray-400">{totalUsers} users</p>
                 </div>
                 <ArrowUpRight size={14} className="text-gray-300 group-hover:text-indigo-500 transition-colors" />
               </Link>
@@ -382,12 +382,12 @@ export default async function AnalyticsPage() {
         <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2 mb-6">
             <Clock size={16} className="text-blue-500" />
-            Aktivitas Terbaru
+            Recent Activity
           </h2>
           {recentArchives.length === 0 ? (
             <div className="text-center py-8">
               <Archive size={28} className="text-gray-200 mx-auto mb-2" />
-              <p className="text-sm text-gray-400">Belum ada aktivitas</p>
+              <p className="text-sm text-gray-400">No activity yet</p>
             </div>
           ) : (
             <div className="space-y-3">
@@ -406,7 +406,7 @@ export default async function AnalyticsPage() {
                     </p>
                     <p className="text-[11px] text-gray-400 mt-0.5">
                       {archive.user.name} &middot;{" "}
-                      {format(new Date(archive.createdAt), "dd MMM", { locale: idLocale })}
+                      {format(new Date(archive.createdAt), "dd MMM", { locale: enLocale })}
                     </p>
                   </div>
                 </Link>

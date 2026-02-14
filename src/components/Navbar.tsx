@@ -96,7 +96,7 @@ export default function Navbar() {
               onKeyDown={handleKeyDown}
               onFocus={() => query.trim() && setShowResults(true)}
               onBlur={() => setTimeout(() => setShowResults(false), 200)}
-              placeholder="Cari arsip, surat, atau dokumen..."
+              placeholder="Search archives, letters, or documents..."
               className="w-full pl-11 pr-4 py-2.5 bg-white/60 border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white transition-all placeholder:text-gray-400"
             />
           </div>
@@ -110,12 +110,12 @@ export default function Navbar() {
                     size={20}
                     className="text-blue-500 animate-spin mr-2"
                   />
-                  <span className="text-sm text-gray-400">Mencari...</span>
+                  <span className="text-sm text-gray-400">Searching...</span>
                 </div>
               ) : results.length === 0 ? (
                 <div className="py-6 text-center">
                   <p className="text-sm text-gray-400">
-                    Tidak ditemukan hasil untuk &quot;{query}&quot;
+                    No results found for &quot;{query}&quot;
                   </p>
                 </div>
               ) : (
@@ -164,7 +164,7 @@ export default function Navbar() {
           <div
             className="flex items-center gap-3 pl-1 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => router.push("/profile")}
-            title="Profil Saya"
+            title="My Profile"
           >
             <div className="hidden sm:block text-right">
               <p className="text-sm font-semibold text-gray-800">
@@ -176,7 +176,7 @@ export default function Navbar() {
                   ? "Super Admin"
                   : (session?.user as any)?.role === "ADMIN"
                   ? "Admin"
-                  : "Staf"}
+                  : "Staff"}
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20 overflow-hidden">

@@ -12,7 +12,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 import {
   ArrowUpDown,
   Download,
@@ -103,7 +103,7 @@ export default function ArchiveTable({
   const columns = useMemo(
     () => [
       columnHelper.accessor("archiveNumber", {
-        header: "No. Arsip",
+        header: "Archive No.",
         cell: (info) => (
           <span className="font-mono text-sm text-gray-600 bg-gray-50 px-2 py-0.5 rounded">
             {info.getValue()}
@@ -111,7 +111,7 @@ export default function ArchiveTable({
         ),
       }),
       columnHelper.accessor("title", {
-        header: "Judul",
+        header: "Title",
         cell: (info) => (
           <div>
             <span className="font-semibold text-gray-800">{info.getValue()}</span>
@@ -124,23 +124,23 @@ export default function ArchiveTable({
         ),
       }),
       columnHelper.accessor("letterNumber", {
-        header: "No. Surat",
+        header: "Letter No.",
         cell: (info) => (
           <span className="text-sm text-gray-600">{info.getValue()}</span>
         ),
       }),
       columnHelper.accessor("date", {
-        header: "Tanggal",
+        header: "Date",
         cell: (info) => (
           <span className="text-sm text-gray-500">
             {format(new Date(info.getValue()), "dd MMM yyyy", {
-              locale: idLocale,
+              locale: enLocale,
             })}
           </span>
         ),
       }),
       columnHelper.accessor("division", {
-        header: "Divisi",
+        header: "Division",
         cell: (info) => {
           const div = info.getValue();
           const colors: Record<string, string> = {
@@ -173,27 +173,29 @@ export default function ArchiveTable({
               }`}
             >
               {status === "AKTIF" ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-              {status === "AKTIF" ? "Aktif" : "Inaktif"}
+              {status === "AKTIF" ? "Active" : "Inactive"}
             </span>
           );
         },
       }),
       columnHelper.display({
         id: "actions",
-        header: "Aksi",
+        header: "Actions",
         cell: (info) => (
           <div className="flex items-center gap-1">
             <Link
               href={`/archives/${info.row.original.id}`}
               className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-              title="Lihat Detail"
+              title="View Details"
+              aria-label="View Details"
             >
               <Eye size={16} />
             </Link>
             <Link
               href={`/archives/${info.row.original.id}/edit`}
               className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-              title="Sunting"
+              title="Edit"
+              aria-label="Edit"
             >
               <Edit3 size={16} />
             </Link>
@@ -202,7 +204,8 @@ export default function ArchiveTable({
               target="_blank"
               rel="noopener noreferrer"
               className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-              title="Unduh"
+              title="Download"
+              aria-label="Download"
             >
               <Download size={16} />
             </a>
@@ -210,7 +213,8 @@ export default function ArchiveTable({
               <button
                 onClick={() => onDelete(info.row.original.id)}
                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                title="Hapus"
+                title="Delete"
+                aria-label="Delete"
               >
                 <Trash2 size={16} />
               </button>
@@ -246,7 +250,7 @@ export default function ArchiveTable({
           />
           <input
             type="text"
-            placeholder="Cari arsip..."
+            placeholder="Search archives..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all"
@@ -262,7 +266,7 @@ export default function ArchiveTable({
             onChange={(e) => setDivisionFilter(e.target.value)}
             className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
           >
-            <option value="">Semua Divisi</option>
+            <option value="">All Divisions</option>
             <option value="KEUANGAN">Keuangan</option>
             <option value="PENYELENGGARA">Penyelenggara</option>
             <option value="TATA_USAHA">Tata Usaha</option>
@@ -275,9 +279,9 @@ export default function ArchiveTable({
             onChange={(e) => setStatusFilter(e.target.value)}
             className="pl-4 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
           >
-            <option value="">Semua Status</option>
-            <option value="AKTIF">Aktif</option>
-            <option value="INAKTIF">Inaktif</option>
+            <option value="">All Status</option>
+            <option value="AKTIF">Active</option>
+            <option value="INAKTIF">Inactive</option>
           </select>
         </div>
       </div>
@@ -286,7 +290,7 @@ export default function ArchiveTable({
       <div className="px-4 pb-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-gray-400">
           <CalendarDays size={15} />
-          <span className="text-xs font-semibold uppercase tracking-wider">Filter Tanggal</span>
+          <span className="text-xs font-semibold uppercase tracking-wider">Date Filter</span>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -295,7 +299,7 @@ export default function ArchiveTable({
             onChange={(e) => setDateFrom(e.target.value)}
             className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all"
           />
-          <span className="text-xs text-gray-400 font-medium">s/d</span>
+          <span className="text-xs text-gray-400 font-medium">to</span>
           <input
             type="date"
             value={dateTo}
@@ -309,7 +313,7 @@ export default function ArchiveTable({
             className="flex items-center gap-1 px-2.5 py-1.5 text-xs font-medium text-red-600 bg-red-50 border border-red-200 rounded-lg hover:bg-red-100 transition-all"
           >
             <X size={12} />
-            Atur Ulang
+            Reset
           </button>
         )}
       </div>
@@ -351,8 +355,8 @@ export default function ArchiveTable({
                     <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
                       <FileText size={24} className="text-gray-300" />
                     </div>
-                    <p className="text-gray-400 font-medium">Tidak ada data arsip</p>
-                    <p className="text-gray-300 text-sm mt-1">Coba ubah filter atau kata kunci pencarian</p>
+                    <p className="text-gray-400 font-medium">No archives found</p>
+                    <p className="text-gray-300 text-sm mt-1">Try changing filters or search keywords</p>
                   </div>
                 </td>
               </tr>
@@ -378,28 +382,88 @@ export default function ArchiveTable({
       </div>
 
       {/* Pagination */}
-      <div className="px-5 py-4 border-t border-gray-100 flex items-center justify-between bg-gray-50/50">
-        <p className="text-sm text-gray-500">
-          Menampilkan <span className="font-semibold text-gray-700">{table.getRowModel().rows.length}</span> dari{" "}
-          <span className="font-semibold text-gray-700">{filteredData.length}</span> arsip
-        </p>
-        <div className="flex items-center gap-2">
+      <div className="px-5 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-50/50">
+        <div className="flex items-center gap-3">
+          <p className="text-sm text-gray-500">
+            Showing <span className="font-semibold text-gray-700">{table.getRowModel().rows.length}</span> of{" "}
+            <span className="font-semibold text-gray-700">{filteredData.length}</span> archives
+          </p>
+          <div className="hidden sm:flex items-center gap-1.5 text-sm text-gray-500">
+            <span>·</span>
+            <select
+              value={table.getState().pagination.pageSize}
+              onChange={(e) => table.setPageSize(Number(e.target.value))}
+              className="px-2 py-1 bg-white border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 transition-all appearance-none cursor-pointer"
+            >
+              {[10, 25, 50, 100].map((size) => (
+                <option key={size} value={size}>
+                  {size} / page
+                </option>
+              ))}
+            </select>
+          </div>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <button
+            onClick={() => table.setPageIndex(0)}
+            disabled={!table.getCanPreviousPage()}
+            className="px-2.5 py-1.5 text-xs font-medium border border-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all text-gray-600"
+          >
+            First
+          </button>
           <button
             onClick={() => table.previousPage()}
             disabled={!table.getCanPreviousPage()}
-            className="p-2 border border-gray-200 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all"
+            className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all"
           >
             <ChevronLeft size={16} className="text-gray-600" />
           </button>
-          <span className="text-sm font-medium text-gray-700 px-3 py-1.5 bg-white border border-gray-200 rounded-xl">
-            {table.getState().pagination.pageIndex + 1} / {table.getPageCount()}
-          </span>
+          {(() => {
+            const currentPage = table.getState().pagination.pageIndex;
+            const totalPages = table.getPageCount();
+            const pages: (number | "ellipsis")[] = [];
+            if (totalPages <= 7) {
+              for (let i = 0; i < totalPages; i++) pages.push(i);
+            } else {
+              pages.push(0);
+              if (currentPage > 2) pages.push("ellipsis");
+              for (let i = Math.max(1, currentPage - 1); i <= Math.min(totalPages - 2, currentPage + 1); i++) {
+                pages.push(i);
+              }
+              if (currentPage < totalPages - 3) pages.push("ellipsis");
+              pages.push(totalPages - 1);
+            }
+            return pages.map((page, idx) =>
+              page === "ellipsis" ? (
+                <span key={`ellipsis-${idx}`} className="px-1.5 text-gray-400 text-sm">…</span>
+              ) : (
+                <button
+                  key={page}
+                  onClick={() => table.setPageIndex(page)}
+                  className={`min-w-[32px] h-8 px-2 rounded-lg text-sm font-medium transition-all ${
+                    currentPage === page
+                      ? "bg-blue-600 text-white shadow-md shadow-blue-200"
+                      : "border border-gray-200 text-gray-600 hover:bg-white hover:shadow-sm"
+                  }`}
+                >
+                  {page + 1}
+                </button>
+              )
+            );
+          })()}
           <button
             onClick={() => table.nextPage()}
             disabled={!table.getCanNextPage()}
-            className="p-2 border border-gray-200 rounded-xl disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all"
+            className="p-1.5 border border-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all"
           >
             <ChevronRight size={16} className="text-gray-600" />
+          </button>
+          <button
+            onClick={() => table.setPageIndex(table.getPageCount() - 1)}
+            disabled={!table.getCanNextPage()}
+            className="px-2.5 py-1.5 text-xs font-medium border border-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all text-gray-600"
+          >
+            Last
           </button>
         </div>
       </div>

@@ -31,13 +31,13 @@ import { useToast } from "../../../components/Toast";
 const roleLabels: Record<string, string> = {
   SUPER_ADMIN: "Super Admin",
   ADMIN: "Admin",
-  USER: "Staf",
+  USER: "Staff",
 };
 
 const roleDescriptions: Record<string, string> = {
-  SUPER_ADMIN: "Akses penuh ke semua fitur dan divisi",
-  ADMIN: "Kelola arsip semua divisi dan penyimpanan",
-  USER: "Input & lihat arsip divisi sendiri",
+  SUPER_ADMIN: "Full access to all features and divisions",
+  ADMIN: "Manage archives across all divisions and storage",
+  USER: "Input & view archives in own division",
 };
 
 const roleColors: Record<string, { bg: string; text: string; border: string; gradient: string }> = {
@@ -62,10 +62,10 @@ const roleColors: Record<string, { bg: string; text: string; border: string; gra
 };
 
 const divisionLabels: Record<string, string> = {
-  KEUANGAN: "Divisi Keuangan",
-  PENYELENGGARA: "Divisi Penyelenggara",
-  TATA_USAHA: "Divisi Tata Usaha",
-  UMUM: "Divisi Umum",
+  KEUANGAN: "Finance",
+  PENYELENGGARA: "Operations",
+  TATA_USAHA: "Administration",
+  UMUM: "General",
 };
 
 const divisionIcons: Record<string, string> = {
@@ -76,10 +76,10 @@ const divisionIcons: Record<string, string> = {
 };
 
 const allDivisions = [
-  { value: "KEUANGAN", label: "Divisi Keuangan", icon: "💰", description: "Mengelola arsip keuangan" },
-  { value: "PENYELENGGARA", label: "Divisi Penyelenggara", icon: "📋", description: "Mengelola arsip penyelenggaraan" },
-  { value: "TATA_USAHA", label: "Divisi Tata Usaha", icon: "✏️", description: "Mengelola arsip tata usaha" },
-  { value: "UMUM", label: "Divisi Umum", icon: "🏢", description: "Mengelola arsip umum" },
+  { value: "KEUANGAN", label: "Finance", icon: "💰", description: "Manage financial archives" },
+  { value: "PENYELENGGARA", label: "Operations", icon: "📋", description: "Manage operational archives" },
+  { value: "TATA_USAHA", label: "Administration", icon: "✏️", description: "Manage administrative archives" },
+  { value: "UMUM", label: "General", icon: "🏢", description: "Manage general archives" },
 ];
 
 interface Profile {
@@ -94,10 +94,11 @@ interface Profile {
 }
 
 export default function ProfilePage() {
-  const { data: session, update } = useSession();
+  const { data: session, status: sessionStatus, update } = useSession();
   const { showToast } = useToast();
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<"info" | "avatar" | "name" | "email" | "division" | "password">("info");
 
   // Edit name
@@ -127,10 +128,17 @@ export default function ProfilePage() {
   const [savingPassword, setSavingPassword] = useState(false);
 
   useEffect(() => {
-    fetchProfile();
-  }, []);
+    if (sessionStatus === "authenticated") {
+      fetchProfile();
+    } else if (sessionStatus === "unauthenticated") {
+      setLoading(false);
+      setError("You are not logged in. Please sign in first.");
+    }
+  }, [sessionStatus]);
 
   const fetchProfile = async () => {
+    setLoading(true);
+    setError(null);
     try {
       const res = await fetch("/api/profile");
       if (res.ok) {
@@ -140,9 +148,12 @@ export default function ProfilePage() {
         setEditEmail(data.email);
         setEditDivision(data.division);
         setAvatarPreview(data.profileImage || null);
+      } else {
+        const errData = await res.json().catch(() => null);
+        setError(errData?.error || "Failed to load profile. Please try again.");
       }
     } catch {
-      showToast("error", "Gagal memuat profil");
+      setError("Network error. Please check your connection and try again.");
     } finally {
       setLoading(false);
     }
@@ -162,11 +173,11 @@ export default function ProfilePage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-      showToast("success", "Nama berhasil diperbarui");
+      showToast("success", "Name updated successfully");
       fetchProfile();
       await update({ name: editName.trim() });
     } catch (err: any) {
-      showToast("error", "Gagal mengubah nama", err.message);
+      showToast("error", "Failed to update name", err.message);
     } finally {
       setSavingName(false);
     }
@@ -186,11 +197,11 @@ export default function ProfilePage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-      showToast("success", "Email berhasil diperbarui");
+      showToast("success", "Email updated successfully");
       fetchProfile();
       await update({ email: editEmail.trim() });
     } catch (err: any) {
-      showToast("error", "Gagal mengubah email", err.message);
+      showToast("error", "Failed to update email", err.message);
     } finally {
       setSavingEmail(false);
     }
@@ -209,11 +220,11 @@ export default function ProfilePage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-      showToast("success", "Divisi berhasil diperbarui");
+      showToast("success", "Division updated successfully");
       fetchProfile();
       await update({ division: div });
     } catch (err: any) {
-      showToast("error", "Gagal mengubah divisi", err.message);
+      showToast("error", "Failed to update division", err.message);
     } finally {
       setSavingDivision(false);
     }
@@ -224,11 +235,11 @@ export default function ProfilePage() {
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      showToast("error", "Format tidak valid", "Hanya file gambar yang diizinkan.");
+      showToast("error", "Invalid format", "Only image files are allowed.");
       return;
     }
     if (file.size > 2 * 1024 * 1024) {
-      showToast("error", "Ukuran terlalu besar", "Maksimal 2MB.");
+      showToast("error", "File too large", "Maximum 2MB.");
       return;
     }
 
@@ -264,11 +275,11 @@ export default function ProfilePage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-      showToast("success", "Foto profil berhasil diperbarui");
+      showToast("success", "Profile photo updated successfully");
       fetchProfile();
       await update({ profileImage: avatarPreview });
     } catch (err: any) {
-      showToast("error", "Gagal menyimpan foto", err.message);
+      showToast("error", "Failed to save photo", err.message);
     } finally {
       setSavingAvatar(false);
     }
@@ -287,11 +298,11 @@ export default function ProfilePage() {
         throw new Error(data.error);
       }
       setAvatarPreview(null);
-      showToast("success", "Foto profil dihapus");
+      showToast("success", "Profile photo removed");
       fetchProfile();
       await update({ profileImage: null });
     } catch (err: any) {
-      showToast("error", "Gagal menghapus foto", err.message);
+      showToast("error", "Failed to remove photo", err.message);
     } finally {
       setSavingAvatar(false);
     }
@@ -300,11 +311,11 @@ export default function ProfilePage() {
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (newPassword !== confirmPassword) {
-      showToast("error", "Kata sandi tidak cocok", "Kata sandi baru dan konfirmasi harus sama.");
+      showToast("error", "Passwords do not match", "New password and confirmation must be the same.");
       return;
     }
     if (newPassword.length < 6) {
-      showToast("error", "Kata sandi terlalu pendek", "Minimal 6 karakter.");
+      showToast("error", "Password too short", "Minimum 6 characters.");
       return;
     }
     setSavingPassword(true);
@@ -318,12 +329,12 @@ export default function ProfilePage() {
         const data = await res.json();
         throw new Error(data.error);
       }
-      showToast("success", "Kata sandi berhasil diubah");
+      showToast("success", "Password changed successfully");
       setCurrentPassword("");
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
-      showToast("error", "Gagal mengubah kata sandi", err.message);
+      showToast("error", "Failed to change password", err.message);
     } finally {
       setSavingPassword(false);
     }
@@ -338,10 +349,10 @@ export default function ProfilePage() {
     if (/[0-9]/.test(pw)) score++;
     if (/[^A-Za-z0-9]/.test(pw)) score++;
 
-    if (score <= 1) return { level: 1, label: "Lemah", color: "bg-red-500" };
-    if (score <= 2) return { level: 2, label: "Cukup", color: "bg-amber-500" };
-    if (score <= 3) return { level: 3, label: "Baik", color: "bg-blue-500" };
-    return { level: 4, label: "Kuat", color: "bg-emerald-500" };
+    if (score <= 1) return { level: 1, label: "Weak", color: "bg-red-500" };
+    if (score <= 2) return { level: 2, label: "Fair", color: "bg-amber-500" };
+    if (score <= 3) return { level: 3, label: "Good", color: "bg-blue-500" };
+    return { level: 4, label: "Strong", color: "bg-emerald-500" };
   };
 
   const pwStrength = getPasswordStrength(newPassword);
@@ -353,12 +364,29 @@ export default function ProfilePage() {
         <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center mb-4">
           <Loader2 size={28} className="text-blue-500 animate-spin" />
         </div>
-        <p className="text-gray-400 text-sm font-medium">Memuat profil...</p>
+        <p className="text-gray-400 text-sm font-medium">Loading profile...</p>
       </div>
     );
   }
 
-  if (!profile) return null;
+  if (!profile) {
+    return (
+      <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
+        <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-red-100 to-orange-100 flex items-center justify-center mb-4">
+          <AlertCircle size={28} className="text-red-500" />
+        </div>
+        <p className="text-gray-600 text-sm font-medium mb-2">
+          {error || "Unable to load profile"}
+        </p>
+        <button
+          onClick={fetchProfile}
+          className="mt-3 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white text-sm font-medium rounded-xl shadow-md shadow-blue-200 hover:from-blue-700 hover:to-indigo-700 transition-all"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
 
   const rColor = roleColors[profile.role] || roleColors.USER;
   const memberSince = new Date(profile.createdAt);
@@ -392,7 +420,7 @@ export default function ProfilePage() {
               <button
                 onClick={() => setActiveTab("avatar")}
                 className="absolute -bottom-1 -right-1 w-8 h-8 rounded-xl bg-white flex items-center justify-center shadow-lg border border-gray-200 hover:bg-blue-50 hover:border-blue-300 transition-all cursor-pointer"
-                title="Ubah foto profil"
+                title="Change profile photo"
               >
                 <Camera size={14} className="text-gray-600" />
               </button>
@@ -415,7 +443,7 @@ export default function ProfilePage() {
                 </span>
                 <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg text-xs font-medium bg-gray-50 text-gray-500 border border-gray-200">
                   <Clock size={11} />
-                  {daysSinceJoin} hari bergabung
+                  {daysSinceJoin} days member
                 </span>
               </div>
             </div>
@@ -423,7 +451,7 @@ export default function ProfilePage() {
             <div className="hidden lg:flex items-center gap-3">
               <div className="text-center px-5 py-3 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-100">
                 <p className="text-2xl font-bold text-blue-600">{profile._count.archives}</p>
-                <p className="text-[10px] text-blue-500 font-semibold uppercase tracking-wider mt-0.5">Arsip</p>
+                <p className="text-[10px] text-blue-500 font-semibold uppercase tracking-wider mt-0.5">Archives</p>
               </div>
             </div>
           </div>
@@ -443,7 +471,7 @@ export default function ProfilePage() {
                 <Shield size={18} className="text-purple-600" />
               </div>
               <div>
-                <p className="text-[10px] text-purple-400 uppercase font-semibold tracking-wider">Peran</p>
+                <p className="text-[10px] text-purple-400 uppercase font-semibold tracking-wider">Role</p>
                 <p className="text-sm font-semibold text-gray-800">{roleLabels[profile.role] || profile.role}</p>
               </div>
             </div>
@@ -452,8 +480,8 @@ export default function ProfilePage() {
                 <FileText size={18} className="text-emerald-600" />
               </div>
               <div>
-                <p className="text-[10px] text-emerald-400 uppercase font-semibold tracking-wider">Total Arsip</p>
-                <p className="text-sm font-semibold text-gray-800">{profile._count.archives} dokumen</p>
+                <p className="text-[10px] text-emerald-400 uppercase font-semibold tracking-wider">Total Archives</p>
+                <p className="text-sm font-semibold text-gray-800">{profile._count.archives} documents</p>
               </div>
             </div>
             <div className="group flex items-center gap-3 p-4 bg-gradient-to-br from-amber-50/80 to-yellow-50/50 rounded-2xl border border-amber-100/60 hover:border-amber-200 transition-all hover:shadow-sm">
@@ -461,9 +489,9 @@ export default function ProfilePage() {
                 <Calendar size={18} className="text-amber-600" />
               </div>
               <div>
-                <p className="text-[10px] text-amber-400 uppercase font-semibold tracking-wider">Bergabung</p>
+                <p className="text-[10px] text-amber-400 uppercase font-semibold tracking-wider">Joined</p>
                 <p className="text-sm font-semibold text-gray-800">
-                  {memberSince.toLocaleDateString("id-ID", { day: "numeric", month: "short", year: "numeric" })}
+                  {memberSince.toLocaleDateString("en-US", { day: "numeric", month: "short", year: "numeric" })}
                 </p>
               </div>
             </div>
@@ -474,12 +502,12 @@ export default function ProfilePage() {
       {/* TABS */}
       <div className="flex items-center gap-1 p-1 bg-gray-100/80 rounded-2xl mb-6 overflow-x-auto">
         {[
-          { key: "info" as const, label: "Informasi", icon: User },
-          { key: "avatar" as const, label: "Foto Profil", icon: Camera },
-          { key: "name" as const, label: "Ubah Nama", icon: Pen },
-          { key: "email" as const, label: "Ubah Email", icon: Mail },
-          { key: "division" as const, label: "Ubah Divisi", icon: Building2 },
-          { key: "password" as const, label: "Ubah Kata Sandi", icon: KeyRound },
+          { key: "info" as const, label: "Information", icon: User },
+          { key: "avatar" as const, label: "Profile Photo", icon: Camera },
+          { key: "name" as const, label: "Change Name", icon: Pen },
+          { key: "email" as const, label: "Change Email", icon: Mail },
+          { key: "division" as const, label: "Change Division", icon: Building2 },
+          { key: "password" as const, label: "Change Password", icon: KeyRound },
         ].map((tab) => (
           <button
             key={tab.key}
@@ -510,16 +538,16 @@ export default function ProfilePage() {
               </div>
             </div>
             <div className="p-6">
-              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Hak Akses Anda</h4>
+              <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4">Your Permissions</h4>
               <div className="space-y-3">
                 {[
-                  { label: "Lihat arsip", allowed: true },
-                  { label: "Buat arsip baru", allowed: true },
-                  { label: "Sunting arsip", allowed: profile.role !== "USER" },
-                  { label: "Hapus arsip", allowed: profile.role !== "USER" },
-                  { label: "Lihat semua divisi", allowed: profile.role !== "USER" },
-                  { label: "Kelola pengguna", allowed: profile.role === "SUPER_ADMIN" },
-                  { label: "Kelola penyimpanan", allowed: profile.role !== "USER" },
+                  { label: "View archives", allowed: true },
+                  { label: "Create new archives", allowed: true },
+                  { label: "Edit archives", allowed: profile.role !== "USER" },
+                  { label: "Delete archives", allowed: profile.role !== "USER" },
+                  { label: "View all divisions", allowed: profile.role !== "USER" },
+                  { label: "Manage users", allowed: profile.role === "SUPER_ADMIN" },
+                  { label: "Manage storage", allowed: profile.role !== "USER" },
                 ].map((perm, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className={`w-6 h-6 rounded-lg flex items-center justify-center ${perm.allowed ? "bg-emerald-100 text-emerald-600" : "bg-gray-100 text-gray-300"}`}>
@@ -535,7 +563,7 @@ export default function ProfilePage() {
           <div className="space-y-6">
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <Building2 size={14} />Divisi
+                <Building2 size={14} />Division
               </h4>
               <div className="flex items-center gap-4 p-4 bg-gradient-to-r from-emerald-50 to-teal-50 rounded-xl border border-emerald-100">
                 <div className="w-14 h-14 rounded-2xl bg-emerald-100 flex items-center justify-center text-2xl">
@@ -543,18 +571,18 @@ export default function ProfilePage() {
                 </div>
                 <div>
                   <p className="text-base font-bold text-gray-900">{divisionLabels[profile.division] || profile.division}</p>
-                  <p className="text-xs text-gray-500 mt-0.5">{profile._count.archives} arsip tercatat di divisi ini</p>
+                  <p className="text-xs text-gray-500 mt-0.5">{profile._count.archives} archives recorded in this division</p>
                 </div>
               </div>
             </div>
 
             <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
               <h4 className="text-xs font-semibold text-gray-400 uppercase tracking-wider mb-4 flex items-center gap-2">
-                <User size={14} />Detail Akun
+                <User size={14} />Account Details
               </h4>
               <div className="space-y-4">
                 <div className="flex items-center justify-between py-2 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">Nama</span>
+                  <span className="text-sm text-gray-500">Name</span>
                   <span className="text-sm font-semibold text-gray-800">{profile.name}</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-50">
@@ -562,13 +590,13 @@ export default function ProfilePage() {
                   <span className="text-sm font-semibold text-gray-800">{profile.email}</span>
                 </div>
                 <div className="flex items-center justify-between py-2 border-b border-gray-50">
-                  <span className="text-sm text-gray-500">ID Akun</span>
+                  <span className="text-sm text-gray-500">Account ID</span>
                   <span className="text-xs font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded-md">{profile.id.slice(0, 8)}...</span>
                 </div>
                 <div className="flex items-center justify-between py-2">
-                  <span className="text-sm text-gray-500">Terdaftar</span>
+                  <span className="text-sm text-gray-500">Registered</span>
                   <span className="text-sm font-semibold text-gray-800">
-                    {memberSince.toLocaleDateString("id-ID", { day: "numeric", month: "long", year: "numeric" })}
+                    {memberSince.toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}
                   </span>
                 </div>
               </div>
@@ -587,8 +615,8 @@ export default function ProfilePage() {
                   <Camera size={18} className="text-violet-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Foto Profil</h3>
-                  <p className="text-xs text-gray-500">Unggah foto profil Anda (maks 2MB, format JPG/PNG)</p>
+                  <h3 className="text-base font-semibold text-gray-900">Profile Photo</h3>
+                  <p className="text-xs text-gray-500">Upload your profile photo (max 2MB, JPG/PNG format)</p>
                 </div>
               </div>
             </div>
@@ -614,7 +642,7 @@ export default function ProfilePage() {
                 {avatarChanged && (
                   <p className="text-xs text-violet-500 mt-3 flex items-center gap-1">
                     <CircleCheck size={12} />
-                    Pratinjau foto baru — klik simpan untuk menerapkan
+                    New photo preview — click save to apply
                   </p>
                 )}
               </div>
@@ -634,8 +662,8 @@ export default function ProfilePage() {
                 <div className="w-12 h-12 rounded-xl bg-gray-100 group-hover:bg-violet-100 flex items-center justify-center mx-auto mb-3 transition-colors">
                   <Upload size={20} className="text-gray-400 group-hover:text-violet-500 transition-colors" />
                 </div>
-                <p className="text-sm font-medium text-gray-700">Klik untuk memilih foto</p>
-                <p className="text-xs text-gray-400 mt-1">JPG, PNG atau WebP • Maks 2MB</p>
+                <p className="text-sm font-medium text-gray-700">Click to select a photo</p>
+                <p className="text-xs text-gray-400 mt-1">JPG, PNG or WebP • Max 2MB</p>
               </div>
 
               <div className="flex items-center gap-3 mt-6">
@@ -646,7 +674,7 @@ export default function ProfilePage() {
                   className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-violet-600 to-purple-600 text-white rounded-xl text-sm font-semibold hover:from-violet-700 hover:to-purple-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-violet-500/20 hover:shadow-xl hover:shadow-violet-500/30 active:scale-[0.98]"
                 >
                   {savingAvatar ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                  Simpan Foto
+                  Save Photo
                 </button>
                 {profile.profileImage && (
                   <button
@@ -656,7 +684,7 @@ export default function ProfilePage() {
                     className="inline-flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 rounded-xl transition-colors font-medium disabled:opacity-40"
                   >
                     <Trash2 size={16} />
-                    Hapus Foto
+                    Remove Photo
                   </button>
                 )}
               </div>
@@ -675,15 +703,15 @@ export default function ProfilePage() {
                   <Pen size={18} className="text-blue-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Ubah Nama Tampilan</h3>
-                  <p className="text-xs text-gray-500">Nama ini akan ditampilkan di seluruh aplikasi</p>
+                  <h3 className="text-base font-semibold text-gray-900">Change Display Name</h3>
+                  <p className="text-xs text-gray-500">This name will be displayed throughout the application</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <form onSubmit={handleUpdateName} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Nama Lengkap</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Full Name</label>
                   <div className="relative">
                     <User size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -697,7 +725,7 @@ export default function ProfilePage() {
                   {editName !== profile.name && editName.trim() && (
                     <p className="text-xs text-blue-500 mt-2 flex items-center gap-1">
                       <CircleCheck size={12} />
-                      Nama akan diubah menjadi &quot;{editName.trim()}&quot;
+                      Name will be changed to &quot;{editName.trim()}&quot;
                     </p>
                   )}
                 </div>
@@ -708,11 +736,11 @@ export default function ProfilePage() {
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-blue-500/20 hover:shadow-xl hover:shadow-blue-500/30 active:scale-[0.98]"
                   >
                     {savingName ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                    Simpan Perubahan
+                    Save Changes
                   </button>
                   {editName !== profile.name && (
                     <button type="button" onClick={() => setEditName(profile.name)} className="px-4 py-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
-                      Batal
+                      Cancel
                     </button>
                   )}
                 </div>
@@ -732,22 +760,22 @@ export default function ProfilePage() {
                   <Mail size={18} className="text-cyan-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Ubah Alamat Email</h3>
-                  <p className="text-xs text-gray-500">Email digunakan untuk login ke aplikasi</p>
+                  <h3 className="text-base font-semibold text-gray-900">Change Email Address</h3>
+                  <p className="text-xs text-gray-500">Email is used for application login</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <form onSubmit={handleUpdateEmail} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email saat ini</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Current Email</label>
                   <div className="flex items-center gap-3 p-3.5 bg-gray-50 rounded-xl border border-gray-100">
                     <Mail size={16} className="text-gray-400" />
                     <span className="text-sm text-gray-500">{profile.email}</span>
                   </div>
                 </div>
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Email Baru</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">New Email</label>
                   <div className="relative">
                     <Mail size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -755,14 +783,14 @@ export default function ProfilePage() {
                       required
                       value={editEmail}
                       onChange={(e) => setEditEmail(e.target.value)}
-                      placeholder="Masukkan email baru"
+                      placeholder="Enter new email"
                       className="w-full pl-11 pr-4 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-cyan-500/20 focus:border-cyan-400 focus:bg-white transition-all"
                     />
                   </div>
                   {editEmail !== profile.email && editEmail.trim() && (
                     <p className="text-xs text-cyan-500 mt-2 flex items-center gap-1">
                       <CircleCheck size={12} />
-                      Email akan diubah menjadi &quot;{editEmail.trim()}&quot;
+                      Email will be changed to &quot;{editEmail.trim()}&quot;
                     </p>
                   )}
                 </div>
@@ -773,11 +801,11 @@ export default function ProfilePage() {
                     className="inline-flex items-center gap-2 px-6 py-3 bg-gradient-to-r from-cyan-600 to-blue-600 text-white rounded-xl text-sm font-semibold hover:from-cyan-700 hover:to-blue-700 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-cyan-500/20 hover:shadow-xl hover:shadow-cyan-500/30 active:scale-[0.98]"
                   >
                     {savingEmail ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
-                    Simpan Email
+                    Save Email
                   </button>
                   {editEmail !== profile.email && (
                     <button type="button" onClick={() => setEditEmail(profile.email)} className="px-4 py-3 text-sm text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-xl transition-colors">
-                      Batal
+                      Cancel
                     </button>
                   )}
                 </div>
@@ -790,9 +818,9 @@ export default function ProfilePage() {
               <AlertCircle size={16} className="text-amber-600" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-amber-800">Perhatian</p>
+              <p className="text-xs font-semibold text-amber-800">Warning</p>
               <p className="text-xs text-amber-600 mt-0.5 leading-relaxed">
-                Setelah mengubah email, Anda perlu login kembali menggunakan email baru.
+                After changing your email, you will need to log in again using the new email.
               </p>
             </div>
           </div>
@@ -809,14 +837,14 @@ export default function ProfilePage() {
                   <Building2 size={18} className="text-emerald-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Ubah Divisi</h3>
-                  <p className="text-xs text-gray-500">Pilih divisi tempat Anda bekerja</p>
+                  <h3 className="text-base font-semibold text-gray-900">Change Division</h3>
+                  <p className="text-xs text-gray-500">Select the division where you work</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <p className="text-xs text-gray-400 uppercase font-semibold tracking-wider mb-4">
-                Divisi saat ini: <span className="text-emerald-600">{divisionLabels[profile.division]}</span>
+                Current division: <span className="text-emerald-600">{divisionLabels[profile.division]}</span>
               </p>
               <div className="space-y-3">
                 {allDivisions.map((div) => {
@@ -871,15 +899,15 @@ export default function ProfilePage() {
                   <KeyRound size={18} className="text-amber-600" />
                 </div>
                 <div>
-                  <h3 className="text-base font-semibold text-gray-900">Ubah Password</h3>
-                  <p className="text-xs text-gray-500">Pastikan kata sandi baru kuat dan mudah Anda ingat</p>
+                  <h3 className="text-base font-semibold text-gray-900">Change Password</h3>
+                  <p className="text-xs text-gray-500">Make sure your new password is strong and easy to remember</p>
                 </div>
               </div>
             </div>
             <div className="p-6">
               <form onSubmit={handleChangePassword} className="space-y-5">
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Kata Sandi Saat Ini</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Current Password</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -887,7 +915,7 @@ export default function ProfilePage() {
                       required
                       value={currentPassword}
                       onChange={(e) => setCurrentPassword(e.target.value)}
-                      placeholder="Masukkan kata sandi saat ini"
+                      placeholder="Enter current password"
                       className="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 focus:bg-white transition-all"
                     />
                     <button type="button" onClick={() => setShowCurrentPw(!showCurrentPw)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors">
@@ -898,11 +926,11 @@ export default function ProfilePage() {
 
                 <div className="relative">
                   <div className="absolute inset-0 flex items-center"><span className="w-full border-t border-gray-100" /></div>
-                  <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400 font-medium">Kata Sandi Baru</span></div>
+                  <div className="relative flex justify-center text-xs"><span className="bg-white px-3 text-gray-400 font-medium">New Password</span></div>
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Kata Sandi Baru</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">New Password</label>
                   <div className="relative">
                     <KeyRound size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -911,7 +939,7 @@ export default function ProfilePage() {
                       minLength={6}
                       value={newPassword}
                       onChange={(e) => setNewPassword(e.target.value)}
-                      placeholder="Minimal 6 karakter"
+                      placeholder="Minimum 6 characters"
                       className="w-full pl-11 pr-12 py-3.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 focus:bg-white transition-all"
                     />
                     <button type="button" onClick={() => setShowNewPw(!showNewPw)} className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-gray-400 hover:text-gray-600 rounded-md hover:bg-gray-100 transition-colors">
@@ -921,7 +949,7 @@ export default function ProfilePage() {
                   {newPassword && (
                     <div className="mt-3">
                       <div className="flex items-center justify-between mb-1.5">
-                        <span className="text-xs text-gray-400">Kekuatan kata sandi</span>
+                        <span className="text-xs text-gray-400">Password strength</span>
                         <span className={`text-xs font-semibold ${pwStrength.level <= 1 ? "text-red-500" : pwStrength.level <= 2 ? "text-amber-500" : pwStrength.level <= 3 ? "text-blue-500" : "text-emerald-500"}`}>{pwStrength.label}</span>
                       </div>
                       <div className="flex gap-1.5">
@@ -931,10 +959,10 @@ export default function ProfilePage() {
                       </div>
                       <div className="mt-2 flex flex-wrap gap-x-4 gap-y-1">
                         {[
-                          { check: newPassword.length >= 6, label: "Min. 6 karakter" },
-                          { check: /[A-Z]/.test(newPassword), label: "Huruf besar" },
-                          { check: /[0-9]/.test(newPassword), label: "Angka" },
-                          { check: /[^A-Za-z0-9]/.test(newPassword), label: "Simbol" },
+                          { check: newPassword.length >= 6, label: "Min. 6 characters" },
+                          { check: /[A-Z]/.test(newPassword), label: "Uppercase" },
+                          { check: /[0-9]/.test(newPassword), label: "Number" },
+                          { check: /[^A-Za-z0-9]/.test(newPassword), label: "Symbol" },
                         ].map((req, i) => (
                           <span key={i} className={`text-[11px] flex items-center gap-1 ${req.check ? "text-emerald-500" : "text-gray-400"}`}>
                             {req.check ? <CheckCircle size={11} /> : <span className="w-[11px] h-[11px] rounded-full border border-gray-300 inline-block" />}
@@ -947,7 +975,7 @@ export default function ProfilePage() {
                 </div>
 
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-2">Konfirmasi Kata Sandi Baru</label>
+                  <label className="block text-sm font-semibold text-gray-700 mb-2">Confirm New Password</label>
                   <div className="relative">
                     <Lock size={16} className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" />
                     <input
@@ -956,7 +984,7 @@ export default function ProfilePage() {
                       minLength={6}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
-                      placeholder="Ulangi kata sandi baru"
+                      placeholder="Repeat new password"
                       className={`w-full pl-11 pr-12 py-3.5 bg-gray-50 border rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/20 focus:border-amber-400 focus:bg-white transition-all ${
                         confirmPassword && confirmPassword !== newPassword
                           ? "border-red-300 bg-red-50/30"
@@ -970,10 +998,10 @@ export default function ProfilePage() {
                     </button>
                   </div>
                   {confirmPassword && confirmPassword !== newPassword && (
-                    <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1"><AlertCircle size={12} />Password tidak cocok</p>
+                    <p className="text-xs text-red-500 mt-1.5 flex items-center gap-1"><AlertCircle size={12} />Passwords do not match</p>
                   )}
                   {confirmPassword && confirmPassword === newPassword && (
-                    <p className="text-xs text-emerald-500 mt-1.5 flex items-center gap-1"><CheckCircle size={12} />Password cocok</p>
+                    <p className="text-xs text-emerald-500 mt-1.5 flex items-center gap-1"><CheckCircle size={12} />Passwords match</p>
                   )}
                 </div>
 
@@ -984,7 +1012,7 @@ export default function ProfilePage() {
                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-semibold hover:from-amber-600 hover:to-orange-600 disabled:opacity-40 disabled:cursor-not-allowed transition-all shadow-lg shadow-amber-500/20 hover:shadow-xl hover:shadow-amber-500/30 active:scale-[0.98]"
                   >
                     {savingPassword ? <Loader2 size={16} className="animate-spin" /> : <Lock size={16} />}
-                    Ubah Password
+                    Change Password
                   </button>
                 </div>
               </form>
@@ -996,9 +1024,9 @@ export default function ProfilePage() {
               <Shield size={16} className="text-blue-600" />
             </div>
             <div>
-              <p className="text-xs font-semibold text-blue-800">Tips Keamanan</p>
+              <p className="text-xs font-semibold text-blue-800">Security Tips</p>
               <p className="text-xs text-blue-600 mt-0.5 leading-relaxed">
-                Gunakan kombinasi huruf besar, huruf kecil, angka, dan simbol untuk password yang kuat. Jangan gunakan password yang sama dengan akun lain.
+                Use a combination of uppercase, lowercase, numbers, and symbols for a strong password. Do not reuse passwords from other accounts.
               </p>
             </div>
           </div>

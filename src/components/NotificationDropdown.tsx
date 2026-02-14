@@ -159,6 +159,7 @@ export default function NotificationDropdown() {
       <button
         onClick={toggleDropdown}
         className="relative p-2.5 text-gray-400 hover:text-gray-700 hover:bg-white/80 rounded-xl transition-all group"
+        aria-label="Open notifications"
       >
         <Bell
           size={20}
@@ -177,16 +178,16 @@ export default function NotificationDropdown() {
 
       {/* Dropdown */}
       {isOpen && (
-        <div className="absolute right-0 top-full mt-2 w-96 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="absolute right-0 sm:right-0 top-full mt-2 w-[calc(100vw-2rem)] sm:w-96 max-w-[400px] -right-2 bg-white rounded-2xl shadow-2xl shadow-black/10 border border-gray-100 overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
           {/* Header */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/80">
             <div>
               <h3 className="font-semibold text-gray-800 text-sm">
-                Notifikasi
+                Notifications
               </h3>
               {unreadCount > 0 && (
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {unreadCount} belum dibaca
+                  {unreadCount} unread
                 </p>
               )}
             </div>
@@ -197,7 +198,7 @@ export default function NotificationDropdown() {
                   className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors"
                 >
                   <CheckCheck size={14} />
-                  Tandai semua
+                  Mark all read
                 </button>
               )}
               <button
@@ -221,10 +222,10 @@ export default function NotificationDropdown() {
                   <Bell size={24} className="text-gray-300" />
                 </div>
                 <p className="text-sm font-medium text-gray-500">
-                  Belum ada notifikasi
+                  No notifications
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  Notifikasi akan muncul di sini
+                  Notifications will appear here
                 </p>
               </div>
             ) : (
@@ -282,7 +283,7 @@ export default function NotificationDropdown() {
                 }}
                 className="w-full text-center text-xs text-blue-600 hover:text-blue-700 font-medium py-1"
               >
-                Semua notifikasi ditampilkan
+                All notifications displayed
               </button>
             </div>
           )}

@@ -10,13 +10,13 @@ import {
   Filter,
 } from "lucide-react";
 import { format } from "date-fns";
-import { id as idLocale } from "date-fns/locale";
+import { enUS as enLocale } from "date-fns/locale";
 
 const divisionLabels: Record<string, string> = {
-  KEUANGAN: "Keuangan",
-  PENYELENGGARA: "Penyelenggara",
-  TATA_USAHA: "Tata Usaha",
-  UMUM: "Umum",
+  KEUANGAN: "Finance",
+  PENYELENGGARA: "Operations",
+  TATA_USAHA: "Administration",
+  UMUM: "General",
 };
 
 const divisionColors: Record<string, string> = {
@@ -38,7 +38,7 @@ export default async function ActivityPage() {
   if (!user || (user.role !== "SUPER_ADMIN" && user.role !== "ADMIN")) {
     return (
       <div className="flex items-center justify-center py-32">
-        <p className="text-gray-400">Anda tidak memiliki akses ke halaman ini.</p>
+        <p className="text-gray-400">You do not have access to this page.</p>
       </div>
     );
   }
@@ -67,16 +67,16 @@ export default async function ActivityPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Log Aktivitas
+              Activity Log
             </h1>
             <p className="text-gray-400 text-sm mt-0.5">
-              Riwayat seluruh aktivitas pengarsipan
+              History of all archiving activities
             </p>
           </div>
         </div>
         <div className="hidden md:flex items-center gap-2 text-xs text-gray-400 bg-white rounded-xl px-4 py-2 border border-gray-100">
           <Filter size={14} />
-          <span>{recentArchives.length} aktivitas terakhir</span>
+          <span>{recentArchives.length} recent activities</span>
         </div>
       </div>
 
@@ -90,12 +90,12 @@ export default async function ActivityPage() {
               </div>
               <h2 className="text-sm font-semibold text-gray-700">
                 {format(new Date(dateKey), "EEEE, dd MMMM yyyy", {
-                  locale: idLocale,
+                  locale: enLocale,
                 })}
               </h2>
               <div className="flex-1 h-px bg-gray-100" />
               <span className="text-xs text-gray-400 bg-gray-50 px-2 py-1 rounded-lg">
-                {archives.length} arsip
+                {archives.length} archives
               </span>
             </div>
 
@@ -132,7 +132,7 @@ export default async function ActivityPage() {
                           <span>•</span>
                           <span>
                             {format(new Date(archive.createdAt), "HH:mm", {
-                              locale: idLocale,
+                              locale: enLocale,
                             })}
                           </span>
                         </p>
@@ -168,10 +168,10 @@ export default async function ActivityPage() {
               <ClipboardList size={32} className="text-gray-300" />
             </div>
             <h3 className="text-lg font-semibold text-gray-900 mb-1">
-              Belum Ada Aktivitas
+              No Activity Yet
             </h3>
             <p className="text-sm text-gray-400">
-              Log akan muncul setelah ada arsip yang ditambahkan
+              Logs will appear once archives are added
             </p>
           </div>
         )}

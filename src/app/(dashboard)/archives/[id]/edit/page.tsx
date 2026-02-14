@@ -25,10 +25,10 @@ interface ArchiveData {
 }
 
 const DIVISIONS = [
-  { value: "KEUANGAN", label: "Divisi Keuangan" },
-  { value: "PENYELENGGARA", label: "Divisi Penyelenggara" },
-  { value: "TATA_USAHA", label: "Divisi Tata Usaha" },
-  { value: "UMUM", label: "Divisi Umum" },
+  { value: "KEUANGAN", label: "Finance" },
+  { value: "PENYELENGGARA", label: "Operations" },
+  { value: "TATA_USAHA", label: "Administration" },
+  { value: "UMUM", label: "General" },
 ];
 
 export default function EditArchivePage() {
@@ -52,7 +52,7 @@ export default function EditArchivePage() {
   useEffect(() => {
     fetch(`/api/archives/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Arsip tidak ditemukan");
+        if (!res.ok) throw new Error("Archive not found");
         return res.json();
       })
       .then((data: ArchiveData) => {
@@ -87,7 +87,7 @@ export default function EditArchivePage() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.error || "Gagal menyimpan perubahan");
+        throw new Error(err.error || "Failed to save changes");
       }
 
       router.push(`/archives/${id}`);
@@ -103,7 +103,7 @@ export default function EditArchivePage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
         <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Memuat data arsip...</p>
+        <p className="text-gray-400 text-sm">Loading archive data...</p>
       </div>
     );
   }
@@ -116,14 +116,14 @@ export default function EditArchivePage() {
             <AlertCircle size={32} className="text-red-400" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900 mb-1">
-            Arsip Tidak Ditemukan
+            Archive Not Found
           </h2>
           <p className="text-gray-400 text-sm mb-6">{error}</p>
           <Link
             href="/archives"
             className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
           >
-            Kembali ke Daftar Arsip
+            Back to Archive List
           </Link>
         </div>
       </div>
@@ -139,7 +139,7 @@ export default function EditArchivePage() {
           className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-4"
         >
           <ArrowLeft size={16} />
-          <span>Kembali ke Detail</span>
+          <span>Back to Details</span>
         </Link>
 
         <div className="flex items-center gap-3 mb-1">
@@ -147,11 +147,11 @@ export default function EditArchivePage() {
             <Edit3 size={20} className="text-amber-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Edit Arsip
+            Edit Archive
           </h1>
         </div>
         <p className="text-gray-500 mt-1 ml-12">
-          Ubah informasi arsip yang sudah ada
+          Edit existing archive information
         </p>
       </div>
 
@@ -169,7 +169,7 @@ export default function EditArchivePage() {
             {/* Nomor Arsip */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Nomor Arsip <span className="text-red-400">*</span>
+                Archive No. <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -179,14 +179,14 @@ export default function EditArchivePage() {
                   setForm({ ...form, archiveNumber: e.target.value })
                 }
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-                placeholder="Contoh: ARS-2026-001"
+                placeholder="e.g. ARS-2026-001"
               />
             </div>
 
             {/* Judul */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Judul <span className="text-red-400">*</span>
+                Title <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -194,14 +194,14 @@ export default function EditArchivePage() {
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-                placeholder="Judul arsip"
+                placeholder="Archive title"
               />
             </div>
 
             {/* Nomor Surat */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Nomor Surat <span className="text-red-400">*</span>
+                Letter No. <span className="text-red-400">*</span>
               </label>
               <input
                 type="text"
@@ -211,14 +211,14 @@ export default function EditArchivePage() {
                   setForm({ ...form, letterNumber: e.target.value })
                 }
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-                placeholder="Contoh: 001/BPK/2026"
+                placeholder="e.g. 001/BPK/2026"
               />
             </div>
 
             {/* Tanggal */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Tanggal <span className="text-red-400">*</span>
+                Date <span className="text-red-400">*</span>
               </label>
               <input
                 type="date"
@@ -232,7 +232,7 @@ export default function EditArchivePage() {
             {/* Divisi */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Divisi <span className="text-red-400">*</span>
+                Division <span className="text-red-400">*</span>
               </label>
               <select
                 required
@@ -240,7 +240,7 @@ export default function EditArchivePage() {
                 onChange={(e) => setForm({ ...form, division: e.target.value })}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
               >
-                <option value="">Pilih Divisi</option>
+                <option value="">Select Division</option>
                 {DIVISIONS.map((d) => (
                   <option key={d.value} value={d.value}>
                     {d.label}
@@ -252,7 +252,7 @@ export default function EditArchivePage() {
             {/* Kategori Status */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Kategori <span className="text-red-400">*</span>
+                Category <span className="text-red-400">*</span>
               </label>
               <select
                 required
@@ -260,8 +260,8 @@ export default function EditArchivePage() {
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
               >
-                <option value="AKTIF">Arsip Aktif</option>
-                <option value="INAKTIF">Arsip Inaktif</option>
+                <option value="AKTIF">Active Archive</option>
+                <option value="INAKTIF">Inactive Archive</option>
               </select>
             </div>
           </div>
@@ -269,7 +269,7 @@ export default function EditArchivePage() {
           {/* Deskripsi */}
           <div className="space-y-1.5">
             <label className="block text-sm font-semibold text-gray-700">
-              Deskripsi
+              Description
             </label>
             <textarea
               value={form.description}
@@ -278,7 +278,7 @@ export default function EditArchivePage() {
               }
               rows={3}
               className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
-              placeholder="Deskripsi arsip (opsional)"
+              placeholder="Archive description (optional)"
             />
           </div>
 
@@ -288,7 +288,7 @@ export default function EditArchivePage() {
               href={`/archives/${id}`}
               className="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
             >
-              Batal
+              Cancel
             </Link>
             <button
               type="submit"
@@ -298,12 +298,12 @@ export default function EditArchivePage() {
               {saving ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Menyimpan...
+                  Saving...
                 </>
               ) : (
                 <>
                   <Save size={16} />
-                  Simpan Perubahan
+                  Save Changes
                 </>
               )}
             </button>

@@ -69,7 +69,7 @@ export default function LoginPage() {
     });
 
     if (result?.error) {
-      setError("Email atau kata sandi salah");
+      setError("Invalid email or password");
       setLoading(false);
     } else {
       setTransitioning(true);
@@ -156,7 +156,7 @@ export default function LoginPage() {
 
           {/* Skip hint */}
           <p className="absolute bottom-8 text-white/20 text-xs tracking-widest uppercase intro-skip">
-            Klik di mana saja untuk melanjutkan
+            Click anywhere to continue
           </p>
         </div>
       )}
@@ -192,7 +192,7 @@ export default function LoginPage() {
           <div className="glass-dark rounded-3xl p-8 shadow-2xl">
             <div className="flex items-center gap-2 mb-6">
               <Shield size={20} className="text-blue-400" />
-              <h2 className="text-lg font-semibold text-white">Masuk ke Akun</h2>
+              <h2 className="text-lg font-semibold text-white">Sign In</h2>
             </div>
 
             {error && (
@@ -225,7 +225,7 @@ export default function LoginPage() {
 
               <div className="animate-fade-in-up stagger-2">
                 <label className="block text-sm font-medium text-blue-200/80 mb-1.5">
-                  Kata Sandi
+                  Password
                 </label>
                 <div className="relative">
                   <Lock
@@ -238,7 +238,7 @@ export default function LoginPage() {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     className="w-full pl-11 pr-12 py-3 bg-white/5 border border-white/10 rounded-xl text-white placeholder-blue-300/30 focus:outline-none focus:border-blue-400/50 focus:bg-white/10 transition-all text-sm"
-                    placeholder="Masukkan kata sandi"
+                    placeholder="Enter password"
                   />
                   <button
                     type="button"
@@ -259,10 +259,10 @@ export default function LoginPage() {
                   {loading ? (
                     <>
                       <Loader2 size={18} className="animate-spin" />
-                      Memverifikasi...
+                      Verifying...
                     </>
                   ) : (
-                    "Masuk"
+                    "Sign In"
                   )}
                 </button>
               </div>
@@ -276,6 +276,9 @@ export default function LoginPage() {
             </p>
             <p className="text-blue-300/25 text-xs mt-1">
               Sistem Informasi Pengarsipan v1.0
+            </p>
+            <p className="text-blue-300/30 text-xs mt-2">
+              Dibuat Oleh : <span className="text-blue-300/50 font-medium">MUH. ULIL AMRI, S.Kom. MTCNA</span>
             </p>
           </div>
         </div>
@@ -292,7 +295,7 @@ export default function LoginPage() {
               </span>
               <div className="flex items-center gap-2 mt-1">
                 <Loader2 size={14} className="text-blue-300 animate-spin" />
-                <span className="text-xs text-blue-300/70">Memuat dashboard...</span>
+                <span className="text-xs text-blue-300/70">Loading dashboard...</span>
               </div>
             </div>
           </div>
