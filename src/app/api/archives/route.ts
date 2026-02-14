@@ -7,7 +7,7 @@ import { createNotification, notifyAdmins } from "../../../utils/notificationHel
 export async function GET(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const { searchParams } = new URL(req.url);
@@ -16,8 +16,13 @@ export async function GET(req: NextRequest) {
   const status = searchParams.get("status");
   const page = parseInt(searchParams.get("page") || "1");
   const limit = parseInt(searchParams.get("limit") || "10");
-  const sortBy = searchParams.get("sortBy") || "createdAt";
-  const sortOrder = (searchParams.get("sortOrder") || "desc") as "asc" | "desc";
+  const sortByParam = searchParams.get("sortBy") || "createdAt";
+  const sortOrderParam = searchParams.get("sortOrder") || "desc";
+
+  // Whitelist allowed sort fields to prevent injection
+  const allowedSortFields = ["createdAt", "date", "title", "archiveNumber", "letterNumber", "division", "status"];
+  const sortBy = allowedSortFields.includes(sortByParam) ? sortByParam : "createdAt";
+  const sortOrder: "asc" | "desc" = sortOrderParam === "asc" ? "asc" : "desc";
 
   const where: any = {};
 
@@ -71,30 +76,41 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user) {
-    return NextResponse.json({ error: "Tidak terautentikasi" }, { status: 401 });
+    return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const body = await req.json();
   const { archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status } = body;
 
   if (!archiveNumber || !title || !letterNumber || !date || !division || !fileUrl || !fileId) {
-    return NextResponse.json({ error: "Field wajib tidak lengkap" }, { status: 400 });
+    return NextResponse.json({ error: "Required fields are missing" }, { status: 400 });
+  }
+
+  // Validate division
+  const validDivisions = ["KEUANGAN", "PENYELENGGARA", "TATA_USAHA", "UMUM"];
+  if (!validDivisions.includes(division)) {
+    return NextResponse.json({ error: "Invalid division" }, { status: 400 });
+  }
+
+  // Validate status
+  if (status && !["AKTIF", "INAKTIF"].includes(status)) {
+    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
   }
 
   // Check access
   if (!canAccessDivision(user.role, user.division, division)) {
-    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   const archive = await prisma.archive.create({
     data: {
-      archiveNumber,
-      title,
-      letterNumber,
+      archiveNumber: String(archiveNumber).trim(),
+      title: String(title).trim(),
+      letterNumber: String(letterNumber).trim(),
       date: new Date(date),
       division,
       status: status || "AKTIF",
-      description: description || null,
+      description: description ? String(description).trim() : null,
       fileUrl,
       fileId,
       createdBy: user.id,

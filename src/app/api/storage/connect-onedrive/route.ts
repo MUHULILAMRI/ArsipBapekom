@@ -9,7 +9,7 @@ import {
 export async function GET() {
   const user = await getCurrentUser();
   if (!user || !canManageStorage(user.role)) {
-    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   const url = getOneDriveAuthUrl();
@@ -20,12 +20,12 @@ export async function GET() {
 export async function POST(req: NextRequest) {
   const user = await getCurrentUser();
   if (!user || !canManageStorage(user.role)) {
-    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   const { code } = await req.json();
   if (!code) {
-    return NextResponse.json({ error: "Kode diperlukan" }, { status: 400 });
+    return NextResponse.json({ error: "Authorization code is required" }, { status: 400 });
   }
 
   try {

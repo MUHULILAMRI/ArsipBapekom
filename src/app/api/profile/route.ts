@@ -84,13 +84,13 @@ export async function PATCH(req: Request) {
       // Validate that it's a data URI and not too large (max ~2MB)
       if (!profileImage.startsWith("data:image/")) {
         return NextResponse.json(
-          { error: "Format gambar tidak valid" },
+          { error: "Invalid image format" },
           { status: 400 }
         );
       }
       if (profileImage.length > 2 * 1024 * 1024) {
         return NextResponse.json(
-          { error: "Ukuran gambar terlalu besar (maks 2MB)" },
+          { error: "Image size too large (max 2MB)" },
           { status: 400 }
         );
       }

@@ -10,29 +10,45 @@ export async function PUT(
 ) {
   const currentUser = await getCurrentUser();
   if (!currentUser || !canManageUsers(currentUser.role)) {
-    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   const { id } = await params;
   const body = await req.json();
   const { name, email, role, division, password } = body;
 
+  // Validate role if being changed
+  if (role) {
+    const validRoles = ["SUPER_ADMIN", "ADMIN", "USER"];
+    if (!validRoles.includes(role)) {
+      return NextResponse.json({ error: "Invalid role" }, { status: 400 });
+    }
+  }
+
+  // Validate division if being changed
+  if (division) {
+    const validDivisions = ["KEUANGAN", "PENYELENGGARA", "TATA_USAHA", "UMUM"];
+    if (!validDivisions.includes(division)) {
+      return NextResponse.json({ error: "Invalid division" }, { status: 400 });
+    }
+  }
+
   // Check if email already used by another user
   if (email) {
     const existing = await prisma.user.findFirst({
-      where: { email, id: { not: id } },
+      where: { email: email.trim().toLowerCase(), id: { not: id } },
     });
     if (existing) {
       return NextResponse.json(
-        { error: "Email sudah digunakan user lain" },
+        { error: "Email is already used by another user" },
         { status: 400 }
       );
     }
   }
 
   const updateData: any = {};
-  if (name) updateData.name = name;
-  if (email) updateData.email = email;
+  if (name) updateData.name = String(name).trim();
+  if (email) updateData.email = String(email).trim().toLowerCase();
   if (role) updateData.role = role;
   if (division) updateData.division = division;
   if (password && password.length >= 6) {
@@ -62,7 +78,7 @@ export async function DELETE(
 ) {
   const currentUser = await getCurrentUser();
   if (!currentUser || !canManageUsers(currentUser.role)) {
-    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   const { id } = await params;
@@ -70,7 +86,7 @@ export async function DELETE(
   // Prevent deleting self
   if (id === currentUser.id) {
     return NextResponse.json(
-      { error: "Tidak dapat menghapus akun sendiri" },
+      { error: "Cannot delete your own account" },
       { status: 400 }
     );
   }
@@ -83,7 +99,7 @@ export async function DELETE(
   if (archiveCount > 0) {
     return NextResponse.json(
       {
-        error: `User memiliki ${archiveCount} arsip. Hapus atau pindahkan arsip terlebih dahulu.`,
+        error: `User has ${archiveCount} archives. Delete or reassign archives first.`,
       },
       { status: 400 }
     );
@@ -94,5 +110,5 @@ export async function DELETE(
 
   await prisma.user.delete({ where: { id } });
 
-  return NextResponse.json({ message: "User berhasil dihapus" });
+  return NextResponse.json({ message: "User deleted successfully" });
 }

@@ -8,6 +8,15 @@ export async function GET(req: NextRequest) {
 
   // If code is present, this is a callback from Google
   if (code) {
+    // Verify the user is authenticated and has storage management permission
+    const callbackUser = await getCurrentUser();
+    if (!callbackUser || !canManageStorage(callbackUser.role)) {
+      const baseUrl = process.env.NEXTAUTH_URL || req.nextUrl.origin;
+      return NextResponse.redirect(
+        `${baseUrl}/admin/storage?error=${encodeURIComponent("Unauthorized: You must be logged in as Admin to connect storage")}`
+      );
+    }
+
     try {
       await handleGoogleCallback(code);
       // Redirect to admin storage page with success message
@@ -26,7 +35,7 @@ export async function GET(req: NextRequest) {
   // Otherwise, generate OAuth URL
   const user = await getCurrentUser();
   if (!user || !canManageStorage(user.role)) {
-    return NextResponse.json({ error: "Akses ditolak" }, { status: 403 });
+    return NextResponse.json({ error: "Access denied" }, { status: 403 });
   }
 
   const url = getGoogleAuthUrl();

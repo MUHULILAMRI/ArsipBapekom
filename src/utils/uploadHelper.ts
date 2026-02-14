@@ -10,7 +10,7 @@ async function getActiveStorageProvider(): Promise<StorageProvider> {
     orderBy: { updatedAt: "desc" },
   });
 
-  if (!config) throw new Error("Belum ada storage yang dikonfigurasi");
+  if (!config) throw new Error("No storage has been configured. Please set up Google Drive or OneDrive first.");
   return config.provider as StorageProvider;
 }
 
