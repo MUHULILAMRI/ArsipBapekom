@@ -40,7 +40,6 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           role: user.role,
           division: user.division,
-          profileImage: user.profileImage,
         };
       },
     }),
@@ -51,12 +50,10 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as any).role;
         token.division = (user as any).division;
-        token.profileImage = (user as any).profileImage;
       }
       // Handle session update (e.g. after profile edit)
       if (trigger === "update" && updateSession) {
         if (updateSession.name) token.name = updateSession.name;
-        if (updateSession.profileImage !== undefined) token.profileImage = updateSession.profileImage;
         if (updateSession.division) token.division = updateSession.division;
         if (updateSession.email) token.email = updateSession.email;
       }
@@ -67,7 +64,6 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
         (session.user as any).division = token.division;
-        (session.user as any).profileImage = token.profileImage;
       }
       return session;
     },

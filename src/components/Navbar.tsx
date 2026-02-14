@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { Search, Sparkles, Loader2 } from "lucide-react";
@@ -29,6 +29,16 @@ export default function Navbar() {
   const [searching, setSearching] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [debounceTimer, setDebounceTimer] = useState<NodeJS.Timeout | null>(null);
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetch("/api/profile")
+        .then(res => res.ok ? res.json() : null)
+        .then(data => { if (data?.profileImage) setAvatarUrl(data.profileImage); })
+        .catch(() => {});
+    }
+  }, [session?.user]);
 
   const handleSearch = (value: string) => {
     setQuery(value);
@@ -180,9 +190,9 @@ export default function Navbar() {
               </p>
             </div>
             <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md shadow-blue-500/20 overflow-hidden">
-              {(session?.user as any)?.profileImage ? (
+              {avatarUrl ? (
                 <img
-                  src={(session?.user as any).profileImage}
+                  src={avatarUrl}
                   alt={session?.user?.name || ""}
                   className="w-full h-full object-cover"
                 />

@@ -8,7 +8,6 @@ declare module "next-auth" {
       email: string;
       role: string;
       division: string;
-      profileImage?: string | null;
     };
   }
 
@@ -18,7 +17,6 @@ declare module "next-auth" {
     email: string;
     role: string;
     division: string;
-    profileImage?: string | null;
   }
 }
 
@@ -27,6 +25,5 @@ declare module "next-auth/jwt" {
     id: string;
     role: string;
     division: string;
-    profileImage?: string | null;
   }
 }

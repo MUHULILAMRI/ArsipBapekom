@@ -284,7 +284,6 @@ export default function ProfilePage() {
       }
       setProfile(prev => prev ? { ...prev, profileImage: data.profileImage } : prev);
       showToast("success", "Profile photo updated successfully");
-      await update({ profileImage: data.profileImage });
     } catch (err: any) {
       showToast("error", "Failed to save photo", err.message);
     } finally {
@@ -307,7 +306,6 @@ export default function ProfilePage() {
       setAvatarPreview(null);
       setProfile(prev => prev ? { ...prev, profileImage: null } : prev);
       showToast("success", "Profile photo removed");
-      await update({ profileImage: null });
     } catch (err: any) {
       showToast("error", "Failed to remove photo", err.message);
     } finally {
