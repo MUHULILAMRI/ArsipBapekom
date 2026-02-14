@@ -127,8 +127,11 @@ export default function ProfilePage() {
   const [showConfirmPw, setShowConfirmPw] = useState(false);
   const [savingPassword, setSavingPassword] = useState(false);
 
+  const profileLoadedRef = useRef(false);
+
   useEffect(() => {
-    if (sessionStatus === "authenticated") {
+    if (sessionStatus === "authenticated" && !profileLoadedRef.current) {
+      profileLoadedRef.current = true;
       fetchProfile();
     } else if (sessionStatus === "unauthenticated") {
       setLoading(false);
@@ -169,13 +172,15 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: editName.trim() }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to update name");
       }
+      // Update local state directly from API response (no full page reload)
+      setProfile(prev => prev ? { ...prev, name: data.name } : prev);
+      setEditName(data.name);
       showToast("success", "Name updated successfully");
-      fetchProfile();
-      await update({ name: editName.trim() });
+      await update({ name: data.name });
     } catch (err: any) {
       showToast("error", "Failed to update name", err.message);
     } finally {
@@ -193,13 +198,14 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: editEmail.trim() }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to update email");
       }
+      setProfile(prev => prev ? { ...prev, email: data.email } : prev);
+      setEditEmail(data.email);
       showToast("success", "Email updated successfully");
-      fetchProfile();
-      await update({ email: editEmail.trim() });
+      await update({ email: data.email });
     } catch (err: any) {
       showToast("error", "Failed to update email", err.message);
     } finally {
@@ -216,13 +222,14 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ division: div }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to update division");
       }
+      setProfile(prev => prev ? { ...prev, division: data.division } : prev);
+      setEditDivision(data.division);
       showToast("success", "Division updated successfully");
-      fetchProfile();
-      await update({ division: div });
+      await update({ division: data.division });
     } catch (err: any) {
       showToast("error", "Failed to update division", err.message);
     } finally {
@@ -271,13 +278,13 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ profileImage: avatarPreview }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to save photo");
       }
+      setProfile(prev => prev ? { ...prev, profileImage: data.profileImage } : prev);
       showToast("success", "Profile photo updated successfully");
-      fetchProfile();
-      await update({ profileImage: avatarPreview });
+      await update({ profileImage: data.profileImage });
     } catch (err: any) {
       showToast("error", "Failed to save photo", err.message);
     } finally {
@@ -293,13 +300,13 @@ export default function ProfilePage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ profileImage: null }),
       });
+      const data = await res.json();
       if (!res.ok) {
-        const data = await res.json();
-        throw new Error(data.error);
+        throw new Error(data.error || "Failed to remove photo");
       }
       setAvatarPreview(null);
+      setProfile(prev => prev ? { ...prev, profileImage: null } : prev);
       showToast("success", "Profile photo removed");
-      fetchProfile();
       await update({ profileImage: null });
     } catch (err: any) {
       showToast("error", "Failed to remove photo", err.message);
