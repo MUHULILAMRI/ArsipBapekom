@@ -96,12 +96,27 @@ async function getOrCreateDivisionFolder(
   return createFolder(drive, folderName, rootId);
 }
 
+async function getOrCreateYearFolder(
+  drive: ReturnType<typeof google.drive>,
+  division: string,
+  year: string
+): Promise<string> {
+  const divisionFolderId = await getOrCreateDivisionFolder(drive, division);
+
+  const existing = await findFolder(drive, year, divisionFolderId);
+  if (existing) return existing;
+  return createFolder(drive, year, divisionFolderId);
+}
+
 export async function uploadToDrive(
   file: { name: string; type: string; buffer: Buffer },
-  division: string
+  division: string,
+  year?: string
 ) {
   const drive = await getAuthenticatedDrive();
-  const folderId = await getOrCreateDivisionFolder(drive, division);
+  const folderId = year
+    ? await getOrCreateYearFolder(drive, division, year)
+    : await getOrCreateDivisionFolder(drive, division);
 
   const { Readable } = await import("stream");
   const stream = new Readable();

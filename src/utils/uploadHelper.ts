@@ -16,13 +16,14 @@ async function getActiveStorageProvider(): Promise<StorageProvider> {
 
 export async function uploadFile(
   file: { name: string; type: string; buffer: Buffer },
-  division: string
+  division: string,
+  year?: string
 ): Promise<{ fileId: string; fileUrl: string }> {
   const provider = await getActiveStorageProvider();
 
   if (provider === "google") {
-    return uploadToDrive(file, division);
+    return uploadToDrive(file, division, year);
   } else {
-    return uploadToOneDrive(file, division);
+    return uploadToOneDrive(file, division, year);
   }
 }

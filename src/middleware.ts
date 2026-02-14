@@ -6,12 +6,17 @@ const adminUserPaths = ["/admin/users"];
 const adminStoragePaths = ["/admin/storage"];
 
 export async function middleware(req: NextRequest) {
-  // Step 1: Clear old oversized session cookies that cause HTTP 431
+  const path = req.nextUrl.pathname;
+
+  // Step 1: Clear old oversized session cookies (only once via flag param)
   const oldCookie = req.cookies.get("next-auth.session-token");
   const oldCookieChunked = req.cookies.getAll().filter(c => c.name.startsWith("next-auth.session-token."));
+  const alreadyCleaned = req.nextUrl.searchParams.has("_cleaned");
 
-  if (oldCookie || oldCookieChunked.length > 0) {
-    const response = NextResponse.redirect(req.url);
+  if ((oldCookie || oldCookieChunked.length > 0) && !alreadyCleaned) {
+    const cleanUrl = new URL(req.url);
+    cleanUrl.searchParams.set("_cleaned", "1");
+    const response = NextResponse.redirect(cleanUrl);
     response.cookies.set("next-auth.session-token", "", { maxAge: 0, path: "/" });
     for (const c of oldCookieChunked) {
       response.cookies.set(c.name, "", { maxAge: 0, path: "/" });
@@ -21,7 +26,13 @@ export async function middleware(req: NextRequest) {
     return response;
   }
 
-  const path = req.nextUrl.pathname;
+  // Remove _cleaned param so it doesn't persist in URL
+  if (alreadyCleaned) {
+    const cleanUrl = new URL(req.url);
+    cleanUrl.searchParams.delete("_cleaned");
+    const response = NextResponse.redirect(cleanUrl);
+    return response;
+  }
 
   // Step 2: Check if this is a protected route
   const isProtected = protectedPaths.some(p => path.startsWith(p));

@@ -25,6 +25,7 @@ export async function POST(req: NextRequest) {
     const formData = await req.formData();
     const file = formData.get("file") as File;
     const division = formData.get("division") as string;
+    const year = formData.get("year") as string | null;
 
     if (!file || !division) {
       return NextResponse.json(
@@ -89,7 +90,8 @@ export async function POST(req: NextRequest) {
         type: file.type,
         buffer,
       },
-      division
+      division,
+      year || undefined
     );
 
     return NextResponse.json(result);

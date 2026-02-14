@@ -78,7 +78,8 @@ async function getOrCreateFolder(
 
 export async function uploadToOneDrive(
   file: { name: string; type: string; buffer: Buffer },
-  division: string
+  division: string,
+  year?: string
 ) {
   const client = await getGraphClient();
 
@@ -93,9 +94,19 @@ export async function uploadToOneDrive(
     `/me/drive/items/${rootFolderId}`
   );
 
+  // Get or create year folder if year is provided
+  let targetFolderId = divisionFolderId;
+  if (year) {
+    targetFolderId = await getOrCreateFolder(
+      client,
+      year,
+      `/me/drive/items/${divisionFolderId}`
+    );
+  }
+
   // Upload file
   const uploadedFile = await client
-    .api(`/me/drive/items/${divisionFolderId}:/${file.name}:/content`)
+    .api(`/me/drive/items/${targetFolderId}:/${file.name}:/content`)
     .putStream(file.buffer);
 
   // Create sharing link

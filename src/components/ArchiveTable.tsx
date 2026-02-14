@@ -69,15 +69,32 @@ export default function ArchiveTable({
   const [globalFilter, setGlobalFilter] = useState("");
   const [divisionFilter, setDivisionFilter] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
+  const [yearFilter, setYearFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
   const [dateTo, setDateTo] = useState("");
 
   const hasDateFilter = dateFrom || dateTo;
+  const hasAnyFilter = divisionFilter || statusFilter || yearFilter || hasDateFilter;
 
   const clearDateFilter = () => {
     setDateFrom("");
     setDateTo("");
   };
+
+  const clearAllFilters = () => {
+    setDivisionFilter("");
+    setStatusFilter("");
+    setYearFilter("");
+    setDateFrom("");
+    setDateTo("");
+    setGlobalFilter("");
+  };
+
+  // Get available years from data
+  const availableYears = useMemo(() => {
+    const years = [...new Set(data.map((d) => new Date(d.date).getFullYear().toString()))];
+    return years.sort((a, b) => parseInt(b) - parseInt(a));
+  }, [data]);
 
   const filteredData = useMemo(() => {
     let result = data;
@@ -86,6 +103,9 @@ export default function ArchiveTable({
     }
     if (statusFilter) {
       result = result.filter((d) => d.status === statusFilter);
+    }
+    if (yearFilter) {
+      result = result.filter((d) => new Date(d.date).getFullYear().toString() === yearFilter);
     }
     if (dateFrom) {
       const from = new Date(dateFrom);
@@ -98,7 +118,7 @@ export default function ArchiveTable({
       result = result.filter((d) => new Date(d.date) <= to);
     }
     return result;
-  }, [data, divisionFilter, statusFilter, dateFrom, dateTo]);
+  }, [data, divisionFilter, statusFilter, yearFilter, dateFrom, dateTo]);
 
   const columns = useMemo(
     () => [
@@ -284,6 +304,33 @@ export default function ArchiveTable({
             <option value="INAKTIF">Inactive</option>
           </select>
         </div>
+        <div className="relative">
+          <CalendarDays
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400"
+            size={16}
+          />
+          <select
+            value={yearFilter}
+            onChange={(e) => setYearFilter(e.target.value)}
+            className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
+          >
+            <option value="">All Years</option>
+            {availableYears.map((year) => (
+              <option key={year} value={year}>
+                {year}
+              </option>
+            ))}
+          </select>
+        </div>
+        {hasAnyFilter && (
+          <button
+            onClick={clearAllFilters}
+            className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-all"
+          >
+            <X size={14} />
+            Reset All
+          </button>
+        )}
       </div>
 
       {/* Date Range Filter */}

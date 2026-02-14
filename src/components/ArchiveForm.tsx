@@ -67,6 +67,11 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
       const formData = new FormData();
       formData.append("file", file);
       formData.append("division", form.division);
+      // Send year from the archive date for folder organization
+      if (form.date) {
+        const year = new Date(form.date).getFullYear().toString();
+        formData.append("year", year);
+      }
 
       const uploadRes = await fetch("/api/upload", {
         method: "POST",

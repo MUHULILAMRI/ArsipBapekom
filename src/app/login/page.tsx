@@ -118,10 +118,13 @@ export default function LoginPage() {
 
           {/* Content */}
           <div className="relative z-10 flex flex-col items-center text-center px-6 max-w-4xl">
-            {/* Logo */}
-            <div className="intro-logo mb-8">
+            {/* Logos */}
+            <div className="intro-logo mb-8 flex items-center gap-6">
               <div className="w-24 h-24 rounded-3xl bg-white/95 flex items-center justify-center shadow-2xl shadow-amber-500/20 overflow-hidden">
-                <Image src="/pu-logo-png_seeklogo-355609.png" alt="Logo" width={68} height={68} className="object-contain" />
+                <Image src="/pu-logo-png_seeklogo-355609.png" alt="Logo PU" width={68} height={68} className="object-contain" />
+              </div>
+              <div className="w-24 h-24 rounded-3xl bg-white/95 flex items-center justify-center shadow-2xl shadow-amber-500/20 overflow-hidden">
+                <Image src="/LOGO%20BPSDM%20WIL%208.jpg" alt="Logo BPSDM Wilayah 8" width={68} height={68} className="object-contain" />
               </div>
             </div>
 
