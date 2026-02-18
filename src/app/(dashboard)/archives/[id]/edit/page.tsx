@@ -22,13 +22,30 @@ interface ArchiveData {
   description: string | null;
   fileUrl: string;
   fileId: string;
+  // Arsip Aktif fields
+  noBerkas?: string | null;
+  noUrut?: string | null;
+  kode?: string | null;
+  indexPekerjaan?: string | null;
+  uraianMasalah?: string | null;
+  tahun?: string | null;
+  jumlahBerkas?: string | null;
+  keteranganAsliCopy?: string | null;
+  keteranganBox?: string | null;
+  // Arsip Inaktif fields
+  noItem?: string | null;
+  kodeKlasifikasi?: string | null;
+  indeks?: string | null;
+  uraianInformasi?: string | null;
+  kurunWaktu?: string | null;
+  keteranganSKKAAD?: string | null;
 }
 
 const DIVISIONS = [
-  { value: "KEUANGAN", label: "Finance" },
-  { value: "PENYELENGGARA", label: "Operations" },
-  { value: "TATA_USAHA", label: "Administration" },
-  { value: "UMUM", label: "General" },
+  { value: "KEUANGAN", label: "Keuangan" },
+  { value: "PENYELENGGARA", label: "Penyelenggara" },
+  { value: "TATA_USAHA", label: "Tata Usaha" },
+  { value: "UMUM", label: "Umum" },
 ];
 
 export default function EditArchivePage() {
@@ -47,12 +64,31 @@ export default function EditArchivePage() {
     division: "",
     status: "AKTIF",
     description: "",
+    // Arsip Aktif fields
+    noBerkas: "",
+    noUrut: "",
+    kode: "",
+    indexPekerjaan: "",
+    uraianMasalah: "",
+    tahun: "",
+    jumlahBerkas: "",
+    keteranganAsliCopy: "",
+    keteranganBox: "",
+    // Arsip Inaktif fields
+    noItem: "",
+    kodeKlasifikasi: "",
+    indeks: "",
+    uraianInformasi: "",
+    kurunWaktu: "",
+    keteranganSKKAAD: "",
   });
+
+  const isAktif = form.status === "AKTIF";
 
   useEffect(() => {
     fetch(`/api/archives/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Archive not found");
+        if (!res.ok) throw new Error("Arsip tidak ditemukan");
         return res.json();
       })
       .then((data: ArchiveData) => {
@@ -64,6 +100,23 @@ export default function EditArchivePage() {
           division: data.division,
           status: data.status || "AKTIF",
           description: data.description || "",
+          // Arsip Aktif fields
+          noBerkas: data.noBerkas || "",
+          noUrut: data.noUrut || "",
+          kode: data.kode || "",
+          indexPekerjaan: data.indexPekerjaan || "",
+          uraianMasalah: data.uraianMasalah || "",
+          tahun: data.tahun || "",
+          jumlahBerkas: data.jumlahBerkas || "",
+          keteranganAsliCopy: data.keteranganAsliCopy || "",
+          keteranganBox: data.keteranganBox || "",
+          // Arsip Inaktif fields
+          noItem: data.noItem || "",
+          kodeKlasifikasi: data.kodeKlasifikasi || "",
+          indeks: data.indeks || "",
+          uraianInformasi: data.uraianInformasi || "",
+          kurunWaktu: data.kurunWaktu || "",
+          keteranganSKKAAD: data.keteranganSKKAAD || "",
         });
       })
       .catch((err) => setError(err.message))
@@ -76,18 +129,53 @@ export default function EditArchivePage() {
     setSaveError("");
 
     try {
+      const submitData: any = {
+        division: form.division,
+        status: form.status,
+      };
+
+      if (isAktif) {
+        submitData.noBerkas = form.noBerkas;
+        submitData.noUrut = form.noUrut;
+        submitData.kode = form.kode;
+        submitData.indexPekerjaan = form.indexPekerjaan;
+        submitData.uraianMasalah = form.uraianMasalah;
+        submitData.tahun = form.tahun;
+        submitData.jumlahBerkas = form.jumlahBerkas;
+        submitData.keteranganAsliCopy = form.keteranganAsliCopy;
+        submitData.keteranganBox = form.keteranganBox;
+        // Set legacy fields
+        submitData.archiveNumber = form.noBerkas || "-";
+        submitData.title = form.indexPekerjaan || form.uraianMasalah || "-";
+        submitData.letterNumber = form.kode || "-";
+        submitData.date = form.tahun ? `${form.tahun}-01-01` : form.date;
+      } else {
+        submitData.noBerkas = form.noBerkas;
+        submitData.noItem = form.noItem;
+        submitData.kodeKlasifikasi = form.kodeKlasifikasi;
+        submitData.indeks = form.indeks;
+        submitData.uraianInformasi = form.uraianInformasi;
+        submitData.kurunWaktu = form.kurunWaktu;
+        submitData.jumlahBerkas = form.jumlahBerkas;
+        submitData.keteranganAsliCopy = form.keteranganAsliCopy;
+        submitData.keteranganBox = form.keteranganBox;
+        submitData.keteranganSKKAAD = form.keteranganSKKAAD;
+        // Set legacy fields
+        submitData.archiveNumber = form.noBerkas || "-";
+        submitData.title = form.indeks || form.uraianInformasi || "-";
+        submitData.letterNumber = form.kodeKlasifikasi || "-";
+        submitData.date = form.kurunWaktu ? `${form.kurunWaktu.split('-')[0]}-01-01` : form.date;
+      }
+
       const res = await fetch(`/api/archives/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          date: form.date,
-        }),
+        body: JSON.stringify(submitData),
       });
 
       if (!res.ok) {
-        const err = await res.json();
-        throw new Error(err.error || "Failed to save changes");
+        const err = await res.json().catch(() => ({}));
+        throw new Error(err.error || "Gagal menyimpan perubahan");
       }
 
       router.push(`/archives/${id}`);
@@ -147,11 +235,11 @@ export default function EditArchivePage() {
             <Edit3 size={20} className="text-amber-600" />
           </div>
           <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-            Edit Archive
+            Edit Arsip
           </h1>
         </div>
         <p className="text-gray-500 mt-1 ml-12">
-          Edit existing archive information
+          Edit informasi arsip yang sudah ada
         </p>
       </div>
 
@@ -165,94 +253,12 @@ export default function EditArchivePage() {
             </div>
           )}
 
+          {/* Category & Division - always shown first */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Nomor Arsip */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">
-                Archive No. <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={form.archiveNumber}
-                onChange={(e) =>
-                  setForm({ ...form, archiveNumber: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-                placeholder="e.g. ARS-2026-001"
-              />
-            </div>
-
-            {/* Judul */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">
-                Title <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={form.title}
-                onChange={(e) => setForm({ ...form, title: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-                placeholder="Archive title"
-              />
-            </div>
-
-            {/* Nomor Surat */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">
-                Letter No. <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="text"
-                required
-                value={form.letterNumber}
-                onChange={(e) =>
-                  setForm({ ...form, letterNumber: e.target.value })
-                }
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-                placeholder="e.g. 001/BPK/2026"
-              />
-            </div>
-
-            {/* Tanggal */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">
-                Date <span className="text-red-400">*</span>
-              </label>
-              <input
-                type="date"
-                required
-                value={form.date}
-                onChange={(e) => setForm({ ...form, date: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-              />
-            </div>
-
-            {/* Divisi */}
-            <div className="space-y-1.5">
-              <label className="block text-sm font-semibold text-gray-700">
-                Division <span className="text-red-400">*</span>
-              </label>
-              <select
-                required
-                value={form.division}
-                onChange={(e) => setForm({ ...form, division: e.target.value })}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-              >
-                <option value="">Select Division</option>
-                {DIVISIONS.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
-            </div>
-
             {/* Kategori Status */}
             <div className="space-y-1.5">
               <label className="block text-sm font-semibold text-gray-700">
-                Category <span className="text-red-400">*</span>
+                Kategori Arsip <span className="text-red-400">*</span>
               </label>
               <select
                 required
@@ -260,27 +266,340 @@ export default function EditArchivePage() {
                 onChange={(e) => setForm({ ...form, status: e.target.value })}
                 className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
               >
-                <option value="AKTIF">Active Archive</option>
-                <option value="INAKTIF">Inactive Archive</option>
+                <option value="AKTIF">Arsip Aktif</option>
+                <option value="INAKTIF">Arsip Inaktif</option>
+              </select>
+            </div>
+
+            {/* Divisi */}
+            <div className="space-y-1.5">
+              <label className="block text-sm font-semibold text-gray-700">
+                Divisi <span className="text-red-400">*</span>
+              </label>
+              <select
+                required
+                value={form.division}
+                onChange={(e) => setForm({ ...form, division: e.target.value })}
+                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+              >
+                <option value="">Pilih Divisi</option>
+                {DIVISIONS.map((d) => (
+                  <option key={d.value} value={d.value}>
+                    {d.label}
+                  </option>
+                ))}
               </select>
             </div>
           </div>
 
-          {/* Deskripsi */}
-          <div className="space-y-1.5">
-            <label className="block text-sm font-semibold text-gray-700">
-              Description
-            </label>
-            <textarea
-              value={form.description}
-              onChange={(e) =>
-                setForm({ ...form, description: e.target.value })
-              }
-              rows={3}
-              className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
-              placeholder="Archive description (optional)"
-            />
-          </div>
+          {/* Conditional Fields based on Status */}
+          {isAktif ? (
+            <div className="border-t border-gray-100 pt-6">
+              <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+                Data Arsip Aktif
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* No Berkas */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    No. Berkas <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.noBerkas}
+                    onChange={(e) => setForm({ ...form, noBerkas: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 001"
+                  />
+                </div>
+
+                {/* No Urut */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    No. Urut <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.noUrut}
+                    onChange={(e) => setForm({ ...form, noUrut: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 1"
+                  />
+                </div>
+
+                {/* Kode */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Kode <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.kode}
+                    onChange={(e) => setForm({ ...form, kode: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: KU.01.01"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                {/* Index / Pekerjaan */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Index / Pekerjaan <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.indexPekerjaan}
+                    onChange={(e) => setForm({ ...form, indexPekerjaan: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: Laporan Keuangan"
+                  />
+                </div>
+
+                {/* Tahun */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Tahun <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.tahun}
+                    onChange={(e) => setForm({ ...form, tahun: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 2026"
+                  />
+                </div>
+              </div>
+
+              {/* Uraian Masalah / Kegiatan */}
+              <div className="space-y-1.5 mt-6">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Uraian Masalah / Kegiatan <span className="text-red-400">*</span>
+                </label>
+                <textarea
+                  required
+                  value={form.uraianMasalah}
+                  onChange={(e) => setForm({ ...form, uraianMasalah: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
+                  placeholder="Uraian masalah atau kegiatan arsip"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+                {/* ML Berkas (Jumlah) */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Jumlah Berkas (ML)
+                  </label>
+                  <input
+                    type="text"
+                    value={form.jumlahBerkas}
+                    onChange={(e) => setForm({ ...form, jumlahBerkas: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 5"
+                  />
+                </div>
+
+                {/* Keterangan: Asli/Copy */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Keterangan: Asli/Copy
+                  </label>
+                  <select
+                    value={form.keteranganAsliCopy}
+                    onChange={(e) => setForm({ ...form, keteranganAsliCopy: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                  >
+                    <option value="">Pilih</option>
+                    <option value="ASLI">Asli</option>
+                    <option value="COPY">Copy</option>
+                  </select>
+                </div>
+
+                {/* Keterangan: Box */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Keterangan: Box
+                  </label>
+                  <input
+                    type="text"
+                    value={form.keteranganBox}
+                    onChange={(e) => setForm({ ...form, keteranganBox: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: Box 1"
+                  />
+                </div>
+              </div>
+            </div>
+          ) : (
+            <div className="border-t border-gray-100 pt-6">
+              <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+                <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+                Data Arsip Inaktif
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {/* Nomor Berkas */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Nomor Berkas <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.noBerkas}
+                    onChange={(e) => setForm({ ...form, noBerkas: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 001"
+                  />
+                </div>
+
+                {/* No. Item */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    No. Item <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.noItem}
+                    onChange={(e) => setForm({ ...form, noItem: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 1"
+                  />
+                </div>
+
+                {/* Kode Klasifikasi */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Kode Klasifikasi <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.kodeKlasifikasi}
+                    onChange={(e) => setForm({ ...form, kodeKlasifikasi: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: KU.01.01"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+                {/* Indeks */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Indeks <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.indeks}
+                    onChange={(e) => setForm({ ...form, indeks: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: Laporan Keuangan"
+                  />
+                </div>
+
+                {/* Kurun Waktu */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Kurun Waktu <span className="text-red-400">*</span>
+                  </label>
+                  <input
+                    type="text"
+                    required
+                    value={form.kurunWaktu}
+                    onChange={(e) => setForm({ ...form, kurunWaktu: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 2020-2025"
+                  />
+                </div>
+              </div>
+
+              {/* Uraian Informasi */}
+              <div className="space-y-1.5 mt-6">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Uraian Informasi <span className="text-red-400">*</span>
+                </label>
+                <textarea
+                  required
+                  value={form.uraianInformasi}
+                  onChange={(e) => setForm({ ...form, uraianInformasi: e.target.value })}
+                  rows={3}
+                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
+                  placeholder="Uraian informasi arsip"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+                {/* Jumlah Berkas */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Jumlah Berkas
+                  </label>
+                  <input
+                    type="text"
+                    value={form.jumlahBerkas}
+                    onChange={(e) => setForm({ ...form, jumlahBerkas: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: 5"
+                  />
+                </div>
+
+                {/* Keterangan: Asli/Kopi */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Keterangan: Asli/Kopi
+                  </label>
+                  <select
+                    value={form.keteranganAsliCopy}
+                    onChange={(e) => setForm({ ...form, keteranganAsliCopy: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                  >
+                    <option value="">Pilih</option>
+                    <option value="ASLI">Asli</option>
+                    <option value="KOPI">Kopi</option>
+                  </select>
+                </div>
+
+                {/* Keterangan: Box */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Keterangan: Box
+                  </label>
+                  <input
+                    type="text"
+                    value={form.keteranganBox}
+                    onChange={(e) => setForm({ ...form, keteranganBox: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: Box 1"
+                  />
+                </div>
+
+                {/* Keterangan: SKKAAD */}
+                <div className="space-y-1.5">
+                  <label className="block text-sm font-semibold text-gray-700">
+                    Keterangan: SKKAAD
+                  </label>
+                  <input
+                    type="text"
+                    value={form.keteranganSKKAAD}
+                    onChange={(e) => setForm({ ...form, keteranganSKKAAD: e.target.value })}
+                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
+                    placeholder="Contoh: SKKAAD-001"
+                  />
+                </div>
+              </div>
+            </div>
+          )}
 
           {/* Submit Buttons */}
           <div className="flex justify-end gap-3 pt-4 border-t border-gray-100">
@@ -298,12 +617,12 @@ export default function EditArchivePage() {
               {saving ? (
                 <>
                   <Loader2 size={16} className="animate-spin" />
-                  Saving...
+                  Menyimpan...
                 </>
               ) : (
                 <>
                   <Save size={16} />
-                  Save Changes
+                  Simpan Perubahan
                 </>
               )}
             </button>

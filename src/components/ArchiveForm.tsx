@@ -22,16 +22,38 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
   const [error, setError] = useState("");
 
   const [form, setForm] = useState({
-    archiveNumber: "",
-    title: "",
-    letterNumber: "",
-    date: "",
+    // Common fields
     division: userRole === "USER" ? (userDivision || "") : "",
     status: "AKTIF",
     description: "",
+
+    // Arsip Aktif fields
+    noBerkas: "",
+    noUrut: "",
+    kode: "",
+    indexPekerjaan: "",
+    uraianMasalah: "",
+    tahun: "",
+    jumlahBerkas: "",
+    keteranganAsliCopy: "",
+    keteranganBox: "",
+
+    // Arsip Inaktif fields
+    noBerkasInaktif: "",
+    noItem: "",
+    kodeKlasifikasi: "",
+    indeks: "",
+    uraianInformasi: "",
+    kurunWaktu: "",
+    jumlahBerkasInaktif: "",
+    keteranganAsliKopi: "",
+    keteranganBoxInaktif: "",
+    keteranganSKKAAD: "",
   });
   const [file, setFile] = useState<File | null>(null);
   const [dragActive, setDragActive] = useState(false);
+
+  const isAktif = form.status === "AKTIF";
 
   const handleDrag = (e: React.DragEvent) => {
     e.preventDefault();
@@ -58,46 +80,89 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
     setError("");
 
     try {
-      if (!file) {
-        setError("File is required");
-        setLoading(false);
-        return;
+      let fileId = null;
+      let fileUrl = null;
+
+      // Upload file only if provided
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("division", form.division);
+
+        // Send year for folder organization
+        if (isAktif && form.tahun) {
+          formData.append("year", form.tahun);
+        } else if (!isAktif && form.kurunWaktu) {
+          formData.append("year", form.kurunWaktu);
+        }
+
+        const uploadRes = await fetch("/api/upload", {
+          method: "POST",
+          body: formData,
+        });
+
+        if (!uploadRes.ok) {
+          const err = await uploadRes.json().catch(() => ({}));
+          throw new Error(err.error || "Upload gagal");
+        }
+
+        const uploadData = await uploadRes.json();
+        fileId = uploadData.fileId;
+        fileUrl = uploadData.fileUrl;
       }
 
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("division", form.division);
-      // Send year from the archive date for folder organization
-      if (form.date) {
-        const year = new Date(form.date).getFullYear().toString();
-        formData.append("year", year);
+      // Build the archive data based on status
+      const archiveData: any = {
+        division: form.division,
+        status: form.status,
+        ...(fileId && { fileId }),
+        ...(fileUrl && { fileUrl }),
+      };
+
+      if (isAktif) {
+        // Arsip Aktif fields
+        archiveData.noBerkas = form.noBerkas;
+        archiveData.noUrut = form.noUrut;
+        archiveData.kode = form.kode;
+        archiveData.indexPekerjaan = form.indexPekerjaan;
+        archiveData.uraianMasalah = form.uraianMasalah;
+        archiveData.tahun = form.tahun;
+        archiveData.jumlahBerkas = form.jumlahBerkas;
+        archiveData.keteranganAsliCopy = form.keteranganAsliCopy;
+        archiveData.keteranganBox = form.keteranganBox;
+        // Set defaults for required legacy fields
+        archiveData.archiveNumber = form.noBerkas || "-";
+        archiveData.title = form.indexPekerjaan || form.uraianMasalah || "-";
+        archiveData.letterNumber = form.kode || "-";
+        archiveData.date = form.tahun ? `${form.tahun}-01-01` : new Date().toISOString();
+      } else {
+        // Arsip Inaktif fields
+        archiveData.noBerkas = form.noBerkasInaktif;
+        archiveData.noItem = form.noItem;
+        archiveData.kodeKlasifikasi = form.kodeKlasifikasi;
+        archiveData.indeks = form.indeks;
+        archiveData.uraianInformasi = form.uraianInformasi;
+        archiveData.kurunWaktu = form.kurunWaktu;
+        archiveData.jumlahBerkas = form.jumlahBerkasInaktif;
+        archiveData.keteranganAsliCopy = form.keteranganAsliKopi;
+        archiveData.keteranganBox = form.keteranganBoxInaktif;
+        archiveData.keteranganSKKAAD = form.keteranganSKKAAD;
+        // Set defaults for required legacy fields
+        archiveData.archiveNumber = form.noBerkasInaktif || "-";
+        archiveData.title = form.indeks || form.uraianInformasi || "-";
+        archiveData.letterNumber = form.kodeKlasifikasi || "-";
+        archiveData.date = form.kurunWaktu ? `${form.kurunWaktu.split('-')[0]}-01-01` : new Date().toISOString();
       }
-
-      const uploadRes = await fetch("/api/upload", {
-        method: "POST",
-        body: formData,
-      });
-
-      if (!uploadRes.ok) {
-        const err = await uploadRes.json();
-        throw new Error(err.error || "Upload failed");
-      }
-
-      const { fileId, fileUrl } = await uploadRes.json();
 
       const archiveRes = await fetch("/api/archives", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          ...form,
-          fileId,
-          fileUrl,
-        }),
+        body: JSON.stringify(archiveData),
       });
 
       if (!archiveRes.ok) {
-        const err = await archiveRes.json();
-        throw new Error(err.error || "Failed to save archive");
+        const err = await archiveRes.json().catch(() => ({}));
+        throw new Error(err.error || "Gagal menyimpan arsip");
       }
 
       router.push("/archives");
@@ -111,6 +176,9 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
 
   const canSelectDivision = userRole === "SUPER_ADMIN" || userRole === "ADMIN";
 
+  const inputClass =
+    "w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-8">
       {error && (
@@ -120,79 +188,37 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
         </div>
       )}
 
+      {/* Category & Division - always shown first */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        {/* Nomor Arsip */}
+        {/* Kategori Status */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Archive No. <span className="text-red-400">*</span>
+            Kategori Arsip <span className="text-red-400">*</span>
           </label>
-          <input
-            type="text"
+          <select
             required
-            value={form.archiveNumber}
-            onChange={(e) => setForm({ ...form, archiveNumber: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-            placeholder="e.g. ARS-2026-001"
-          />
-        </div>
-
-        {/* Judul */}
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-gray-700">
-            Title <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={form.title}
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-            placeholder="Archive title"
-          />
-        </div>
-
-        {/* Nomor Surat */}
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-gray-700">
-            Letter No. <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="text"
-            required
-            value={form.letterNumber}
-            onChange={(e) => setForm({ ...form, letterNumber: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-            placeholder="e.g. 001/BPK/2026"
-          />
-        </div>
-
-        {/* Tanggal */}
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-gray-700">
-            Date <span className="text-red-400">*</span>
-          </label>
-          <input
-            type="date"
-            required
-            value={form.date}
-            onChange={(e) => setForm({ ...form, date: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-          />
+            value={form.status}
+            onChange={(e) => setForm({ ...form, status: e.target.value })}
+            className={inputClass}
+          >
+            <option value="AKTIF">Arsip Aktif</option>
+            <option value="INAKTIF">Arsip Inaktif</option>
+          </select>
         </div>
 
         {/* Divisi */}
         <div className="space-y-1.5">
           <label className="block text-sm font-semibold text-gray-700">
-            Division <span className="text-red-400">*</span>
+            Divisi <span className="text-red-400">*</span>
           </label>
           <select
             required
             value={form.division}
             onChange={(e) => setForm({ ...form, division: e.target.value })}
             disabled={!canSelectDivision}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm disabled:bg-gray-100 disabled:text-gray-500 transition-all"
+            className={`${inputClass} disabled:bg-gray-100 disabled:text-gray-500`}
           >
-            <option value="">Select Division</option>
+            <option value="">Pilih Divisi</option>
             {DIVISIONS.map((d) => (
               <option key={d.value} value={d.value}>
                 {d.label}
@@ -200,42 +226,327 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
             ))}
           </select>
         </div>
-
-        {/* Kategori Status */}
-        <div className="space-y-1.5">
-          <label className="block text-sm font-semibold text-gray-700">
-            Category <span className="text-red-400">*</span>
-          </label>
-          <select
-            required
-            value={form.status}
-            onChange={(e) => setForm({ ...form, status: e.target.value })}
-            className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm transition-all"
-          >
-            <option value="AKTIF">Active Archive</option>
-            <option value="INAKTIF">Inactive Archive</option>
-          </select>
-        </div>
       </div>
 
-      {/* Deskripsi */}
-      <div className="space-y-1.5">
-        <label className="block text-sm font-semibold text-gray-700">
-          Description
-        </label>
-        <textarea
-          value={form.description}
-          onChange={(e) => setForm({ ...form, description: e.target.value })}
-          rows={3}
-          className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white text-sm resize-none transition-all"
-          placeholder="Archive description (optional)"
-        />
-      </div>
+      {/* Conditional Fields based on Status */}
+      {isAktif ? (
+        <>
+          {/* ===== ARSIP AKTIF FIELDS ===== */}
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-emerald-500 rounded-full" />
+              Data Arsip Aktif
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* No Berkas */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  No. Berkas <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.noBerkas}
+                  onChange={(e) => setForm({ ...form, noBerkas: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 001"
+                />
+              </div>
+
+              {/* No Urut */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  No. Urut <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.noUrut}
+                  onChange={(e) => setForm({ ...form, noUrut: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 1"
+                />
+              </div>
+
+              {/* Kode */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Kode <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.kode}
+                  onChange={(e) => setForm({ ...form, kode: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: KU.01.01"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              {/* Index / Pekerjaan */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Index / Pekerjaan <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.indexPekerjaan}
+                  onChange={(e) => setForm({ ...form, indexPekerjaan: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: Laporan Keuangan"
+                />
+              </div>
+
+              {/* Tahun */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Tahun <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.tahun}
+                  onChange={(e) => setForm({ ...form, tahun: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 2026"
+                />
+              </div>
+            </div>
+
+            {/* Uraian Masalah / Kegiatan */}
+            <div className="space-y-1.5 mt-6">
+              <label className="block text-sm font-semibold text-gray-700">
+                Uraian Masalah / Kegiatan <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                required
+                value={form.uraianMasalah}
+                onChange={(e) => setForm({ ...form, uraianMasalah: e.target.value })}
+                rows={3}
+                className={`${inputClass} resize-none`}
+                placeholder="Uraian masalah atau kegiatan arsip"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
+              {/* ML Berkas (Jumlah) */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Jumlah Berkas (ML)
+                </label>
+                <input
+                  type="text"
+                  value={form.jumlahBerkas}
+                  onChange={(e) => setForm({ ...form, jumlahBerkas: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 5"
+                />
+              </div>
+
+              {/* Keterangan: Asli/Copy */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Keterangan: Asli/Copy
+                </label>
+                <select
+                  value={form.keteranganAsliCopy}
+                  onChange={(e) => setForm({ ...form, keteranganAsliCopy: e.target.value })}
+                  className={inputClass}
+                >
+                  <option value="">Pilih</option>
+                  <option value="ASLI">Asli</option>
+                  <option value="COPY">Copy</option>
+                </select>
+              </div>
+
+              {/* Keterangan: Box */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Keterangan: Box
+                </label>
+                <input
+                  type="text"
+                  value={form.keteranganBox}
+                  onChange={(e) => setForm({ ...form, keteranganBox: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: Box 1"
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      ) : (
+        <>
+          {/* ===== ARSIP INAKTIF FIELDS ===== */}
+          <div className="border-t border-gray-100 pt-6">
+            <h3 className="text-sm font-semibold text-gray-800 mb-4 flex items-center gap-2">
+              <div className="w-1.5 h-1.5 bg-orange-500 rounded-full" />
+              Data Arsip Inaktif
+            </h3>
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {/* Nomor Berkas */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Nomor Berkas <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.noBerkasInaktif}
+                  onChange={(e) => setForm({ ...form, noBerkasInaktif: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 001"
+                />
+              </div>
+
+              {/* No. Item */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  No. Item <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.noItem}
+                  onChange={(e) => setForm({ ...form, noItem: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 1"
+                />
+              </div>
+
+              {/* Kode Klasifikasi */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Kode Klasifikasi <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.kodeKlasifikasi}
+                  onChange={(e) => setForm({ ...form, kodeKlasifikasi: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: KU.01.01"
+                />
+              </div>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+              {/* Indeks */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Indeks <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.indeks}
+                  onChange={(e) => setForm({ ...form, indeks: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: Laporan Keuangan"
+                />
+              </div>
+
+              {/* Kurun Waktu */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Kurun Waktu <span className="text-red-400">*</span>
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.kurunWaktu}
+                  onChange={(e) => setForm({ ...form, kurunWaktu: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 2020-2025"
+                />
+              </div>
+            </div>
+
+            {/* Uraian Informasi */}
+            <div className="space-y-1.5 mt-6">
+              <label className="block text-sm font-semibold text-gray-700">
+                Uraian Informasi <span className="text-red-400">*</span>
+              </label>
+              <textarea
+                required
+                value={form.uraianInformasi}
+                onChange={(e) => setForm({ ...form, uraianInformasi: e.target.value })}
+                rows={3}
+                className={`${inputClass} resize-none`}
+                placeholder="Uraian informasi arsip"
+              />
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mt-6">
+              {/* Jumlah Berkas */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Jumlah Berkas
+                </label>
+                <input
+                  type="text"
+                  value={form.jumlahBerkasInaktif}
+                  onChange={(e) => setForm({ ...form, jumlahBerkasInaktif: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: 5"
+                />
+              </div>
+
+              {/* Keterangan: Asli/Kopi */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Keterangan: Asli/Kopi
+                </label>
+                <select
+                  value={form.keteranganAsliKopi}
+                  onChange={(e) => setForm({ ...form, keteranganAsliKopi: e.target.value })}
+                  className={inputClass}
+                >
+                  <option value="">Pilih</option>
+                  <option value="ASLI">Asli</option>
+                  <option value="KOPI">Kopi</option>
+                </select>
+              </div>
+
+              {/* Keterangan: Box */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Keterangan: Box
+                </label>
+                <input
+                  type="text"
+                  value={form.keteranganBoxInaktif}
+                  onChange={(e) => setForm({ ...form, keteranganBoxInaktif: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: Box 1"
+                />
+              </div>
+
+              {/* Keterangan: SKKAAD */}
+              <div className="space-y-1.5">
+                <label className="block text-sm font-semibold text-gray-700">
+                  Keterangan: SKKAAD
+                </label>
+                <input
+                  type="text"
+                  value={form.keteranganSKKAAD}
+                  onChange={(e) => setForm({ ...form, keteranganSKKAAD: e.target.value })}
+                  className={inputClass}
+                  placeholder="Contoh: SKKAAD-001"
+                />
+              </div>
+            </div>
+          </div>
+        </>
+      )}
 
       {/* Unggah File - Drag & Drop */}
       <div className="space-y-1.5">
         <label className="block text-sm font-semibold text-gray-700">
-          Upload File <span className="text-red-400">*</span>
+          Upload File <span className="text-gray-400 font-normal">(opsional)</span>
         </label>
         <div
           onDragEnter={handleDrag}
@@ -272,7 +583,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
                 }}
                 className="mt-3 text-xs text-red-500 hover:text-red-700 flex items-center gap-1"
               >
-                <X size={12} /> Remove file
+                <X size={12} /> Hapus file
               </button>
             </div>
           ) : (
@@ -281,11 +592,11 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
                 <FileUp size={28} className="text-blue-500" />
               </div>
               <p className="text-sm font-medium text-gray-600">
-                Drag & drop file here, or{" "}
-                <span className="text-blue-600 font-semibold">click to select</span>
+                Drag & drop file di sini, atau{" "}
+                <span className="text-blue-600 font-semibold">klik untuk memilih</span>
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                PDF, DOC, XLSX, JPG, PNG (Max. 10MB)
+                PDF, DOC, XLSX, JPG, PNG (Maks. 10MB)
               </p>
             </div>
           )}
@@ -299,7 +610,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
           onClick={() => router.back()}
           className="px-6 py-2.5 border border-gray-200 rounded-xl text-sm font-medium text-gray-600 hover:bg-gray-50 transition-all"
         >
-          Cancel
+          Batal
         </button>
         <button
           type="submit"
@@ -309,12 +620,12 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
           {loading ? (
             <>
               <Loader2 size={16} className="animate-spin" />
-              Uploading...
+              Menyimpan...
             </>
           ) : (
             <>
               <Upload size={16} />
-              Save Archive
+              Simpan Arsip
             </>
           )}
         </button>

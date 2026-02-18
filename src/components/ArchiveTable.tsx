@@ -40,9 +40,26 @@ interface Archive {
   division: string;
   status?: string;
   description: string | null;
-  fileUrl: string;
+  fileUrl: string | null;
   createdAt: string;
   user?: { name: string; email: string };
+  // Arsip Aktif fields
+  noBerkas?: string | null;
+  noUrut?: string | null;
+  kode?: string | null;
+  indexPekerjaan?: string | null;
+  uraianMasalah?: string | null;
+  tahun?: string | null;
+  jumlahBerkas?: string | null;
+  keteranganAsliCopy?: string | null;
+  keteranganBox?: string | null;
+  // Arsip Inaktif fields
+  noItem?: string | null;
+  kodeKlasifikasi?: string | null;
+  indeks?: string | null;
+  uraianInformasi?: string | null;
+  kurunWaktu?: string | null;
+  keteranganSKKAAD?: string | null;
 }
 
 interface ArchiveTableProps {
@@ -123,44 +140,82 @@ export default function ArchiveTable({
   const columns = useMemo(
     () => [
       columnHelper.accessor("archiveNumber", {
-        header: "Archive No.",
-        cell: (info) => (
-          <span className="font-mono text-sm text-gray-600 bg-gray-50 px-2 py-0.5 rounded">
-            {info.getValue()}
-          </span>
-        ),
+        header: "No. Arsip/Berkas",
+        cell: (info) => {
+          const row = info.row.original;
+          const isAktif = row.status === "AKTIF" && row.noBerkas;
+          const isInaktif = row.status === "INAKTIF" && row.noBerkas;
+          return (
+            <span className="font-mono text-sm text-gray-600 bg-gray-50 px-2 py-0.5 rounded">
+              {isAktif || isInaktif ? row.noBerkas : info.getValue()}
+            </span>
+          );
+        },
       }),
       columnHelper.accessor("title", {
-        header: "Title",
-        cell: (info) => (
-          <div>
-            <span className="font-semibold text-gray-800">{info.getValue()}</span>
-            {info.row.original.user && (
-              <p className="text-[11px] text-gray-400 mt-0.5">
-                oleh {info.row.original.user.name}
-              </p>
-            )}
-          </div>
-        ),
+        header: "Judul/Index",
+        cell: (info) => {
+          const row = info.row.original;
+          const isAktif = row.status === "AKTIF" && row.indexPekerjaan;
+          const isInaktif = row.status === "INAKTIF" && row.indeks;
+          return (
+            <div>
+              <span className="font-semibold text-gray-800">
+                {isAktif ? row.indexPekerjaan : isInaktif ? row.indeks : info.getValue()}
+              </span>
+              {isAktif && row.uraianMasalah && (
+                <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-1">
+                  {row.uraianMasalah}
+                </p>
+              )}
+              {isInaktif && row.uraianInformasi && (
+                <p className="text-[11px] text-gray-400 mt-0.5 line-clamp-1">
+                  {row.uraianInformasi}
+                </p>
+              )}
+              {!isAktif && !isInaktif && row.user && (
+                <p className="text-[11px] text-gray-400 mt-0.5">
+                  oleh {row.user.name}
+                </p>
+              )}
+            </div>
+          );
+        },
       }),
       columnHelper.accessor("letterNumber", {
-        header: "Letter No.",
-        cell: (info) => (
-          <span className="text-sm text-gray-600">{info.getValue()}</span>
-        ),
+        header: "No. Surat/Kode",
+        cell: (info) => {
+          const row = info.row.original;
+          const isAktif = row.status === "AKTIF" && row.kode;
+          const isInaktif = row.status === "INAKTIF" && row.kodeKlasifikasi;
+          return (
+            <span className="text-sm text-gray-600">
+              {isAktif ? row.kode : isInaktif ? row.kodeKlasifikasi : info.getValue()}
+            </span>
+          );
+        },
       }),
       columnHelper.accessor("date", {
-        header: "Date",
-        cell: (info) => (
-          <span className="text-sm text-gray-500">
-            {format(new Date(info.getValue()), "dd MMM yyyy", {
-              locale: enLocale,
-            })}
-          </span>
-        ),
+        header: "Tanggal/Tahun",
+        cell: (info) => {
+          const row = info.row.original;
+          const isAktif = row.status === "AKTIF" && row.tahun;
+          const isInaktif = row.status === "INAKTIF" && row.kurunWaktu;
+          return (
+            <span className="text-sm text-gray-500">
+              {isAktif
+                ? row.tahun
+                : isInaktif
+                ? row.kurunWaktu
+                : format(new Date(info.getValue()), "dd MMM yyyy", {
+                    locale: enLocale,
+                  })}
+            </span>
+          );
+        },
       }),
       columnHelper.accessor("division", {
-        header: "Division",
+        header: "Divisi",
         cell: (info) => {
           const div = info.getValue();
           const colors: Record<string, string> = {
@@ -181,7 +236,7 @@ export default function ArchiveTable({
         },
       }),
       columnHelper.accessor("status", {
-        header: "Status",
+        header: "Kategori",
         cell: (info) => {
           const status = info.getValue();
           return (
@@ -193,14 +248,14 @@ export default function ArchiveTable({
               }`}
             >
               {status === "AKTIF" ? <CheckCircle2 size={12} /> : <XCircle size={12} />}
-              {status === "AKTIF" ? "Active" : "Inactive"}
+              {status === "AKTIF" ? "Aktif" : "Inaktif"}
             </span>
           );
         },
       }),
       columnHelper.display({
         id: "actions",
-        header: "Actions",
+        header: "Aksi",
         cell: (info) => (
           <div className="flex items-center gap-1">
             <Link
@@ -219,16 +274,18 @@ export default function ArchiveTable({
             >
               <Edit3 size={16} />
             </Link>
-            <a
-              href={info.row.original.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-              title="Download"
-              aria-label="Download"
-            >
-              <Download size={16} />
-            </a>
+            {info.row.original.fileUrl && (
+              <a
+                href={info.row.original.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
+                title="Download"
+                aria-label="Download"
+              >
+                <Download size={16} />
+              </a>
+            )}
             {canDelete && onDelete && (
               <button
                 onClick={() => onDelete(info.row.original.id)}

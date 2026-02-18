@@ -19,6 +19,11 @@ import {
   Loader2,
   CheckCircle2,
   XCircle,
+  Layers,
+  Tag,
+  BookOpen,
+  Box,
+  Copy,
 } from "lucide-react";
 
 interface ArchiveDetail {
@@ -29,8 +34,8 @@ interface ArchiveDetail {
   date: string;
   division: string;
   description: string | null;
-  fileUrl: string;
-  fileId: string;
+  fileUrl: string | null;
+  fileId: string | null;
   createdBy: string;
   status: string;
   createdAt: string;
@@ -38,6 +43,23 @@ interface ArchiveDetail {
     name: string;
     email: string;
   };
+  // Arsip Aktif fields
+  noBerkas?: string | null;
+  noUrut?: string | null;
+  kode?: string | null;
+  indexPekerjaan?: string | null;
+  uraianMasalah?: string | null;
+  tahun?: string | null;
+  jumlahBerkas?: string | null;
+  keteranganAsliCopy?: string | null;
+  keteranganBox?: string | null;
+  // Arsip Inaktif fields
+  noItem?: string | null;
+  kodeKlasifikasi?: string | null;
+  indeks?: string | null;
+  uraianInformasi?: string | null;
+  kurunWaktu?: string | null;
+  keteranganSKKAAD?: string | null;
 }
 
 function DetailItem({
@@ -219,15 +241,17 @@ export default function ArchiveDetailPage() {
               <Edit3 size={16} />
               <span>Edit</span>
             </Link>
-            <a
-              href={archive.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
-            >
-              <Download size={16} />
-              <span>Download</span>
-            </a>
+            {archive.fileUrl && (
+              <a
+                href={archive.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
+              >
+                <Download size={16} />
+                <span>Download</span>
+              </a>
+            )}
             <button
               onClick={handleDelete}
               disabled={deleting}
@@ -245,29 +269,178 @@ export default function ArchiveDetailPage() {
         {/* Main Info */}
         <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900 mb-2">
-            Archive Information
+            Informasi Arsip
           </h2>
           <div className="divide-y divide-gray-50">
-            <DetailItem
-              icon={Hash}
-              label="Archive No."
-              value={archive.archiveNumber}
-            />
-            <DetailItem
-              icon={FileText}
-              label="Letter No."
-              value={archive.letterNumber}
-            />
-            <DetailItem
-              icon={Calendar}
-              label="Letter Date"
-              value={formattedDate}
-            />
-            <DetailItem
-              icon={Building2}
-              label="Division"
-              value={divisionLabels[archive.division] || archive.division}
-            />
+            {archive.status === "AKTIF" && archive.noBerkas ? (
+              <>
+                <DetailItem
+                  icon={Hash}
+                  label="No. Berkas"
+                  value={archive.noBerkas}
+                />
+                {archive.noUrut && (
+                  <DetailItem
+                    icon={Layers}
+                    label="No. Urut"
+                    value={archive.noUrut}
+                  />
+                )}
+                {archive.kode && (
+                  <DetailItem
+                    icon={Tag}
+                    label="Kode"
+                    value={archive.kode}
+                  />
+                )}
+                {archive.indexPekerjaan && (
+                  <DetailItem
+                    icon={BookOpen}
+                    label="Index / Pekerjaan"
+                    value={archive.indexPekerjaan}
+                  />
+                )}
+                {archive.uraianMasalah && (
+                  <DetailItem
+                    icon={FileText}
+                    label="Uraian Masalah / Kegiatan"
+                    value={archive.uraianMasalah}
+                  />
+                )}
+                {archive.tahun && (
+                  <DetailItem
+                    icon={Calendar}
+                    label="Tahun"
+                    value={archive.tahun}
+                  />
+                )}
+                {archive.jumlahBerkas && (
+                  <DetailItem
+                    icon={Layers}
+                    label="Jumlah Berkas (ML)"
+                    value={archive.jumlahBerkas}
+                  />
+                )}
+                {archive.keteranganAsliCopy && (
+                  <DetailItem
+                    icon={Copy}
+                    label="Keterangan: Asli/Copy"
+                    value={archive.keteranganAsliCopy}
+                  />
+                )}
+                {archive.keteranganBox && (
+                  <DetailItem
+                    icon={Box}
+                    label="Keterangan: Box"
+                    value={archive.keteranganBox}
+                  />
+                )}
+                <DetailItem
+                  icon={Building2}
+                  label="Divisi"
+                  value={divisionLabels[archive.division] || archive.division}
+                />
+              </>
+            ) : archive.status === "INAKTIF" && archive.noBerkas ? (
+              <>
+                <DetailItem
+                  icon={Hash}
+                  label="Nomor Berkas"
+                  value={archive.noBerkas}
+                />
+                {archive.noItem && (
+                  <DetailItem
+                    icon={Layers}
+                    label="No. Item"
+                    value={archive.noItem}
+                  />
+                )}
+                {archive.kodeKlasifikasi && (
+                  <DetailItem
+                    icon={Tag}
+                    label="Kode Klasifikasi"
+                    value={archive.kodeKlasifikasi}
+                  />
+                )}
+                {archive.indeks && (
+                  <DetailItem
+                    icon={BookOpen}
+                    label="Indeks"
+                    value={archive.indeks}
+                  />
+                )}
+                {archive.uraianInformasi && (
+                  <DetailItem
+                    icon={FileText}
+                    label="Uraian Informasi"
+                    value={archive.uraianInformasi}
+                  />
+                )}
+                {archive.kurunWaktu && (
+                  <DetailItem
+                    icon={Calendar}
+                    label="Kurun Waktu"
+                    value={archive.kurunWaktu}
+                  />
+                )}
+                {archive.jumlahBerkas && (
+                  <DetailItem
+                    icon={Layers}
+                    label="Jumlah Berkas"
+                    value={archive.jumlahBerkas}
+                  />
+                )}
+                {archive.keteranganAsliCopy && (
+                  <DetailItem
+                    icon={Copy}
+                    label="Keterangan: Asli/Kopi"
+                    value={archive.keteranganAsliCopy}
+                  />
+                )}
+                {archive.keteranganBox && (
+                  <DetailItem
+                    icon={Box}
+                    label="Keterangan: Box"
+                    value={archive.keteranganBox}
+                  />
+                )}
+                {archive.keteranganSKKAAD && (
+                  <DetailItem
+                    icon={FileText}
+                    label="Keterangan: SKKAAD"
+                    value={archive.keteranganSKKAAD}
+                  />
+                )}
+                <DetailItem
+                  icon={Building2}
+                  label="Divisi"
+                  value={divisionLabels[archive.division] || archive.division}
+                />
+              </>
+            ) : (
+              <>
+                <DetailItem
+                  icon={Hash}
+                  label="No. Arsip"
+                  value={archive.archiveNumber}
+                />
+                <DetailItem
+                  icon={FileText}
+                  label="No. Surat"
+                  value={archive.letterNumber}
+                />
+                <DetailItem
+                  icon={Calendar}
+                  label="Tanggal Surat"
+                  value={formattedDate}
+                />
+                <DetailItem
+                  icon={Building2}
+                  label="Divisi"
+                  value={divisionLabels[archive.division] || archive.division}
+                />
+              </>
+            )}
           </div>
         </div>
 
@@ -296,35 +469,49 @@ export default function ArchiveDetailPage() {
           </div>
 
           {/* File Info */}
-          <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
-            <h2 className="text-sm font-semibold text-gray-900 mb-4">
-              Document File
-            </h2>
-            <div className="p-4 bg-gray-50 rounded-xl">
-              <div className="flex items-center gap-3">
-                <div className="p-2 bg-white rounded-lg shadow-sm">
-                  <FileText size={20} className="text-blue-500" />
-                </div>
-                <div className="min-w-0 flex-1">
-                  <p className="text-sm font-medium text-gray-900 truncate">
-                    {archive.title}
-                  </p>
-                  <p className="text-xs text-gray-400 mt-0.5">
-                    Google Drive
-                  </p>
+          {archive.fileUrl ? (
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">
+                Document File
+              </h2>
+              <div className="p-4 bg-gray-50 rounded-xl">
+                <div className="flex items-center gap-3">
+                  <div className="p-2 bg-white rounded-lg shadow-sm">
+                    <FileText size={20} className="text-blue-500" />
+                  </div>
+                  <div className="min-w-0 flex-1">
+                    <p className="text-sm font-medium text-gray-900 truncate">
+                      {archive.title}
+                    </p>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Google Drive
+                    </p>
+                  </div>
                 </div>
               </div>
+              <a
+                href={archive.fileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
+              >
+                <Download size={16} />
+                <span>Open File</span>
+              </a>
             </div>
-            <a
-              href={archive.fileUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
-            >
-              <Download size={16} />
-              <span>Open File</span>
-            </a>
-          </div>
+          ) : (
+            <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
+              <h2 className="text-sm font-semibold text-gray-900 mb-4">
+                Document File
+              </h2>
+              <div className="p-4 bg-gray-50 rounded-xl text-center">
+                <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
+                  <FileText size={20} className="text-gray-300" />
+                </div>
+                <p className="text-sm text-gray-400">Tidak ada file</p>
+              </div>
+            </div>
+          )}
         </div>
       </div>
 

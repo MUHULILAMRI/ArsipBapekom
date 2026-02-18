@@ -42,12 +42,31 @@ model Archive {
   division      Division
   status        ArchiveStatus @default(AKTIF)
   description   String?
-  fileUrl       String
-  fileId        String
+  fileUrl       String?
+  fileId        String?
   createdBy     String
   user          User          @relation(fields: [createdBy], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+
+  // Arsip Aktif specific fields
+  noBerkas          String?   // No Berkas (shared: Aktif & Inaktif)
+  noUrut            String?   // No Urut (Aktif only)
+  kode              String?   // Kode (Aktif only)
+  indexPekerjaan    String?   // Index / Pekerjaan (Aktif only)
+  uraianMasalah     String?   @db.Text // Uraian Masalah / Kegiatan (Aktif only)
+  tahun             String?   // Tahun (Aktif only)
+  jumlahBerkas      String?   // Jumlah Berkas (shared: Aktif & Inaktif)
+  keteranganAsliCopy String?  // Keterangan: Asli/Copy (shared: Aktif & Inaktif)
+  keteranganBox     String?   // Keterangan: Box (shared: Aktif & Inaktif)
+
+  // Arsip Inaktif specific fields
+  noItem            String?   // No. Item (Inaktif only)
+  kodeKlasifikasi   String?   // Kode Klasifikasi (Inaktif only)
+  indeks            String?   // Indeks (Inaktif only)
+  uraianInformasi   String?   @db.Text // Uraian Informasi (Inaktif only)
+  kurunWaktu        String?   // Kurun Waktu (Inaktif only)
+  keteranganSKKAAD  String?   // Keterangan: SKKAAD (Inaktif only)
 }
 
 model StorageConfig {

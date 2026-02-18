@@ -5,6 +5,7 @@ import { createNotification, notifyAdmins } from "../../../utils/notificationHel
 
 // GET /api/archives - List archives
 export async function GET(req: NextRequest) {
+  try {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
@@ -45,6 +46,14 @@ export async function GET(req: NextRequest) {
       { archiveNumber: { contains: search, mode: "insensitive" } },
       { letterNumber: { contains: search, mode: "insensitive" } },
       { description: { contains: search, mode: "insensitive" } },
+      { noBerkas: { contains: search, mode: "insensitive" } },
+      { kode: { contains: search, mode: "insensitive" } },
+      { indexPekerjaan: { contains: search, mode: "insensitive" } },
+      { uraianMasalah: { contains: search, mode: "insensitive" } },
+      { noItem: { contains: search, mode: "insensitive" } },
+      { kodeKlasifikasi: { contains: search, mode: "insensitive" } },
+      { indeks: { contains: search, mode: "insensitive" } },
+      { uraianInformasi: { contains: search, mode: "insensitive" } },
     ];
   }
 
@@ -70,20 +79,45 @@ export async function GET(req: NextRequest) {
       totalPages: Math.ceil(total / limit),
     },
   });
+  } catch (error: any) {
+    console.error("Error fetching archives:", error);
+    return NextResponse.json(
+      { error: error.message || "Terjadi kesalahan saat mengambil data arsip" },
+      { status: 500 }
+    );
+  }
 }
 
 // POST /api/archives - Create archive
 export async function POST(req: NextRequest) {
+  try {
   const user = await getCurrentUser();
   if (!user) {
     return NextResponse.json({ error: "Not authenticated" }, { status: 401 });
   }
 
   const body = await req.json();
-  const { archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status } = body;
+  const {
+    archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status,
+    // Arsip Aktif fields
+    noBerkas, noUrut, kode, indexPekerjaan, uraianMasalah, tahun, jumlahBerkas, keteranganAsliCopy, keteranganBox,
+    // Arsip Inaktif fields
+    noItem, kodeKlasifikasi, indeks, uraianInformasi, kurunWaktu, keteranganSKKAAD,
+  } = body;
 
-  if (!archiveNumber || !title || !letterNumber || !date || !division || !fileUrl || !fileId) {
-    return NextResponse.json({ error: "Required fields are missing" }, { status: 400 });
+  if (!division) {
+    return NextResponse.json({ error: "Field wajib belum diisi" }, { status: 400 });
+  }
+
+  // Validate required fields based on status
+  if (status === "AKTIF") {
+    if (!noBerkas || !noUrut || !kode || !indexPekerjaan || !uraianMasalah || !tahun) {
+      return NextResponse.json({ error: "Field arsip aktif wajib belum diisi" }, { status: 400 });
+    }
+  } else {
+    if (!noBerkas || !noItem || !kodeKlasifikasi || !indeks || !uraianInformasi || !kurunWaktu) {
+      return NextResponse.json({ error: "Field arsip inaktif wajib belum diisi" }, { status: 400 });
+    }
   }
 
   // Validate division
@@ -104,16 +138,33 @@ export async function POST(req: NextRequest) {
 
   const archive = await prisma.archive.create({
     data: {
-      archiveNumber: String(archiveNumber).trim(),
-      title: String(title).trim(),
-      letterNumber: String(letterNumber).trim(),
-      date: new Date(date),
+      archiveNumber: String(archiveNumber || "-").trim(),
+      title: String(title || indexPekerjaan || "-").trim(),
+      letterNumber: String(letterNumber || kode || "-").trim(),
+      date: new Date(date || (tahun ? `${tahun}-01-01` : (kurunWaktu ? `${kurunWaktu.split('-')[0]}-01-01` : new Date().toISOString()))),
       division,
       status: status || "AKTIF",
       description: description ? String(description).trim() : null,
-      fileUrl,
-      fileId,
+      fileUrl: fileUrl || null,
+      fileId: fileId || null,
       createdBy: user.id,
+      // Arsip Aktif fields
+      noBerkas: noBerkas ? String(noBerkas).trim() : null,
+      noUrut: noUrut ? String(noUrut).trim() : null,
+      kode: kode ? String(kode).trim() : null,
+      indexPekerjaan: indexPekerjaan ? String(indexPekerjaan).trim() : null,
+      uraianMasalah: uraianMasalah ? String(uraianMasalah).trim() : null,
+      tahun: tahun ? String(tahun).trim() : null,
+      jumlahBerkas: jumlahBerkas ? String(jumlahBerkas).trim() : null,
+      keteranganAsliCopy: keteranganAsliCopy ? String(keteranganAsliCopy).trim() : null,
+      keteranganBox: keteranganBox ? String(keteranganBox).trim() : null,
+      // Arsip Inaktif fields
+      noItem: noItem ? String(noItem).trim() : null,
+      kodeKlasifikasi: kodeKlasifikasi ? String(kodeKlasifikasi).trim() : null,
+      indeks: indeks ? String(indeks).trim() : null,
+      uraianInformasi: uraianInformasi ? String(uraianInformasi).trim() : null,
+      kurunWaktu: kurunWaktu ? String(kurunWaktu).trim() : null,
+      keteranganSKKAAD: keteranganSKKAAD ? String(keteranganSKKAAD).trim() : null,
     },
   });
 
@@ -136,4 +187,12 @@ export async function POST(req: NextRequest) {
   );
 
   return NextResponse.json(archive, { status: 201 });
+
+  } catch (error: any) {
+    console.error("Error creating archive:", error);
+    return NextResponse.json(
+      { error: error.message || "Terjadi kesalahan saat menyimpan arsip" },
+      { status: 500 }
+    );
+  }
 }

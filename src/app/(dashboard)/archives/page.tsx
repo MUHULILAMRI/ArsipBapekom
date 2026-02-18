@@ -60,7 +60,8 @@ function ArchivesContent() {
   const fetchArchives = async () => {
     try {
       const res = await fetch("/api/archives?limit=200");
-      const data = await res.json();
+      if (!res.ok) throw new Error("Gagal mengambil data arsip");
+      const data = await res.json().catch(() => ({ archives: [] }));
       setArchives(data.archives || []);
     } catch (error) {
       console.error("Failed to fetch archives:", error);
