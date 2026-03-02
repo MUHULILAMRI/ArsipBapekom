@@ -1,0 +1,1385 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flow Diagram — Sistem Arsip Bapekom</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@11/dist/mermaid.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --surface2: #334155;
+            --border: #475569;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-light: #60a5fa;
+            --accent: #8b5cf6;
+            --success: #22c55e;
+            --warning: #f59e0b;
+            --danger: #ef4444;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* Header */
+        .header {
+            background: linear-gradient(135deg, #1e3a5f 0%, #0f172a 50%, #1a1040 100%);
+            border-bottom: 1px solid var(--border);
+            padding: 2rem 0;
+            text-align: center;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        .header h1 {
+            font-size: 1.8rem;
+            background: linear-gradient(135deg, var(--primary-light), var(--accent));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.3rem;
+        }
+        .header p {
+            color: var(--text-muted);
+            font-size: 0.95rem;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.5rem;
+        }
+
+        /* TOC */
+        .toc {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            padding: 1.5rem 2rem;
+            margin-bottom: 2rem;
+        }
+        .toc h2 {
+            font-size: 1.2rem;
+            color: var(--primary-light);
+            margin-bottom: 1rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        .toc-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 0.4rem;
+        }
+        .toc a {
+            color: var(--text-muted);
+            text-decoration: none;
+            padding: 0.4rem 0.6rem;
+            border-radius: 6px;
+            transition: all 0.2s;
+            font-size: 0.9rem;
+            display: block;
+        }
+        .toc a:hover {
+            background: var(--surface2);
+            color: var(--primary-light);
+        }
+
+        /* Section cards */
+        .section {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+            overflow: hidden;
+            scroll-margin-top: 100px;
+        }
+        .section-header {
+            background: var(--surface2);
+            padding: 1rem 1.5rem;
+            border-bottom: 1px solid var(--border);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            user-select: none;
+            transition: background 0.2s;
+        }
+        .section-header:hover {
+            background: #3b4f6b;
+        }
+        .section-header .num {
+            background: var(--primary);
+            color: white;
+            width: 32px;
+            height: 32px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.85rem;
+            flex-shrink: 0;
+        }
+        .section-header h2 {
+            font-size: 1.15rem;
+            flex: 1;
+        }
+        .section-header .toggle {
+            font-size: 1.2rem;
+            transition: transform 0.3s;
+            color: var(--text-muted);
+        }
+        .section-header.open .toggle {
+            transform: rotate(180deg);
+        }
+        .section-body {
+            padding: 1.5rem;
+            display: none;
+        }
+        .section-body.open {
+            display: block;
+        }
+
+        /* Subsections */
+        .subsection {
+            margin-top: 1.5rem;
+            padding-top: 1.5rem;
+            border-top: 1px solid var(--border);
+        }
+        .subsection:first-child {
+            margin-top: 0;
+            padding-top: 0;
+            border-top: none;
+        }
+        .subsection h3 {
+            color: var(--accent);
+            font-size: 1.05rem;
+            margin-bottom: 1rem;
+        }
+        .subsection p, .desc {
+            color: var(--text-muted);
+            margin-bottom: 1rem;
+            font-size: 0.92rem;
+        }
+
+        /* Mermaid wrapper */
+        .diagram-wrapper {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 1.5rem;
+            margin: 1rem 0;
+            overflow-x: auto;
+            border: 1px solid #e2e8f0;
+        }
+        .diagram-wrapper .mermaid {
+            display: flex;
+            justify-content: center;
+        }
+
+        /* Info tables */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1rem 0;
+            font-size: 0.88rem;
+        }
+        th, td {
+            padding: 0.6rem 0.8rem;
+            text-align: left;
+            border: 1px solid var(--border);
+        }
+        th {
+            background: var(--surface2);
+            color: var(--primary-light);
+            font-weight: 600;
+        }
+        td { color: var(--text-muted); }
+        tr:hover td { background: rgba(59, 130, 246, 0.05); }
+
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.78rem;
+            font-weight: 600;
+        }
+        .badge-green { background: #064e3b; color: #6ee7b7; }
+        .badge-red { background: #7f1d1d; color: #fca5a5; }
+        .badge-yellow { background: #78350f; color: #fcd34d; }
+        .badge-blue { background: #1e3a5f; color: #93c5fd; }
+        .badge-purple { background: #3b0764; color: #c4b5fd; }
+
+        /* Color legend */
+        .legend {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.75rem;
+            margin: 1rem 0;
+            padding: 0.75rem 1rem;
+            background: var(--surface2);
+            border-radius: 8px;
+            font-size: 0.82rem;
+        }
+        .legend-item {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+        }
+        .legend-color {
+            width: 14px;
+            height: 14px;
+            border-radius: 3px;
+        }
+
+        /* Back to top */
+        .back-top {
+            position: fixed;
+            bottom: 2rem;
+            right: 2rem;
+            background: var(--primary);
+            color: white;
+            border: none;
+            width: 44px;
+            height: 44px;
+            border-radius: 50%;
+            cursor: pointer;
+            font-size: 1.2rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+            z-index: 200;
+        }
+        .back-top:hover { transform: scale(1.1); }
+
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 2rem;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+            border-top: 1px solid var(--border);
+            margin-top: 2rem;
+        }
+
+        /* Print style */
+        @media print {
+            .header { position: static; }
+            .section-body { display: block !important; }
+            .back-top { display: none; }
+            body { background: white; color: #1e293b; }
+            .section, .toc { border-color: #cbd5e1; }
+            .section-header, th { background: #f1f5f9; }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container { padding: 1rem; }
+            .toc-grid { grid-template-columns: 1fr; }
+            .header h1 { font-size: 1.4rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- Header -->
+<div class="header">
+    <h1>📊 Flow Diagram — Sistem Arsip Bapekom</h1>
+    <p>Visualisasi alur kerja seluruh fitur aplikasi pengarsipan digital</p>
+</div>
+
+<div class="container">
+
+    <!-- Color Legend -->
+    <div class="legend">
+        <div class="legend-item"><div class="legend-color" style="background:#c8e6c9"></div> Hijau = Sukses</div>
+        <div class="legend-item"><div class="legend-color" style="background:#ffcdd2"></div> Merah = Error</div>
+        <div class="legend-item"><div class="legend-color" style="background:#fff9c4"></div> Kuning = Redirect / Warning</div>
+        <div class="legend-item"><div class="legend-color" style="background:#e3f2fd"></div> Biru = Aksi Pengguna</div>
+        <div class="legend-item"><div class="legend-color" style="background:#f3e5f5"></div> Ungu = Cloud / External</div>
+    </div>
+
+    <!-- Table of Contents -->
+    <div class="toc">
+        <h2>📑 Daftar Isi</h2>
+        <div class="toc-grid">
+            <a href="#s1">1. Arsitektur Sistem (Overview)</a>
+            <a href="#s2">2. Flow Login & Autentikasi</a>
+            <a href="#s3">3. Middleware & Proteksi Route</a>
+            <a href="#s4">4. Flow Dashboard</a>
+            <a href="#s5">5. CRUD Arsip — Tambah Baru</a>
+            <a href="#s6">6. CRUD Arsip — Lihat Daftar</a>
+            <a href="#s7">7. CRUD Arsip — Detail & Edit</a>
+            <a href="#s8">8. CRUD Arsip — Hapus</a>
+            <a href="#s9">9. Upload File ke Cloud</a>
+            <a href="#s10">10. Struktur Folder Cloud</a>
+            <a href="#s11">11. Browse Arsip (Folder View)</a>
+            <a href="#s12">12. Filter & Pencarian</a>
+            <a href="#s13">13. Export Arsip</a>
+            <a href="#s14">14. Notifikasi</a>
+            <a href="#s15">15. Manajemen User</a>
+            <a href="#s16">16. Profil Pengguna</a>
+            <a href="#s17">17. Koneksi Storage (OAuth)</a>
+            <a href="#s18">18. RBAC — Hak Akses</a>
+            <a href="#s19">19. Rate Limiting</a>
+            <a href="#s20">20. Ringkasan Seluruh API</a>
+            <a href="#s21">21. Flow Keseluruhan (End-to-End)</a>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 1 ==================== -->
+    <div class="section" id="s1">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">1</div>
+            <h2>Arsitektur Sistem (Overview)</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Gambaran besar bagaimana seluruh komponen sistem saling terhubung.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+graph TB
+    subgraph CLIENT["🖥️ Browser / Client"]
+        A[Pengguna]
+    end
+    subgraph NEXTJS["⚡ Next.js App"]
+        B["Halaman Web\n(React + Tailwind CSS)"]
+        C["API Routes\n(/api/...)"]
+        D["Middleware\n(Proteksi Route)"]
+        E["NextAuth.js\n(Autentikasi JWT)"]
+    end
+    subgraph DATABASE["🗄️ Database"]
+        F["PostgreSQL\n(Prisma ORM)"]
+    end
+    subgraph CLOUD["☁️ Cloud Storage"]
+        G["Google Drive API"]
+        H["OneDrive Graph API"]
+    end
+    A -->|Akses Web| B
+    B -->|Request Data| C
+    A -->|Setiap Request| D
+    D -->|Cek Session| E
+    C -->|Query/Simpan| F
+    C -->|Upload File| G
+    C -->|Upload File| H
+    E -->|Validasi User| F
+    style CLIENT fill:#e3f2fd,stroke:#1565c0,color:#000
+    style NEXTJS fill:#fff3e0,stroke:#e65100,color:#000
+    style DATABASE fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style CLOUD fill:#f3e5f5,stroke:#6a1b9a,color:#000
+                </div>
+            </div>
+            <table>
+                <tr><th>Komponen</th><th>Teknologi</th><th>Fungsi</th></tr>
+                <tr><td>Frontend</td><td>React + Tailwind CSS</td><td>Tampilan antarmuka pengguna</td></tr>
+                <tr><td>Backend</td><td>Next.js API Routes</td><td>Logika bisnis & REST API</td></tr>
+                <tr><td>Database</td><td>PostgreSQL + Prisma ORM</td><td>Penyimpanan data arsip & user</td></tr>
+                <tr><td>Auth</td><td>NextAuth.js + JWT</td><td>Login & manajemen session</td></tr>
+                <tr><td>Cloud</td><td>Google Drive / OneDrive</td><td>Penyimpanan file dokumen</td></tr>
+            </table>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 2 ==================== -->
+    <div class="section" id="s2">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">2</div>
+            <h2>Flow Login & Autentikasi</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Proses login pengguna dari memasukkan email/password hingga mendapatkan session JWT.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["🧑 Pengguna buka\nhalaman Login"]) --> B["Isi Email & Password"]
+    B --> C{"Sudah punya\nsession/cookie?"}
+    C -->|Ya| D["↗️ Redirect ke Dashboard"]
+    C -->|Tidak| E["Klik tombol 'Masuk'"]
+    E --> F["POST /api/auth/...nextauth"]
+    F --> G{"Rate Limit\n5x / 60 detik"}
+    G -->|Melebihi batas| H["❌ Terlalu banyak percobaan"]
+    G -->|OK| I["Cari user di Database\nberdasarkan email"]
+    I --> J{"User ditemukan?"}
+    J -->|Tidak| K["❌ Email/password salah"]
+    J -->|Ya| L["Bandingkan password\n(bcrypt.compare)"]
+    L --> M{"Password cocok?"}
+    M -->|Tidak| K
+    M -->|Ya| N["✅ Buat JWT Token\nberisi: id, name, email,\nrole, division"]
+    N --> O["Set Cookie Session\n(HTTP-only)"]
+    O --> D
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style D fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style H fill:#ffcdd2,stroke:#c62828,color:#000
+    style K fill:#ffcdd2,stroke:#c62828,color:#000
+    style N fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Isi JWT Token</h3>
+                <table>
+                    <tr><th>Field</th><th>Contoh Isi</th><th>Keterangan</th></tr>
+                    <tr><td><code>id</code></td><td>uuid</td><td>ID unik user</td></tr>
+                    <tr><td><code>name</code></td><td>Staff Keuangan</td><td>Nama lengkap</td></tr>
+                    <tr><td><code>email</code></td><td>keuangan@bapekom.go.id</td><td>Email login</td></tr>
+                    <tr><td><code>role</code></td><td>USER</td><td>Level hak akses</td></tr>
+                    <tr><td><code>division</code></td><td>KEUANGAN</td><td>Divisi pengguna</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 3 ==================== -->
+    <div class="section" id="s3">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">3</div>
+            <h2>Middleware & Proteksi Route</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Setiap kali pengguna mengakses halaman, middleware memeriksa apakah mereka berhak.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📨 Request masuk"]) --> B{"Halaman apa?"}
+    B -->|"/login"| C{"Sudah login?"}
+    C -->|Ya| D["↗️ Redirect ke /dashboard"]
+    C -->|Tidak| E["✅ Tampilkan halaman login"]
+    B -->|"/ (root)"| F["↗️ Redirect ke /dashboard"]
+    B -->|"/dashboard, /archives,\n/profile, dll"| G{"Sudah login?"}
+    G -->|Tidak| H["↗️ Redirect ke /login"]
+    G -->|Ya| I{"Cek role\nuntuk halaman ini"}
+    I -->|"/admin/*"| J{"Role = ADMIN\natau SUPER_ADMIN?"}
+    J -->|Tidak| K["↗️ Redirect ke /dashboard\n⚠️ Tidak punya akses"]
+    J -->|Ya| L["✅ Lanjutkan"]
+    I -->|Halaman umum| L
+    B -->|"/api/*"| M["✅ API handle sendiri"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style D fill:#fff9c4,stroke:#f9a825,color:#000
+    style E fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style F fill:#fff9c4,stroke:#f9a825,color:#000
+    style H fill:#ffcdd2,stroke:#c62828,color:#000
+    style K fill:#ffcdd2,stroke:#c62828,color:#000
+    style L fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style M fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Peta Proteksi Halaman</h3>
+                <table>
+                    <tr><th>Halaman</th><th>Akses</th><th>Keterangan</th></tr>
+                    <tr><td>/login</td><td><span class="badge badge-green">Publik</span></td><td>Jika sudah login, redirect ke dashboard</td></tr>
+                    <tr><td>/dashboard</td><td><span class="badge badge-blue">Login</span></td><td>Semua role</td></tr>
+                    <tr><td>/archives</td><td><span class="badge badge-blue">Login</span></td><td>Semua role (USER = divisi sendiri)</td></tr>
+                    <tr><td>/archives/create</td><td><span class="badge badge-blue">Login</span></td><td>Semua role bisa buat arsip</td></tr>
+                    <tr><td>/archives/browse</td><td><span class="badge badge-blue">Login</span></td><td>Navigasi folder</td></tr>
+                    <tr><td>/profile</td><td><span class="badge badge-blue">Login</span></td><td>Edit profil sendiri</td></tr>
+                    <tr><td>/admin/users</td><td><span class="badge badge-red">Admin+</span></td><td>SUPER_ADMIN & ADMIN</td></tr>
+                    <tr><td>/admin/storage</td><td><span class="badge badge-red">Admin+</span></td><td>SUPER_ADMIN & ADMIN</td></tr>
+                    <tr><td>/analytics</td><td><span class="badge badge-blue">Login</span></td><td>Semua role</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 4 ==================== -->
+    <div class="section" id="s4">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">4</div>
+            <h2>Flow Dashboard</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Dashboard menampilkan 8 statistik arsip yang diambil secara paralel dari database.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["👤 User buka Dashboard"]) --> B["Muat 8 query data\nsecara PARALEL"]
+    B --> C1["📊 Total Arsip"]
+    B --> C2["📗 Arsip Aktif"]
+    B --> C3["📕 Arsip Inaktif"]
+    B --> C4["📅 Arsip Bulan Ini"]
+    B --> C5["📁 Keuangan"]
+    B --> C6["📁 Penyelenggara"]
+    B --> C7["📁 Tata Usaha"]
+    B --> C8["📁 Umum"]
+    C1 & C2 & C3 & C4 & C5 & C6 & C7 & C8 --> D{"Role user?"}
+    D -->|USER| E["Filter: hanya data\ndivisi sendiri"]
+    D -->|ADMIN / SUPER_ADMIN| F["Tampilkan: semua\ndata divisi"]
+    E --> G["🎯 Tampilkan Dashboard\nCards + Grafik"]
+    F --> G
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style G fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 5 ==================== -->
+    <div class="section" id="s5">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">5</div>
+            <h2>CRUD Arsip — Tambah Baru</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Proses membuat arsip baru beserta upload file ke cloud storage.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📝 User buka\n/archives/create"]) --> B["Isi form arsip:\nNomor, Judul, No. Surat,\nTanggal, Divisi, Status,\nDeskripsi"]
+    B --> C{"Lampirkan file?"}
+    C -->|Ya| D["Pilih file\n(max 10MB)"]
+    D --> E["Upload ke Cloud\n(Google Drive / OneDrive)"]
+    E --> F["Dapatkan fileId\n& fileUrl"]
+    C -->|Tidak| G["fileUrl & fileId\n= kosong"]
+    F --> H["POST /api/archives"]
+    G --> H
+    H --> I{"Validasi server"}
+    I -->|Gagal| J["❌ Tampilkan error"]
+    I -->|Berhasil| K["💾 Simpan ke Database"]
+    K --> L["📨 Kirim Notifikasi ke:\n1. User pembuat\n2. Semua Admin & Super Admin"]
+    L --> M["✅ Redirect ke\n/archives + Toast sukses"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style J fill:#ffcdd2,stroke:#c62828,color:#000
+    style M fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Field Form Arsip</h3>
+                <table>
+                    <tr><th>Field</th><th>Tipe</th><th>Wajib</th><th>Keterangan</th></tr>
+                    <tr><td>archiveNumber</td><td>String</td><td>✅</td><td>Nomor arsip unik</td></tr>
+                    <tr><td>title</td><td>String</td><td>✅</td><td>Judul arsip</td></tr>
+                    <tr><td>letterNumber</td><td>String</td><td>✅</td><td>Nomor surat</td></tr>
+                    <tr><td>date</td><td>Date</td><td>✅</td><td>Tanggal surat</td></tr>
+                    <tr><td>division</td><td>Enum</td><td>✅</td><td>KEUANGAN / PENYELENGGARA / TATA_USAHA / UMUM</td></tr>
+                    <tr><td>status</td><td>Enum</td><td>✅</td><td>AKTIF (default) / INAKTIF</td></tr>
+                    <tr><td>description</td><td>String</td><td>-</td><td>Opsional</td></tr>
+                    <tr><td>file</td><td>File</td><td>-</td><td>Max 10MB, PDF/Word/Excel/PPT/Gambar</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 6 ==================== -->
+    <div class="section" id="s6">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">6</div>
+            <h2>CRUD Arsip — Lihat Daftar</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📋 User buka /archives"]) --> B["GET /api/archives\n+ query params"]
+    B --> C{"Role user?"}
+    C -->|USER| D["Filter: hanya arsip\ndivisi sendiri"]
+    C -->|ADMIN / SUPER_ADMIN| E["Tampilkan: semua arsip"]
+    D --> F["Return data arsip\n+ info pagination"]
+    E --> F
+    F --> G["Tampilkan tabel arsip"]
+    G --> H["Kolom: No | Nomor Arsip | Judul\nNo. Surat | Tanggal | Divisi\nStatus | Pembuat | Aksi"]
+    H --> I["🔍 Fitur filter & search tersedia"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style G fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 7 ==================== -->
+    <div class="section" id="s7">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">7</div>
+            <h2>CRUD Arsip — Detail & Edit</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["👁️ Klik detail arsip"]) --> B["GET /api/archives/:id"]
+    B --> C{"Arsip ditemukan?"}
+    C -->|Tidak| D["❌ 404 Not Found"]
+    C -->|Ya| E["Tampilkan detail arsip"]
+    E --> F{"User klik Edit?"}
+    F -->|Tidak| G["Selesai melihat"]
+    F -->|Ya| H{"Cek hak akses"}
+    H -->|USER| I["❌ Tidak bisa edit\n(hanya ADMIN+)"]
+    H -->|ADMIN / SUPER_ADMIN| J["Buka form edit\n/archives/:id/edit"]
+    J --> K["Ubah field yang diinginkan"]
+    K --> L["PUT /api/archives/:id"]
+    L --> M{"Validasi server"}
+    M -->|Gagal| N["❌ Tampilkan error"]
+    M -->|Berhasil| O["💾 Update Database"]
+    O --> P["📨 Notifikasi ke Admin\n(kecuali diri sendiri)"]
+    P --> Q["✅ Redirect + Toast sukses"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style D fill:#ffcdd2,stroke:#c62828,color:#000
+    style I fill:#ffcdd2,stroke:#c62828,color:#000
+    style N fill:#ffcdd2,stroke:#c62828,color:#000
+    style Q fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 8 ==================== -->
+    <div class="section" id="s8">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">8</div>
+            <h2>CRUD Arsip — Hapus</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["🗑️ Klik tombol Hapus"]) --> B{"Role user?"}
+    B -->|USER| C["❌ Tidak bisa hapus\n(tombol tidak muncul)"]
+    B -->|ADMIN / SUPER_ADMIN| D["Muncul dialog konfirmasi:\n'Yakin ingin menghapus?'"]
+    D --> E{"Konfirmasi?"}
+    E -->|Batal| F["Kembali"]
+    E -->|Ya, Hapus| G["DELETE /api/archives/:id"]
+    G --> H["🗑️ Hapus dari Database"]
+    H --> I["📨 Notifikasi ke Admin\n(kecuali diri sendiri)"]
+    I --> J["✅ Refresh tabel\n+ Toast sukses"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style C fill:#ffcdd2,stroke:#c62828,color:#000
+    style J fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Hak Akses Hapus</h3>
+                <table>
+                    <tr><th>Role</th><th>Boleh Hapus</th></tr>
+                    <tr><td>SUPER_ADMIN</td><td><span class="badge badge-green">✅ Ya</span></td></tr>
+                    <tr><td>ADMIN</td><td><span class="badge badge-green">✅ Ya</span></td></tr>
+                    <tr><td>USER</td><td><span class="badge badge-red">❌ Tidak</span></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 9 ==================== -->
+    <div class="section" id="s9">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">9</div>
+            <h2>Upload File ke Cloud</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Proses upload melewati 6 tahap validasi sebelum file disimpan ke cloud.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📎 User pilih file"]) --> B["POST /api/upload\nFormData: file, division, year"]
+    B --> V1{"1. Autentikasi?"}
+    V1 -->|Tidak| X1["❌ 401 Unauthorized"]
+    V1 -->|Ya| V2{"2. Rate limit OK?\nmax 10x / 60 detik"}
+    V2 -->|Melebihi| X2["❌ 429 Too Many Requests"]
+    V2 -->|OK| V3{"3. File ada?"}
+    V3 -->|Tidak| X3["❌ 400 Bad Request"]
+    V3 -->|Ya| V4{"4. Ukuran ≤ 10MB?"}
+    V4 -->|Tidak| X4["❌ 400 File terlalu besar"]
+    V4 -->|Ya| V5{"5. Tipe file valid?"}
+    V5 -->|Tidak| X5["❌ 400 Tipe tidak didukung"]
+    V5 -->|Ya| V6["6. Sanitasi nama file"]
+    V6 --> S{"Deteksi storage aktif"}
+    S -->|Google Drive| G["uploadToDrive()"]
+    S -->|OneDrive| O["uploadToOneDrive()"]
+    S -->|Tidak ada| X6["❌ Belum ada storage"]
+    G --> R["✅ Return:\nfileId + fileUrl"]
+    O --> R
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style X1 fill:#ffcdd2,stroke:#c62828,color:#000
+    style X2 fill:#ffcdd2,stroke:#c62828,color:#000
+    style X3 fill:#ffcdd2,stroke:#c62828,color:#000
+    style X4 fill:#ffcdd2,stroke:#c62828,color:#000
+    style X5 fill:#ffcdd2,stroke:#c62828,color:#000
+    style X6 fill:#ffcdd2,stroke:#c62828,color:#000
+    style R fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Tipe File yang Didukung</h3>
+                <table>
+                    <tr><th>Kategori</th><th>Format</th></tr>
+                    <tr><td>📄 PDF</td><td>application/pdf</td></tr>
+                    <tr><td>📝 Word</td><td>.doc, .docx</td></tr>
+                    <tr><td>📊 Excel</td><td>.xls, .xlsx</td></tr>
+                    <tr><td>📽️ PowerPoint</td><td>.ppt, .pptx</td></tr>
+                    <tr><td>🖼️ Gambar</td><td>.jpg, .png, .webp</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 10 ==================== -->
+    <div class="section" id="s10">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">10</div>
+            <h2>Struktur Folder Cloud</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">File disimpan dalam hirarki folder otomatis: Root → Divisi → Tahun → File.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+graph TD
+    ROOT["📁 Root Arsip"]
+    ROOT --> D1["📁 Divisi Keuangan"]
+    ROOT --> D2["📁 Divisi Penyelenggara"]
+    ROOT --> D3["📁 Divisi Tata Usaha"]
+    ROOT --> D4["📁 Divisi Umum"]
+    D1 --> Y1["📁 2024"]
+    D1 --> Y2["📁 2025"]
+    D1 --> Y3["📁 2026"]
+    Y3 --> F1["📄 surat_keputusan.pdf"]
+    Y3 --> F2["📄 laporan_keuangan.xlsx"]
+    Y2 --> F3["📄 rekapitulasi.docx"]
+    D2 --> Y4["📁 2026"]
+    Y4 --> F4["📄 laporan_kegiatan.pdf"]
+    D3 --> Y5["📁 2026"]
+    Y5 --> F5["📄 memo_internal.pdf"]
+    D4 --> Y6["📁 2026"]
+    Y6 --> F6["📄 pengumuman.docx"]
+    style ROOT fill:#fff9c4,stroke:#f9a825,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Proses Pembuatan Folder Otomatis</h3>
+                <div class="diagram-wrapper">
+                    <div class="mermaid">
+flowchart TD
+    A(["📎 Upload file"]) --> B["getOrCreateRootFolder\n('Root Arsip')"]
+    B --> C{"Folder root\nsudah ada?"}
+    C -->|Ya| D["Gunakan yang ada"]
+    C -->|Tidak| E["Buat folder baru"]
+    D --> F["getOrCreateDivisionFolder"]
+    E --> F
+    F --> G{"Folder divisi\nsudah ada?"}
+    G -->|Ya| H["Gunakan yang ada"]
+    G -->|Tidak| I["Buat folder baru"]
+    H --> J["getOrCreateYearFolder"]
+    I --> J
+    J --> K{"Folder tahun\nsudah ada?"}
+    K -->|Ya| L["Gunakan yang ada"]
+    K -->|Tidak| M["Buat folder baru"]
+    L --> N["📤 Upload file ke folder tahun"]
+    M --> N
+    N --> O["🔗 Set permission:\nanyone with link = view"]
+    O --> P["✅ Return fileId + fileUrl"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style P fill:#c8e6c9,stroke:#2e7d32,color:#000
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 11 ==================== -->
+    <div class="section" id="s11">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">11</div>
+            <h2>Browse Arsip (Folder View)</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Navigasi arsip seperti menjelajahi folder: Status → Divisi → Tahun → File.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📂 User buka\n/archives/browse"]) --> B["GET /api/archives\n(limit=500)"]
+    B --> C["Level 1:\nSTATUS FOLDER"]
+    C --> D["📂 Active Archives"]
+    C --> E["📂 Inactive Archives"]
+    D & E -->|Klik| F["Level 2:\nFOLDER DIVISI"]
+    F --> G1["📂 Keuangan"]
+    F --> G2["📂 Penyelenggara"]
+    F --> G3["📂 Tata Usaha"]
+    F --> G4["📂 Umum"]
+    G1 & G2 & G3 & G4 -->|Klik| H["Level 3:\nFOLDER TAHUN"]
+    H --> I1["📂 2026"]
+    H --> I2["📂 2025"]
+    H --> I3["📂 2024"]
+    I1 & I2 & I3 -->|Klik| J["Level 4:\nDAFTAR ARSIP"]
+    J --> K["📄 Surat Keputusan - ARK-001\n📄 Laporan Keuangan - ARK-002\n(view, edit, download)"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style C fill:#fff3e0,stroke:#e65100,color:#000
+    style F fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style H fill:#e8eaf6,stroke:#283593,color:#000
+    style J fill:#fce4ec,stroke:#c62828,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 12 ==================== -->
+    <div class="section" id="s12">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">12</div>
+            <h2>Filter & Pencarian</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["🔍 User di halaman /archives"]) --> B["Toolbar Filter"]
+    B --> C1["🔍 Search Box\n(cari di semua kolom)"]
+    B --> C2["📁 Dropdown Divisi"]
+    B --> C3["📊 Dropdown Status"]
+    B --> C4["📅 Dropdown Tahun"]
+    B --> C5["📆 Date Range\nDari __ s/d __"]
+    C1 & C2 & C3 & C4 & C5 --> D["Filter diterapkan\n(client-side, real-time)"]
+    D --> E["Tabel diperbarui"]
+    E --> F1["Tab: All"]
+    E --> F2["Tab: Active (badge)"]
+    E --> F3["Tab: Inactive (badge)"]
+    B --> G["🔄 Reset All"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style E fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Daftar Filter</h3>
+                <table>
+                    <tr><th>Filter</th><th>Tipe</th><th>Keterangan</th></tr>
+                    <tr><td>Search</td><td>Text</td><td>Global search di semua kolom (client-side)</td></tr>
+                    <tr><td>Division</td><td>Dropdown</td><td>KEUANGAN, PENYELENGGARA, TATA_USAHA, UMUM</td></tr>
+                    <tr><td>Status</td><td>Dropdown</td><td>AKTIF, INAKTIF</td></tr>
+                    <tr><td>Year</td><td>Dropdown</td><td>Tahun dari data (auto-detect, descending)</td></tr>
+                    <tr><td>Date From</td><td>Date</td><td>Filter tanggal mulai</td></tr>
+                    <tr><td>Date To</td><td>Date</td><td>Filter tanggal sampai</td></tr>
+                    <tr><td>Reset All</td><td>Button</td><td>Hapus semua filter sekaligus</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 13 ==================== -->
+    <div class="section" id="s13">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">13</div>
+            <h2>Export Arsip</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📥 User klik Export"]) --> B{"Pilih format"}
+    B -->|CSV| C["GET /api/archives/export\n?format=csv"]
+    B -->|JSON| D["GET /api/archives/export\n?format=json"]
+    C & D --> E{"Cek autentikasi"}
+    E -->|Tidak login| F["❌ 401 Unauthorized"]
+    E -->|Login| G{"Cek role"}
+    G -->|USER| H["Filter: hanya arsip\ndivisi sendiri"]
+    G -->|ADMIN / SUPER_ADMIN| I["Ambil: semua arsip"]
+    H & I --> J["Format data"]
+    J --> K["📥 Download otomatis:\narsip-bapekom-YYYY-MM-DD.csv\natau .json"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style F fill:#ffcdd2,stroke:#c62828,color:#000
+    style K fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Kolom File CSV</h3>
+                <table>
+                    <tr><th>No</th><th>Kolom</th><th>Sumber</th></tr>
+                    <tr><td>1</td><td>No</td><td>Nomor urut</td></tr>
+                    <tr><td>2</td><td>Nomor Arsip</td><td>archiveNumber</td></tr>
+                    <tr><td>3</td><td>Judul</td><td>title</td></tr>
+                    <tr><td>4</td><td>Nomor Surat</td><td>letterNumber</td></tr>
+                    <tr><td>5</td><td>Tanggal</td><td>date (format Indonesia)</td></tr>
+                    <tr><td>6</td><td>Divisi</td><td>division (label)</td></tr>
+                    <tr><td>7</td><td>Status</td><td>AKTIF / INAKTIF</td></tr>
+                    <tr><td>8</td><td>Deskripsi</td><td>description</td></tr>
+                    <tr><td>9</td><td>Dibuat Oleh</td><td>user.name</td></tr>
+                    <tr><td>10</td><td>Tanggal Input</td><td>createdAt (format Indonesia)</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 14 ==================== -->
+    <div class="section" id="s14">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">14</div>
+            <h2>Notifikasi</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Sistem mengirim notifikasi otomatis ke pengguna terkait saat terjadi perubahan arsip.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    subgraph TRIGGER["⚡ Event Pemicu"]
+        T1["Arsip Baru Dibuat\n(ARCHIVE_CREATED)"]
+        T2["Arsip Diperbarui\n(ARCHIVE_UPDATED)"]
+        T3["Arsip Dihapus\n(ARCHIVE_DELETED)"]
+    end
+    T1 --> R1["📨 Kirim ke:\nUser pembuat +\nSemua Admin & Super Admin"]
+    T2 --> R2["📨 Kirim ke:\nSemua Admin & Super Admin\n(kecuali yang mengupdate)"]
+    T3 --> R3["📨 Kirim ke:\nSemua Admin & Super Admin\n(kecuali yang menghapus)"]
+    R1 & R2 & R3 --> DB["💾 Simpan ke Database"]
+    DB --> UI["🔔 Muncul di dropdown\nnotifikasi (lonceng)"]
+    UI --> A1["Tandai 1 dibaca"]
+    UI --> A2["Tandai semua dibaca"]
+    UI --> A3["Klik → buka link terkait"]
+    style TRIGGER fill:#fff3e0,stroke:#e65100,color:#000
+    style DB fill:#e8f5e9,stroke:#2e7d32,color:#000
+    style UI fill:#e3f2fd,stroke:#1565c0,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 15 ==================== -->
+    <div class="section" id="s15">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">15</div>
+            <h2>Manajemen User</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Hanya <strong>SUPER_ADMIN</strong> yang bisa mengelola user (tambah, edit, hapus).</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["🛡️ Super Admin buka\n/admin/users"]) --> B{"Role = SUPER_ADMIN?"}
+    B -->|Tidak| C["❌ Redirect ke Dashboard"]
+    B -->|Ya| D["GET /api/users\nTampilkan daftar user"]
+    D --> E{"Aksi yang dipilih"}
+    E -->|Tambah User| F["Isi form:\nNama, Email, Password,\nRole, Divisi"]
+    F --> G["POST /api/users"]
+    G --> H{"Validasi"}
+    H -->|Email sudah ada| I["❌ Error: Email duplikat"]
+    H -->|OK| J["✅ User baru dibuat"]
+    E -->|Edit User| K["Ubah field"]
+    K --> L["PUT /api/users/:id"]
+    L --> M["✅ User diperbarui"]
+    E -->|Hapus User| N{"Validasi hapus"}
+    N -->|Hapus diri sendiri| O["❌ Tidak bisa"]
+    N -->|Masih punya arsip| P["❌ User punya arsip"]
+    N -->|OK| Q["DELETE /api/users/:id"]
+    Q --> R["✅ User dihapus"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style C fill:#ffcdd2,stroke:#c62828,color:#000
+    style I fill:#ffcdd2,stroke:#c62828,color:#000
+    style J fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style M fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style O fill:#ffcdd2,stroke:#c62828,color:#000
+    style P fill:#ffcdd2,stroke:#c62828,color:#000
+    style R fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 16 ==================== -->
+    <div class="section" id="s16">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">16</div>
+            <h2>Profil Pengguna</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["👤 User buka /profile"]) --> B["GET /api/profile"]
+    B --> C["Tampilkan profil:\nNama, Email, Role, Divisi,\nFoto, Jumlah Arsip"]
+    C --> D{"User ingin update?"}
+    D -->|Tidak| E["Selesai"]
+    D -->|Ya| F["Ubah field:\nNama / Email / Divisi /\nFoto / Password"]
+    F --> G{"Ganti password?"}
+    G -->|Ya| H["Wajib isi:\nPassword lama +\nPassword baru (min 6)"]
+    G -->|Tidak| I["Lanjut"]
+    H --> J["PATCH /api/profile"]
+    I --> J
+    J --> K{"Validasi"}
+    K -->|Password lama salah| L["❌ Error"]
+    K -->|Email duplikat| M["❌ Error"]
+    K -->|OK| N["✅ Profil diperbarui"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style L fill:#ffcdd2,stroke:#c62828,color:#000
+    style M fill:#ffcdd2,stroke:#c62828,color:#000
+    style N fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 17 ==================== -->
+    <div class="section" id="s17">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">17</div>
+            <h2>Koneksi Storage (OAuth)</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="subsection">
+                <h3>17.1 — Google Drive</h3>
+                <div class="diagram-wrapper">
+                    <div class="mermaid">
+flowchart TD
+    A(["🔗 Admin klik\nConnect Google Drive"]) --> B["GET /api/storage/connect-google"]
+    B --> C["Server buat URL OAuth Google"]
+    C --> D["↗️ Redirect ke\naccounts.google.com"]
+    D --> E["👤 User login & izinkan\nakses Google Drive"]
+    E --> F["Google redirect balik\ndengan AUTH_CODE"]
+    F --> G["Exchange code → tokens\n(access + refresh)"]
+    G --> H["Nonaktifkan config lama"]
+    H --> I["💾 Simpan token baru\nisActive = true"]
+    I --> J["↗️ Redirect ke\n/admin/storage"]
+    J --> K["✅ Google Drive terhubung!"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style D fill:#fff9c4,stroke:#f9a825,color:#000
+    style K fill:#c8e6c9,stroke:#2e7d32,color:#000
+                    </div>
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>17.2 — OneDrive</h3>
+                <div class="diagram-wrapper">
+                    <div class="mermaid">
+flowchart TD
+    A(["🔗 Admin klik\nConnect OneDrive"]) --> B["GET /api/storage/connect-onedrive"]
+    B --> C["Server buat URL OAuth Microsoft"]
+    C --> D["↗️ Redirect ke\nlogin.microsoftonline.com"]
+    D --> E["👤 User login & izinkan\nakses OneDrive"]
+    E --> F["Microsoft return AUTH_CODE"]
+    F --> G["POST /api/storage/connect-onedrive\nBody: code"]
+    G --> H["Exchange code → tokens"]
+    H --> I["Nonaktifkan config lama"]
+    I --> J["💾 Simpan token baru\nisActive = true"]
+    J --> K["✅ OneDrive terhubung!"]
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style D fill:#fff9c4,stroke:#f9a825,color:#000
+    style K fill:#c8e6c9,stroke:#2e7d32,color:#000
+                    </div>
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Hak Akses Koneksi Storage</h3>
+                <table>
+                    <tr><th>Role</th><th>Boleh Connect Storage</th></tr>
+                    <tr><td>SUPER_ADMIN</td><td><span class="badge badge-green">✅ Ya</span></td></tr>
+                    <tr><td>ADMIN</td><td><span class="badge badge-green">✅ Ya</span></td></tr>
+                    <tr><td>USER</td><td><span class="badge badge-red">❌ Tidak</span></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 18 ==================== -->
+    <div class="section" id="s18">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">18</div>
+            <h2>RBAC — Hak Akses</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Sistem menggunakan 3 level peran (Role-Based Access Control) untuk mengatur siapa boleh apa.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+graph LR
+    subgraph SA["🔴 SUPER ADMIN"]
+        SA1["✅ Semua fitur"]
+        SA2["✅ Kelola user"]
+        SA3["✅ Kelola storage"]
+        SA4["✅ Semua divisi"]
+    end
+    subgraph AD["🟡 ADMIN"]
+        AD1["✅ CRUD arsip"]
+        AD2["❌ Kelola user"]
+        AD3["✅ Kelola storage"]
+        AD4["✅ Semua divisi"]
+    end
+    subgraph US["🟢 USER"]
+        US1["✅ Buat arsip"]
+        US2["❌ Edit/Hapus"]
+        US3["👁️ Divisi sendiri"]
+        US4["✅ Export sendiri"]
+    end
+    style SA fill:#ffcdd2,stroke:#c62828,color:#000
+    style AD fill:#fff9c4,stroke:#f9a825,color:#000
+    style US fill:#c8e6c9,stroke:#2e7d32,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Matriks Lengkap Hak Akses</h3>
+                <table>
+                    <tr><th>Fitur / Aksi</th><th>SUPER_ADMIN</th><th>ADMIN</th><th>USER</th></tr>
+                    <tr><td>Buat arsip</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td></tr>
+                    <tr><td>Lihat arsip semua divisi</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-red">❌</span></td></tr>
+                    <tr><td>Lihat arsip divisi sendiri</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td></tr>
+                    <tr><td>Edit arsip</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-red">❌</span></td></tr>
+                    <tr><td>Hapus arsip</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-red">❌</span></td></tr>
+                    <tr><td>Export arsip</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-yellow">Divisi sendiri</span></td></tr>
+                    <tr><td>Kelola user</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-red">❌</span></td><td><span class="badge badge-red">❌</span></td></tr>
+                    <tr><td>Kelola storage</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-red">❌</span></td></tr>
+                    <tr><td>Dashboard</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td></tr>
+                    <tr><td>Edit profil sendiri</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td></tr>
+                    <tr><td>Terima notifikasi admin</td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-green">✅</span></td><td><span class="badge badge-red">❌</span></td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 19 ==================== -->
+    <div class="section" id="s19">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">19</div>
+            <h2>Rate Limiting</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Mencegah penyalahgunaan dengan membatasi jumlah request dalam jangka waktu tertentu.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    A(["📨 Request masuk"]) --> B["checkRateLimit\n(identifier, max, window)"]
+    B --> C{"Entry ada\ndi memory?"}
+    C -->|Tidak| D["Buat entry baru\ncount = 1"]
+    C -->|Sudah ada| E{"Window waktu\nsudah expired?"}
+    E -->|Ya| F["Reset count = 1\nWindow baru"]
+    E -->|Belum| G["count = count + 1"]
+    G --> H{"count > max?"}
+    H -->|Tidak| I["✅ Request diizinkan"]
+    H -->|Ya| J["❌ 429 Too Many Requests"]
+    D --> I
+    F --> I
+    style A fill:#e3f2fd,stroke:#1565c0,color:#000
+    style I fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style J fill:#ffcdd2,stroke:#c62828,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Endpoint yang Dilindungi</h3>
+                <table>
+                    <tr><th>Endpoint</th><th>Identifier</th><th>Limit</th><th>Window</th></tr>
+                    <tr><td>Login</td><td>login:{email}</td><td>5 request</td><td>60 detik</td></tr>
+                    <tr><td>Upload file</td><td>upload:{userId}</td><td>10 request</td><td>60 detik</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 20 ==================== -->
+    <div class="section" id="s20">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">20</div>
+            <h2>Ringkasan Seluruh API</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+graph TD
+    subgraph API["🌐 API Endpoints"]
+        direction TB
+        subgraph AUTH_API["🔐 Autentikasi"]
+            E1["POST /api/auth/...nextauth"]
+        end
+        subgraph ARCHIVE_API["📁 Arsip"]
+            E2["GET /api/archives"]
+            E3["POST /api/archives"]
+            E4["GET /api/archives/:id"]
+            E5["PUT /api/archives/:id"]
+            E6["DELETE /api/archives/:id"]
+            E7["GET /api/archives/export"]
+        end
+        subgraph UPLOAD_API["📤 Upload"]
+            E8["POST /api/upload"]
+        end
+        subgraph USER_API["👥 User"]
+            E9["GET /api/users"]
+            E10["POST /api/users"]
+            E11["PUT /api/users/:id"]
+            E12["DELETE /api/users/:id"]
+        end
+        subgraph PROFILE_API["👤 Profil"]
+            E13["GET /api/profile"]
+            E14["PATCH /api/profile"]
+        end
+        subgraph NOTIF_API["🔔 Notifikasi"]
+            E15["GET /api/notifications"]
+            E16["PATCH /api/notifications"]
+        end
+        subgraph STORAGE_API["☁️ Storage"]
+            E17["GET /api/storage/info"]
+            E18["GET /api/storage/connect-google"]
+            E19["GET+POST /api/storage/connect-onedrive"]
+        end
+    end
+    style AUTH_API fill:#ffcdd2,stroke:#c62828,color:#000
+    style ARCHIVE_API fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style UPLOAD_API fill:#fff9c4,stroke:#f9a825,color:#000
+    style USER_API fill:#e8eaf6,stroke:#283593,color:#000
+    style PROFILE_API fill:#e3f2fd,stroke:#1565c0,color:#000
+    style NOTIF_API fill:#fff3e0,stroke:#e65100,color:#000
+    style STORAGE_API fill:#f3e5f5,stroke:#6a1b9a,color:#000
+                </div>
+            </div>
+            <div class="subsection">
+                <h3>Tabel Lengkap API</h3>
+                <table>
+                    <tr><th>Method</th><th>Endpoint</th><th>Akses</th><th>Fungsi</th></tr>
+                    <tr><td><span class="badge badge-green">POST</span></td><td>/api/auth/[...nextauth]</td><td>Publik</td><td>Login & session</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/archives</td><td>Login</td><td>Daftar arsip + pagination</td></tr>
+                    <tr><td><span class="badge badge-green">POST</span></td><td>/api/archives</td><td>Login</td><td>Buat arsip baru</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/archives/:id</td><td>Login</td><td>Detail arsip</td></tr>
+                    <tr><td><span class="badge badge-yellow">PUT</span></td><td>/api/archives/:id</td><td>Admin+</td><td>Update arsip</td></tr>
+                    <tr><td><span class="badge badge-red">DELETE</span></td><td>/api/archives/:id</td><td>Admin+</td><td>Hapus arsip</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/archives/export</td><td>Login</td><td>Export CSV/JSON</td></tr>
+                    <tr><td><span class="badge badge-green">POST</span></td><td>/api/upload</td><td>Login</td><td>Upload file ke cloud</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/users</td><td>Super Admin</td><td>Daftar user</td></tr>
+                    <tr><td><span class="badge badge-green">POST</span></td><td>/api/users</td><td>Super Admin</td><td>Buat user baru</td></tr>
+                    <tr><td><span class="badge badge-yellow">PUT</span></td><td>/api/users/:id</td><td>Super Admin</td><td>Update user</td></tr>
+                    <tr><td><span class="badge badge-red">DELETE</span></td><td>/api/users/:id</td><td>Super Admin</td><td>Hapus user</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/profile</td><td>Login</td><td>Lihat profil</td></tr>
+                    <tr><td><span class="badge badge-purple">PATCH</span></td><td>/api/profile</td><td>Login</td><td>Update profil</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/notifications</td><td>Login</td><td>Daftar notifikasi</td></tr>
+                    <tr><td><span class="badge badge-purple">PATCH</span></td><td>/api/notifications</td><td>Login</td><td>Tandai dibaca</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/storage/info</td><td>Login</td><td>Info storage aktif</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span></td><td>/api/storage/connect-google</td><td>Admin+</td><td>OAuth Google Drive</td></tr>
+                    <tr><td><span class="badge badge-blue">GET</span>+<span class="badge badge-green">POST</span></td><td>/api/storage/connect-onedrive</td><td>Admin+</td><td>OAuth OneDrive</td></tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ==================== SECTION 21 ==================== -->
+    <div class="section" id="s21">
+        <div class="section-header open" onclick="toggleSection(this)">
+            <div class="num">21</div>
+            <h2>Flow Keseluruhan Sistem (End-to-End)</h2>
+            <span class="toggle">▼</span>
+        </div>
+        <div class="section-body open">
+            <p class="desc">Gambaran besar bagaimana semua fitur saling terhubung dari sudut pandang pengguna.</p>
+            <div class="diagram-wrapper">
+                <div class="mermaid">
+flowchart TD
+    START(["🧑 Pengguna"]) --> LOGIN["1. Login\n(Email + Password)"]
+    LOGIN --> MW["2. Middleware\nCek akses"]
+    MW --> DASH["3. Dashboard\nLihat statistik"]
+    DASH --> MENU{"Menu utama"}
+    MENU --> ARS["📁 Kelola Arsip"]
+    MENU --> BRW["📂 Browse Folder"]
+    MENU --> EXP["📥 Export Data"]
+    MENU --> PRF["👤 Profil"]
+    MENU --> ADM["🛡️ Admin Panel"]
+    ARS --> ARS_CREATE["Buat Arsip Baru\n+ Upload File"]
+    ARS --> ARS_LIST["Lihat & Filter\nDaftar Arsip"]
+    ARS --> ARS_EDIT["Edit Arsip\n(Admin+)"]
+    ARS --> ARS_DEL["Hapus Arsip\n(Admin+)"]
+    ARS_CREATE --> UPLOAD["☁️ Upload ke\nGoogle Drive / OneDrive"]
+    ARS_CREATE --> NOTIF["🔔 Notifikasi\nke Admin"]
+    BRW --> FOLDER["Navigasi:\nStatus → Divisi → Tahun → File"]
+    EXP --> EXPORT["Download CSV / JSON"]
+    PRF --> PROFILE["Edit nama, email,\nfoto, password"]
+    ADM --> USR["Kelola User\n(Super Admin)"]
+    ADM --> STR["Koneksi Storage\n(Admin+)"]
+    style START fill:#e3f2fd,stroke:#1565c0,color:#000
+    style LOGIN fill:#fff9c4,stroke:#f9a825,color:#000
+    style DASH fill:#c8e6c9,stroke:#2e7d32,color:#000
+    style UPLOAD fill:#f3e5f5,stroke:#6a1b9a,color:#000
+    style NOTIF fill:#fff3e0,stroke:#e65100,color:#000
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+        <p>📊 Flow Diagram — Sistem Arsip Bapekom</p>
+        <p>Dibuat otomatis berdasarkan analisis kode sumber • Maret 2026</p>
+    </div>
+
+</div>
+
+<!-- Back to Top -->
+<button class="back-top" onclick="window.scrollTo({top:0,behavior:'smooth'})" title="Kembali ke atas">↑</button>
+
+<script>
+    // Initialize Mermaid
+    mermaid.initialize({
+        startOnLoad: true,
+        theme: 'default',
+        flowchart: {
+            useMaxWidth: true,
+            htmlLabels: true,
+            curve: 'basis'
+        },
+        securityLevel: 'loose'
+    });
+
+    // Toggle section
+    function toggleSection(header) {
+        header.classList.toggle('open');
+        const body = header.nextElementSibling;
+        body.classList.toggle('open');
+    }
+
+    // Smooth scroll for TOC links
+    document.querySelectorAll('.toc a').forEach(link => {
+        link.addEventListener('click', (e) => {
+            e.preventDefault();
+            const target = document.querySelector(link.getAttribute('href'));
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth' });
+                // Open the section if closed
+                const header = target.querySelector('.section-header');
+                const body = target.querySelector('.section-body');
+                if (!header.classList.contains('open')) {
+                    header.classList.add('open');
+                    body.classList.add('open');
+                }
+            }
+        });
+    });
+
+    // Expand All / Collapse All with keyboard shortcut
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'e' && e.altKey) {
+            // Alt+E = Expand All
+            document.querySelectorAll('.section-header:not(.open)').forEach(h => {
+                h.classList.add('open');
+                h.nextElementSibling.classList.add('open');
+            });
+        }
+        if (e.key === 'c' && e.altKey) {
+            // Alt+C = Collapse All
+            document.querySelectorAll('.section-header.open').forEach(h => {
+                h.classList.remove('open');
+                h.nextElementSibling.classList.remove('open');
+            });
+        }
+    });
+</script>
+
+</body>
+</html>
