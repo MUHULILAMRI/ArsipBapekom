@@ -87,10 +87,10 @@ function DetailItem({
 }
 
 const divisionLabels: Record<string, string> = {
-  KEUANGAN: "Finance",
-  PENYELENGGARA: "Operations",
-  TATA_USAHA: "Administration",
-  UMUM: "General",
+  KEUANGAN: "Keuangan",
+  PENYELENGGARA: "Penyelenggara",
+  TATA_USAHA: "Tata Usaha",
+  UMUM: "Umum",
 };
 
 const divisionColors: Record<string, string> = {
@@ -111,7 +111,7 @@ export default function ArchiveDetailPage() {
   useEffect(() => {
     fetch(`/api/archives/${id}`)
       .then((res) => {
-        if (!res.ok) throw new Error("Archive not found");
+        if (!res.ok) throw new Error("Arsip tidak ditemukan");
         return res.json();
       })
       .then((data) => setArchive(data))
@@ -120,11 +120,11 @@ export default function ArchiveDetailPage() {
   }, [id]);
 
   const handleDelete = async () => {
-    if (!confirm("Are you sure you want to delete this archive?")) return;
+    if (!confirm("Apakah Anda yakin ingin menghapus arsip ini?")) return;
     setDeleting(true);
     try {
       const res = await fetch(`/api/archives/${id}`, { method: "DELETE" });
-      if (!res.ok) throw new Error("Failed to delete archive");
+      if (!res.ok) throw new Error("Gagal menghapus arsip");
       router.push("/archives");
     } catch (err: any) {
       alert(err.message);
@@ -136,7 +136,7 @@ export default function ArchiveDetailPage() {
     return (
       <div className="flex flex-col items-center justify-center py-32 animate-fade-in-up">
         <Loader2 size={32} className="text-blue-500 animate-spin mb-4" />
-        <p className="text-gray-400 text-sm">Loading archive details...</p>
+        <p className="text-gray-400 text-sm">Memuat detail arsip...</p>
       </div>
     );
   }
@@ -149,23 +149,23 @@ export default function ArchiveDetailPage() {
             <AlertCircle size={32} className="text-red-400" />
           </div>
           <h2 className="text-lg font-semibold text-gray-900 mb-1">
-            Archive Not Found
+            Arsip Tidak Ditemukan
           </h2>
           <p className="text-gray-400 text-sm mb-6">
-            {error || "Archive data is not available"}
+            {error || "Data arsip tidak tersedia"}
           </p>
           <Link
             href="/archives"
             className="px-5 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
           >
-            Back to Archive List
+            Kembali ke Daftar Arsip
           </Link>
         </div>
       </div>
     );
   }
 
-  const formattedDate = new Date(archive.date).toLocaleDateString("en-US", {
+  const formattedDate = new Date(archive.date).toLocaleDateString("id-ID", {
     weekday: "long",
     year: "numeric",
     month: "long",
@@ -173,7 +173,7 @@ export default function ArchiveDetailPage() {
   });
 
   const formattedCreatedAt = new Date(archive.createdAt).toLocaleDateString(
-    "en-US",
+    "id-ID",
     {
       year: "numeric",
       month: "long",
@@ -192,7 +192,7 @@ export default function ArchiveDetailPage() {
           className="inline-flex items-center gap-2 text-sm text-gray-400 hover:text-gray-600 transition-colors mb-4"
         >
           <ArrowLeft size={16} />
-          <span>Back to Archive List</span>
+          <span>Kembali ke Daftar Arsip</span>
         </Link>
 
         <div className="flex items-start justify-between gap-4">
@@ -224,7 +224,7 @@ export default function ArchiveDetailPage() {
                   ) : (
                     <XCircle size={12} />
                   )}
-                  {archive.status === "AKTIF" ? "Active" : "Inactive"}
+                  {archive.status === "AKTIF" ? "Aktif" : "Inaktif"}
                 </span>
                 <span className="text-xs text-gray-400">
                   #{archive.archiveNumber}
@@ -239,7 +239,7 @@ export default function ArchiveDetailPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all shadow-md shadow-amber-200 hover:shadow-lg hover:shadow-amber-300"
             >
               <Edit3 size={16} />
-              <span>Edit</span>
+              <span>Ubah</span>
             </Link>
             {archive.fileUrl && (
               <a
@@ -249,7 +249,7 @@ export default function ArchiveDetailPage() {
                 className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
               >
                 <Download size={16} />
-                <span>Download</span>
+                <span>Unduh</span>
               </a>
             )}
             <button
@@ -258,7 +258,7 @@ export default function ArchiveDetailPage() {
               className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-600 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
             >
               <Trash2 size={16} />
-              <span>{deleting ? "Deleting..." : "Delete"}</span>
+              <span>{deleting ? "Menghapus..." : "Hapus"}</span>
             </button>
           </div>
         </div>
@@ -449,7 +449,7 @@ export default function ArchiveDetailPage() {
           {/* Created by */}
           <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
             <h2 className="text-sm font-semibold text-gray-900 mb-4">
-              Created By
+              Dibuat Oleh
             </h2>
             <div className="flex items-center gap-3">
               <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-xl flex items-center justify-center text-white font-bold text-sm">
@@ -472,7 +472,7 @@ export default function ArchiveDetailPage() {
           {archive.fileUrl ? (
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <h2 className="text-sm font-semibold text-gray-900 mb-4">
-                Document File
+                Dokumen File
               </h2>
               <div className="p-4 bg-gray-50 rounded-xl">
                 <div className="flex items-center gap-3">
@@ -496,13 +496,13 @@ export default function ArchiveDetailPage() {
                 className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
               >
                 <Download size={16} />
-                <span>Open File</span>
+                <span>Buka File</span>
               </a>
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
               <h2 className="text-sm font-semibold text-gray-900 mb-4">
-                Document File
+                Dokumen File
               </h2>
               <div className="p-4 bg-gray-50 rounded-xl text-center">
                 <div className="w-12 h-12 bg-gray-100 rounded-xl flex items-center justify-center mx-auto mb-2">
@@ -519,7 +519,7 @@ export default function ArchiveDetailPage() {
       {archive.description && (
         <div className="mt-6 bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
           <h2 className="text-sm font-semibold text-gray-900 mb-3">
-            Description
+            Deskripsi
           </h2>
           <p className="text-sm text-gray-600 leading-relaxed whitespace-pre-wrap">
             {archive.description}

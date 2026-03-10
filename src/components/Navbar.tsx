@@ -83,7 +83,7 @@ export default function Navbar() {
   };
 
   return (
-    <header className="sticky top-0 z-20 glass border-b border-white/20 px-6 py-3">
+    <header className="sticky top-0 z-20 glass dark:glass-dark border-b border-white/20 dark:border-gray-700/50 px-6 py-3">
       <div className="flex items-center justify-between">
         {/* Search */}
         <div className="flex-1 max-w-lg ml-8 md:ml-0 relative">
@@ -106,8 +106,8 @@ export default function Navbar() {
               onKeyDown={handleKeyDown}
               onFocus={() => query.trim() && setShowResults(true)}
               onBlur={() => setTimeout(() => setShowResults(false), 200)}
-              placeholder="Search archives, letters, or documents..."
-              className="w-full pl-11 pr-4 py-2.5 bg-white/60 border border-gray-200/80 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white transition-all placeholder:text-gray-400"
+              placeholder="Cari arsip, surat, atau dokumen..."
+              className="w-full pl-11 pr-4 py-2.5 bg-white/60 dark:bg-gray-800/60 border border-gray-200/80 dark:border-gray-700/80 rounded-xl text-sm text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400/50 focus:bg-white dark:focus:bg-gray-800 transition-all placeholder:text-gray-400 dark:placeholder:text-gray-500"
             />
           </div>
 
@@ -120,12 +120,12 @@ export default function Navbar() {
                     size={20}
                     className="text-blue-500 animate-spin mr-2"
                   />
-                  <span className="text-sm text-gray-400">Searching...</span>
+                  <span className="text-sm text-gray-400">Mencari...</span>
                 </div>
               ) : results.length === 0 ? (
                 <div className="py-6 text-center">
                   <p className="text-sm text-gray-400">
-                    No results found for &quot;{query}&quot;
+                    Tidak ditemukan hasil untuk &quot;{query}&quot;
                   </p>
                 </div>
               ) : (
@@ -174,13 +174,13 @@ export default function Navbar() {
           <div
             className="flex items-center gap-3 pl-1 cursor-pointer hover:opacity-80 transition-opacity"
             onClick={() => router.push("/profile")}
-            title="My Profile"
+            title="Profil Saya"
           >
             <div className="hidden sm:block text-right">
-              <p className="text-sm font-semibold text-gray-800">
+              <p className="text-sm font-semibold text-gray-800 dark:text-gray-200">
                 {session?.user?.name}
               </p>
-              <p className="text-[11px] text-gray-400 flex items-center gap-1 justify-end">
+              <p className="text-[11px] text-gray-400 dark:text-gray-500 flex items-center gap-1 justify-end">
                 <Sparkles size={9} />
                 {(session?.user as any)?.role === "SUPER_ADMIN"
                   ? "Super Admin"

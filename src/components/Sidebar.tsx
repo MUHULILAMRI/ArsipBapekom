@@ -19,19 +19,21 @@ import {
   Shield,
   FolderOpen,
   UserCircle,
+  Palette,
 } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
-  { name: "Dashboard", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Archives", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Browse Archives", href: "/archives/browse", icon: FolderOpen, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Analytics", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "My Profile", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Manage Users", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
-  { name: "Activity Log", href: "/admin/activity", icon: ClipboardList, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
-  { name: "Access Rights", href: "/admin/roles", icon: Shield, roles: ["SUPER_ADMIN"], group: "admin" },
-  { name: "Storage", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
+  { name: "Beranda", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Daftar Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Jelajah Arsip", href: "/archives/browse", icon: FolderOpen, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Statistik", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Profil Saya", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Kelola Pengguna", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
+  { name: "Riwayat Aktivitas", href: "/admin/activity", icon: ClipboardList, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
+  { name: "Hak Akses", href: "/admin/roles", icon: Shield, roles: ["SUPER_ADMIN"], group: "admin" },
+  { name: "Penyimpanan", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
+  { name: "Pengaturan Tema", href: "/admin/theme", icon: Palette, roles: ["SUPER_ADMIN"], group: "admin" },
 ];
 
 const roleLabels: Record<string, string> = {
@@ -89,7 +91,7 @@ export default function Sidebar() {
               <div className="flex items-center gap-1 mt-0.5">
                 <Sparkles size={10} className="text-blue-400" />
                 <span className="text-[10px] font-medium text-blue-400/70 uppercase tracking-widest">
-                  Digital Archive
+                  Arsip Digital
                 </span>
               </div>
             </div>
@@ -101,7 +103,7 @@ export default function Sidebar() {
           {/* Navigation */}
           <nav className="flex-1 px-4 py-5 space-y-1 overflow-y-auto">
             <p className="px-3 mb-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
-              Main Menu
+              Menu Utama
             </p>
             {filteredNav.filter((item) => item.group === "menu").map((item, index) => {
               const isActive = pathname.startsWith(item.href);
@@ -138,7 +140,7 @@ export default function Sidebar() {
               <>
                 <div className="pt-4 pb-2">
                   <p className="px-3 text-[10px] font-semibold text-slate-500 uppercase tracking-widest">
-                    Administration
+                    Administrasi
                   </p>
                 </div>
                 {filteredNav.filter((item) => item.group === "admin").map((item, index) => {
@@ -202,7 +204,7 @@ export default function Sidebar() {
                 className="flex items-center gap-2 w-full px-3 py-2 text-sm text-red-400 hover:bg-red-500/10 rounded-xl transition-all duration-200 group"
               >
                 <LogOut size={16} className="group-hover:rotate-[-12deg] transition-transform" />
-                Logout
+                Keluar
               </button>
             </div>
             <div className="mt-3 pt-3 border-t border-slate-700/50">

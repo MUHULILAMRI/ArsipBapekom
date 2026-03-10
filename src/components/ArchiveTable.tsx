@@ -12,7 +12,7 @@ import {
   type SortingState,
 } from "@tanstack/react-table";
 import { format } from "date-fns";
-import { enUS as enLocale } from "date-fns/locale";
+import { id as idLocale } from "date-fns/locale";
 import {
   ArrowUpDown,
   Download,
@@ -208,7 +208,7 @@ export default function ArchiveTable({
                 : isInaktif
                 ? row.kurunWaktu
                 : format(new Date(info.getValue()), "dd MMM yyyy", {
-                    locale: enLocale,
+                    locale: idLocale,
                   })}
             </span>
           );
@@ -261,16 +261,16 @@ export default function ArchiveTable({
             <Link
               href={`/archives/${info.row.original.id}`}
               className="p-2 text-gray-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
-              title="View Details"
-              aria-label="View Details"
+              title="Lihat Detail"
+              aria-label="Lihat Detail"
             >
               <Eye size={16} />
             </Link>
             <Link
               href={`/archives/${info.row.original.id}/edit`}
               className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-              title="Edit"
-              aria-label="Edit"
+              title="Ubah"
+              aria-label="Ubah"
             >
               <Edit3 size={16} />
             </Link>
@@ -280,8 +280,8 @@ export default function ArchiveTable({
                 target="_blank"
                 rel="noopener noreferrer"
                 className="p-2 text-gray-400 hover:text-emerald-600 hover:bg-emerald-50 rounded-lg transition-all"
-                title="Download"
-                aria-label="Download"
+                title="Unduh"
+                aria-label="Unduh"
               >
                 <Download size={16} />
               </a>
@@ -290,8 +290,8 @@ export default function ArchiveTable({
               <button
                 onClick={() => onDelete(info.row.original.id)}
                 className="p-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
-                title="Delete"
-                aria-label="Delete"
+                title="Hapus"
+                aria-label="Hapus"
               >
                 <Trash2 size={16} />
               </button>
@@ -327,7 +327,7 @@ export default function ArchiveTable({
           />
           <input
             type="text"
-            placeholder="Search archives..."
+            placeholder="Cari arsip..."
             value={globalFilter}
             onChange={(e) => setGlobalFilter(e.target.value)}
             className="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all"
@@ -343,7 +343,7 @@ export default function ArchiveTable({
             onChange={(e) => setDivisionFilter(e.target.value)}
             className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
           >
-            <option value="">All Divisions</option>
+            <option value="">Semua Divisi</option>
             <option value="KEUANGAN">Keuangan</option>
             <option value="PENYELENGGARA">Penyelenggara</option>
             <option value="TATA_USAHA">Tata Usaha</option>
@@ -356,9 +356,9 @@ export default function ArchiveTable({
             onChange={(e) => setStatusFilter(e.target.value)}
             className="pl-4 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
           >
-            <option value="">All Status</option>
-            <option value="AKTIF">Active</option>
-            <option value="INAKTIF">Inactive</option>
+            <option value="">Semua Status</option>
+            <option value="AKTIF">Aktif</option>
+            <option value="INAKTIF">Inaktif</option>
           </select>
         </div>
         <div className="relative">
@@ -371,7 +371,7 @@ export default function ArchiveTable({
             onChange={(e) => setYearFilter(e.target.value)}
             className="pl-10 pr-8 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all appearance-none"
           >
-            <option value="">All Years</option>
+            <option value="">Semua Tahun</option>
             {availableYears.map((year) => (
               <option key={year} value={year}>
                 {year}
@@ -385,7 +385,7 @@ export default function ArchiveTable({
             className="flex items-center gap-1.5 px-3 py-2.5 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl hover:bg-red-100 transition-all"
           >
             <X size={14} />
-            Reset All
+            Hapus Filter
           </button>
         )}
       </div>
@@ -394,7 +394,7 @@ export default function ArchiveTable({
       <div className="px-4 pb-4 border-b border-gray-100 flex flex-wrap items-center gap-3">
         <div className="flex items-center gap-1.5 text-gray-400">
           <CalendarDays size={15} />
-          <span className="text-xs font-semibold uppercase tracking-wider">Date Filter</span>
+          <span className="text-xs font-semibold uppercase tracking-wider">Filter Tanggal</span>
         </div>
         <div className="flex items-center gap-2">
           <input
@@ -403,7 +403,7 @@ export default function ArchiveTable({
             onChange={(e) => setDateFrom(e.target.value)}
             className="px-3 py-2 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-400 focus:bg-white transition-all"
           />
-          <span className="text-xs text-gray-400 font-medium">to</span>
+          <span className="text-xs text-gray-400 font-medium">sampai</span>
           <input
             type="date"
             value={dateTo}
@@ -459,8 +459,8 @@ export default function ArchiveTable({
                     <div className="w-14 h-14 bg-gray-100 rounded-2xl flex items-center justify-center mb-3">
                       <FileText size={24} className="text-gray-300" />
                     </div>
-                    <p className="text-gray-400 font-medium">No archives found</p>
-                    <p className="text-gray-300 text-sm mt-1">Try changing filters or search keywords</p>
+                    <p className="text-gray-400 font-medium">Arsip tidak ditemukan</p>
+                    <p className="text-gray-300 text-sm mt-1">Coba ubah filter atau kata kunci pencarian</p>
                   </div>
                 </td>
               </tr>
@@ -489,8 +489,8 @@ export default function ArchiveTable({
       <div className="px-5 py-4 border-t border-gray-100 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-gray-50/50">
         <div className="flex items-center gap-3">
           <p className="text-sm text-gray-500">
-            Showing <span className="font-semibold text-gray-700">{table.getRowModel().rows.length}</span> of{" "}
-            <span className="font-semibold text-gray-700">{filteredData.length}</span> archives
+            Menampilkan <span className="font-semibold text-gray-700">{table.getRowModel().rows.length}</span> dari{" "}
+            <span className="font-semibold text-gray-700">{filteredData.length}</span> arsip
           </p>
           <div className="hidden sm:flex items-center gap-1.5 text-sm text-gray-500">
             <span>·</span>
@@ -501,7 +501,7 @@ export default function ArchiveTable({
             >
               {[10, 25, 50, 100].map((size) => (
                 <option key={size} value={size}>
-                  {size} / page
+                  {size} / halaman
                 </option>
               ))}
             </select>
@@ -513,7 +513,7 @@ export default function ArchiveTable({
             disabled={!table.getCanPreviousPage()}
             className="px-2.5 py-1.5 text-xs font-medium border border-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all text-gray-600"
           >
-            First
+            Awal
           </button>
           <button
             onClick={() => table.previousPage()}
@@ -567,7 +567,7 @@ export default function ArchiveTable({
             disabled={!table.getCanNextPage()}
             className="px-2.5 py-1.5 text-xs font-medium border border-gray-200 rounded-lg disabled:opacity-30 disabled:cursor-not-allowed hover:bg-white hover:shadow-sm transition-all text-gray-600"
           >
-            Last
+            Akhir
           </button>
         </div>
       </div>

@@ -35,10 +35,10 @@ const variantStyles = {
 
 export default function ConfirmModal({
   isOpen,
-  title = "Confirm",
+  title = "Konfirmasi",
   message,
-  confirmLabel = "Yes, Continue",
-  cancelLabel = "Cancel",
+  confirmLabel = "Ya, Lanjutkan",
+  cancelLabel = "Batal",
   variant = "danger",
   loading = false,
   onConfirm,

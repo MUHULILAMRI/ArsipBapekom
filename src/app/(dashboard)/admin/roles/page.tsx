@@ -21,17 +21,17 @@ const roles = [
     icon: Crown,
     color: "from-red-500 to-rose-600",
     lightColor: "bg-red-50 text-red-700 border-red-200",
-    description: "Full access to the entire system including user management and configuration",
+    description: "Akses penuh ke seluruh sistem termasuk manajemen pengguna dan konfigurasi",
     permissions: {
-      "View All Archives": true,
-      "Add Archives": true,
-      "Edit Archives": true,
-      "Delete Archives": true,
-      "Manage Users": true,
-      "Storage Configuration": true,
-      "View All Divisions": true,
-      "Activity Log": true,
-      "Access Rights": true,
+      "Lihat Semua Arsip": true,
+      "Tambah Arsip": true,
+      "Ubah Arsip": true,
+      "Hapus Arsip": true,
+      "Kelola Pengguna": true,
+      "Konfigurasi Penyimpanan": true,
+      "Lihat Semua Divisi": true,
+      "Riwayat Aktivitas": true,
+      "Hak Akses": true,
     },
   },
   {
@@ -40,17 +40,17 @@ const roles = [
     icon: Settings,
     color: "from-blue-500 to-indigo-600",
     lightColor: "bg-blue-50 text-blue-700 border-blue-200",
-    description: "Can manage archives across all divisions and access storage configuration",
+    description: "Dapat mengelola arsip di semua divisi dan mengakses konfigurasi penyimpanan",
     permissions: {
-      "View All Archives": true,
-      "Add Archives": true,
-      "Edit Archives": true,
-      "Delete Archives": true,
-      "Manage Users": false,
-      "Storage Configuration": true,
-      "View All Divisions": true,
-      "Activity Log": true,
-      "Access Rights": false,
+      "Lihat Semua Arsip": true,
+      "Tambah Arsip": true,
+      "Ubah Arsip": true,
+      "Hapus Arsip": true,
+      "Kelola Pengguna": false,
+      "Konfigurasi Penyimpanan": true,
+      "Lihat Semua Divisi": true,
+      "Riwayat Aktivitas": true,
+      "Hak Akses": false,
     },
   },
   {
@@ -59,17 +59,17 @@ const roles = [
     icon: UserCheck,
     color: "from-gray-500 to-slate-600",
     lightColor: "bg-gray-50 text-gray-700 border-gray-200",
-    description: "Can only add and view archives in own division",
+    description: "Hanya dapat menambah dan melihat arsip di divisi sendiri",
     permissions: {
-      "View All Archives": false,
-      "Add Archives": true,
-      "Edit Archives": false,
-      "Delete Archives": false,
-      "Manage Users": false,
-      "Storage Configuration": false,
-      "View All Divisions": false,
-      "Activity Log": false,
-      "Access Rights": false,
+      "Lihat Semua Arsip": false,
+      "Tambah Arsip": true,
+      "Ubah Arsip": false,
+      "Hapus Arsip": false,
+      "Kelola Pengguna": false,
+      "Konfigurasi Penyimpanan": false,
+      "Lihat Semua Divisi": false,
+      "Riwayat Aktivitas": false,
+      "Hak Akses": false,
     },
   },
 ];
@@ -81,7 +81,7 @@ export default async function RolesPage() {
   if (!user || user.role !== "SUPER_ADMIN") {
     return (
       <div className="flex items-center justify-center py-32">
-        <p className="text-gray-400">You do not have access to this page.</p>
+        <p className="text-gray-400">Anda tidak memiliki akses ke halaman ini.</p>
       </div>
     );
   }
@@ -107,10 +107,10 @@ export default async function RolesPage() {
           </div>
           <div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Access Rights & Roles
+              Hak Akses & Peran
             </h1>
             <p className="text-gray-400 text-sm mt-0.5">
-              Manage access rights based on user roles
+              Kelola hak akses berdasarkan peran pengguna
             </p>
           </div>
         </div>
@@ -136,7 +136,7 @@ export default async function RolesPage() {
                         {role.label}
                       </h3>
                       <p className="text-xs text-white/70">
-                        {countMap[role.name] || 0} users
+                        {countMap[role.name] || 0} pengguna
                       </p>
                     </div>
                   </div>
@@ -178,7 +178,7 @@ export default async function RolesPage() {
         <div className="p-5 border-b border-gray-100">
           <h2 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
             <Eye size={16} className="text-blue-500" />
-            Permission Matrix
+            Matriks Hak Akses
           </h2>
         </div>
         <div className="overflow-x-auto">
@@ -186,7 +186,7 @@ export default async function RolesPage() {
             <thead>
               <tr className="border-b border-gray-100">
                 <th className="px-5 py-3.5 text-left text-[11px] font-semibold text-gray-400 uppercase tracking-wider">
-                  Permission
+                  Hak Akses
                 </th>
                 {roles.map((r) => (
                   <th

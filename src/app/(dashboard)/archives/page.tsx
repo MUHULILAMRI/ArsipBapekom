@@ -117,11 +117,11 @@ function ArchivesContent() {
               <FileText size={20} className="text-blue-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Archive List
+              Daftar Arsip
             </h1>
           </div>
           <p className="text-gray-500 mt-1 ml-12">
-            Manage all letters and document archives
+            Kelola semua arsip surat dan dokumen
           </p>
         </div>
         <div className="flex items-center gap-3">
@@ -132,7 +132,7 @@ function ArchivesContent() {
               className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
             >
               <Download size={16} />
-              Export
+              Ekspor
             </button>
             {exportOpen && (
               <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 w-40 z-20 animate-scale-in">
@@ -140,13 +140,13 @@ function ArchivesContent() {
                   onMouseDown={() => handleExport("csv")}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                 >
-                  📊 Export CSV
+                  📊 Ekspor CSV
                 </button>
                 <button
                   onMouseDown={() => handleExport("json")}
                   className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
                 >
-                  📋 Export JSON
+                  📋 Ekspor JSON
                 </button>
               </div>
             )}
@@ -156,14 +156,14 @@ function ArchivesContent() {
             className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
           >
             <FolderOpen size={18} />
-            Browse
+            Jelajah
           </Link>
           <Link
             href="/archives/create"
             className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
           >
             <Plus size={18} />
-            Add Archive
+            Tambah Arsip
           </Link>
         </div>
       </div>
@@ -179,7 +179,7 @@ function ArchivesContent() {
           }`}
         >
           <Archive size={14} />
-          All
+          Semua
           <span className={`text-xs px-1.5 py-0.5 rounded-md ${activeTab === "ALL" ? "bg-white/20" : "bg-gray-100"}`}>
             {archives.length}
           </span>
@@ -193,7 +193,7 @@ function ArchivesContent() {
           }`}
         >
           <CheckCircle2 size={14} />
-          Active
+          Aktif
           <span className={`text-xs px-1.5 py-0.5 rounded-md ${activeTab === "AKTIF" ? "bg-white/20" : "bg-emerald-50 text-emerald-700"}`}>
             {activeCount}
           </span>
@@ -207,7 +207,7 @@ function ArchivesContent() {
           }`}
         >
           <XCircle size={14} />
-          Inactive
+          Inaktif
           <span className={`text-xs px-1.5 py-0.5 rounded-md ${activeTab === "INAKTIF" ? "bg-white/20" : "bg-orange-50 text-orange-700"}`}>
             {inactiveCount}
           </span>
@@ -222,10 +222,10 @@ function ArchivesContent() {
 
       <ConfirmModal
         isOpen={!!deleteTarget}
-        title="Delete Archive"
-        message="Are you sure you want to delete this archive? This action cannot be undone and the associated file will be removed from storage."
-        confirmLabel="Yes, Delete"
-        cancelLabel="Cancel"
+        title="Hapus Arsip"
+        message="Apakah Anda yakin ingin menghapus arsip ini? Tindakan ini tidak dapat dibatalkan dan file terkait akan dihapus dari penyimpanan."
+        confirmLabel="Ya, Hapus"
+        cancelLabel="Batal"
         variant="danger"
         loading={deleting}
         onConfirm={confirmDelete}

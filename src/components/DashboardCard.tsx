@@ -18,19 +18,19 @@ export default function DashboardCard({
   gradient,
 }: DashboardCardProps) {
   return (
-    <div className="group relative bg-white rounded-2xl border border-gray-100 p-6 card-hover overflow-hidden">
+    <div className="group relative bg-white dark:bg-gray-800 rounded-2xl border border-gray-100 dark:border-gray-700 p-6 card-hover overflow-hidden">
       {/* Subtle gradient overlay */}
       <div className={`absolute inset-0 opacity-[0.03] bg-gradient-to-br ${gradient || "from-blue-500 to-indigo-500"} group-hover:opacity-[0.06] transition-opacity`} />
       
       <div className="relative flex items-start justify-between">
         <div>
-          <p className="text-sm font-medium text-gray-500">{title}</p>
-          <p className="text-4xl font-bold text-gray-900 mt-2 tracking-tight">
+          <p className="text-sm font-medium text-gray-500 dark:text-gray-400">{title}</p>
+          <p className="text-4xl font-bold text-gray-900 dark:text-white mt-2 tracking-tight">
             {value}
           </p>
           <div className="flex items-center gap-1.5 mt-2">
             <div className={`w-1.5 h-1.5 rounded-full ${bgColor}`} />
-            <span className="text-xs text-gray-400">documents</span>
+            <span className="text-xs text-gray-400 dark:text-gray-500">documents</span>
           </div>
         </div>
         <div className={`p-3 rounded-2xl ${bgColor} group-hover:scale-110 transition-transform duration-300`}>

@@ -159,7 +159,7 @@ export default function NotificationDropdown() {
       <button
         onClick={toggleDropdown}
         className="relative p-2.5 text-gray-400 hover:text-gray-700 hover:bg-white/80 rounded-xl transition-all group"
-        aria-label="Open notifications"
+        aria-label="Buka notifikasi"
       >
         <Bell
           size={20}
@@ -183,11 +183,11 @@ export default function NotificationDropdown() {
           <div className="flex items-center justify-between px-5 py-4 border-b border-gray-100 bg-gradient-to-r from-blue-50/80 to-indigo-50/80">
             <div>
               <h3 className="font-semibold text-gray-800 text-sm">
-                Notifications
+                Notifikasi
               </h3>
               {unreadCount > 0 && (
                 <p className="text-xs text-gray-500 mt-0.5">
-                  {unreadCount} unread
+                  {unreadCount} belum dibaca
                 </p>
               )}
             </div>
@@ -198,7 +198,7 @@ export default function NotificationDropdown() {
                   className="text-xs text-blue-600 hover:text-blue-700 font-medium flex items-center gap-1 px-2 py-1 rounded-lg hover:bg-blue-50 transition-colors"
                 >
                   <CheckCheck size={14} />
-                  Mark all read
+                  Tandai semua dibaca
                 </button>
               )}
               <button
@@ -222,10 +222,10 @@ export default function NotificationDropdown() {
                   <Bell size={24} className="text-gray-300" />
                 </div>
                 <p className="text-sm font-medium text-gray-500">
-                  No notifications
+                  Belum ada notifikasi
                 </p>
                 <p className="text-xs text-gray-400 mt-1">
-                  Notifications will appear here
+                  Notifikasi akan muncul di sini
                 </p>
               </div>
             ) : (
@@ -283,7 +283,7 @@ export default function NotificationDropdown() {
                 }}
                 className="w-full text-center text-xs text-blue-600 hover:text-blue-700 font-medium py-1"
               >
-                All notifications displayed
+                Semua notifikasi ditampilkan
               </button>
             </div>
           )}
