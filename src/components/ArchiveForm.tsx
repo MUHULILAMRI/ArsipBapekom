@@ -26,6 +26,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
     division: userRole === "USER" ? (userDivision || "") : "",
     status: "AKTIF",
     description: "",
+    link: "",
 
     // Arsip Aktif fields
     noBerkas: "",
@@ -115,6 +116,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
       const archiveData: any = {
         division: form.division,
         status: form.status,
+        link: form.link,
         ...(fileId && { fileId }),
         ...(fileUrl && { fileUrl }),
       };
@@ -543,6 +545,20 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
         </>
       )}
 
+      {/* Link Opsional */}
+      <div className="space-y-1.5">
+        <label className="block text-sm font-semibold text-gray-700">
+          Link / Tautan <span className="text-gray-400 font-normal">(opsional)</span>
+        </label>
+        <input
+          type="url"
+          value={form.link}
+          onChange={(e) => setForm({ ...form, link: e.target.value })}
+          className={inputClass}
+          placeholder="Contoh: https://drive.google.com/..."
+        />
+      </div>
+
       {/* Unggah File - Drag & Drop */}
       <div className="space-y-1.5">
         <label className="block text-sm font-semibold text-gray-700">
@@ -596,7 +612,7 @@ export default function ArchiveForm({ userDivision, userRole }: ArchiveFormProps
                 <span className="text-blue-600 font-semibold">klik untuk memilih</span>
               </p>
               <p className="text-xs text-gray-400 mt-1">
-                PDF, DOC, XLSX, JPG, PNG (Maks. 10MB)
+                PDF, DOC, DOCX, XLS, XLSX, CSV, PPT, PPTX, JPG, PNG, WebP (Maks. 10MB)
               </p>
             </div>
           )}

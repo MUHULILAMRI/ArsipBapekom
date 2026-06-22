@@ -98,7 +98,7 @@ export async function POST(req: NextRequest) {
 
   const body = await req.json();
   const {
-    archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status,
+    archiveNumber, title, letterNumber, date, division, description, fileUrl, fileId, status, link,
     // Arsip Aktif fields
     noBerkas, noUrut, kode, indexPekerjaan, uraianMasalah, tahun, jumlahBerkas, keteranganAsliCopy, keteranganBox,
     // Arsip Inaktif fields
@@ -147,6 +147,7 @@ export async function POST(req: NextRequest) {
       description: description ? String(description).trim() : null,
       fileUrl: fileUrl || null,
       fileId: fileId || null,
+      link: link ? String(link).trim() : null,
       createdBy: user.id,
       // Arsip Aktif fields
       noBerkas: noBerkas ? String(noBerkas).trim() : null,

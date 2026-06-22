@@ -44,6 +44,7 @@ model Archive {
   description   String?
   fileUrl       String?
   fileId        String?
+  link          String?
   createdBy     String
   user          User          @relation(fields: [createdBy], references: [id])
   createdAt     DateTime      @default(now())

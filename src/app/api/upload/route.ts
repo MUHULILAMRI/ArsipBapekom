@@ -61,13 +61,15 @@ export async function POST(req: NextRequest) {
       "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
       "application/vnd.ms-powerpoint",
       "application/vnd.openxmlformats-officedocument.presentationml.presentation",
+      "text/csv",
+      "application/csv",
       "image/jpeg",
       "image/png",
       "image/webp",
     ];
     if (!ALLOWED_TYPES.includes(file.type)) {
       return NextResponse.json(
-        { error: "File type not allowed. Accepted: PDF, DOC, DOCX, XLS, XLSX, PPT, PPTX, JPG, PNG, WebP" },
+        { error: "File type not allowed. Accepted: PDF, DOC, DOCX, XLS, XLSX, CSV, PPT, PPTX, JPG, PNG, WebP" },
         { status: 400 }
       );
     }
