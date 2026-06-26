@@ -117,55 +117,59 @@ function ArchivesContent() {
               <FileText size={20} className="text-blue-600" />
             </div>
             <h1 className="text-2xl font-bold text-gray-900 tracking-tight">
-              Daftar Arsip
+              {userRole === "PEMINJAM" ? "Cari Arsip" : "Daftar Arsip"}
             </h1>
           </div>
           <p className="text-gray-500 mt-1 ml-12">
-            Kelola semua arsip surat dan dokumen
+            {userRole === "PEMINJAM"
+              ? "Cari arsip dan ajukan permohonan peminjaman"
+              : "Kelola semua arsip surat dan dokumen"}
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="relative">
-            <button
-              onClick={() => setExportOpen(!exportOpen)}
-              onBlur={() => setTimeout(() => setExportOpen(false), 150)}
-              className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
+        {userRole !== "PEMINJAM" && (
+          <div className="flex items-center gap-3">
+            <div className="relative">
+              <button
+                onClick={() => setExportOpen(!exportOpen)}
+                onBlur={() => setTimeout(() => setExportOpen(false), 150)}
+                className="flex items-center gap-2 px-4 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
+              >
+                <Download size={16} />
+                Ekspor
+              </button>
+              {exportOpen && (
+                <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 w-40 z-20 animate-scale-in">
+                  <button
+                    onMouseDown={() => handleExport("csv")}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  >
+                    📊 Ekspor CSV
+                  </button>
+                  <button
+                    onMouseDown={() => handleExport("json")}
+                    className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
+                  >
+                    📋 Ekspor JSON
+                  </button>
+                </div>
+              )}
+            </div>
+            <Link
+              href="/archives/browse"
+              className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
             >
-              <Download size={16} />
-              Ekspor
-            </button>
-            {exportOpen && (
-              <div className="absolute right-0 top-full mt-1 bg-white rounded-xl shadow-lg border border-gray-100 py-1 w-40 z-20 animate-scale-in">
-                <button
-                  onMouseDown={() => handleExport("csv")}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                >
-                  📊 Ekspor CSV
-                </button>
-                <button
-                  onMouseDown={() => handleExport("json")}
-                  className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors"
-                >
-                  📋 Ekspor JSON
-                </button>
-              </div>
-            )}
+              <FolderOpen size={18} />
+              Jelajah
+            </Link>
+            <Link
+              href="/archives/create"
+              className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
+            >
+              <Plus size={18} />
+              Tambah Arsip
+            </Link>
           </div>
-          <Link
-            href="/archives/browse"
-            className="flex items-center gap-2 px-5 py-2.5 bg-white border border-gray-200 text-gray-700 rounded-xl text-sm font-semibold hover:bg-gray-50 transition-all"
-          >
-            <FolderOpen size={18} />
-            Jelajah
-          </Link>
-          <Link
-            href="/archives/create"
-            className="flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-semibold hover:from-blue-500 hover:to-indigo-500 transition-all shadow-lg shadow-blue-500/20 active:scale-[0.98]"
-          >
-            <Plus size={18} />
-            Tambah Arsip
-          </Link>
-        </div>
+        )}
       </div>
 
       {/* Status Tabs */}

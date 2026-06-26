@@ -18,8 +18,8 @@ export async function GET(req: NextRequest) {
 
     const where: any = {};
 
-    // USER can only see their own requests; Admin/Super Admin see all
-    if (user.role === "USER") {
+    // USER and PEMINJAM can only see their own requests; Admin/Super Admin see all
+    if (user.role === "USER" || user.role === "PEMINJAM") {
       where.userId = user.id;
     }
 
@@ -44,6 +44,7 @@ export async function GET(req: NextRequest) {
               noBerkas: true,
               indeks: true,
               status: true,
+              fileUrl: true,
             },
           },
           user: {
@@ -59,16 +60,34 @@ export async function GET(req: NextRequest) {
       prisma.borrowRequest.count({ where }),
     ]);
 
-    // Summary counts (for admin dashboard)
+    // Secure fileUrl: only expose it if request is APPROVED or user is Admin/Staff of the same division
+    const enrichedRequests = requests.map((req) => {
+      const isStaffOrAdmin = user.role === "SUPER_ADMIN" || user.role === "ADMIN";
+      const isUserOfDivision = user.role === "USER" && req.archive.division === user.division;
+      const isApprovedBorrower = req.status === "APPROVED" && req.userId === user.id;
+      
+      const canAccessFile = isStaffOrAdmin || isUserOfDivision || isApprovedBorrower;
+      
+      return {
+        ...req,
+        archive: {
+          ...req.archive,
+          fileUrl: canAccessFile ? req.archive.fileUrl : null,
+        },
+      };
+    });
+
+    // Summary counts (for dashboard)
+    const isStaffOrAdmin = user.role === "SUPER_ADMIN" || user.role === "ADMIN";
     const [pendingCount, approvedCount, returnedCount, rejectedCount] = await Promise.all([
-      prisma.borrowRequest.count({ where: { ...(user.role === "USER" ? { userId: user.id } : {}), status: "PENDING" } }),
-      prisma.borrowRequest.count({ where: { ...(user.role === "USER" ? { userId: user.id } : {}), status: "APPROVED" } }),
-      prisma.borrowRequest.count({ where: { ...(user.role === "USER" ? { userId: user.id } : {}), status: "RETURNED" } }),
-      prisma.borrowRequest.count({ where: { ...(user.role === "USER" ? { userId: user.id } : {}), status: "REJECTED" } }),
+      prisma.borrowRequest.count({ where: { ...(!isStaffOrAdmin ? { userId: user.id } : {}), status: "PENDING" } }),
+      prisma.borrowRequest.count({ where: { ...(!isStaffOrAdmin ? { userId: user.id } : {}), status: "APPROVED" } }),
+      prisma.borrowRequest.count({ where: { ...(!isStaffOrAdmin ? { userId: user.id } : {}), status: "RETURNED" } }),
+      prisma.borrowRequest.count({ where: { ...(!isStaffOrAdmin ? { userId: user.id } : {}), status: "REJECTED" } }),
     ]);
 
     return NextResponse.json({
-      requests,
+      requests: enrichedRequests,
       pagination: { page, limit, total, totalPages: Math.ceil(total / limit) },
       summary: { pendingCount, approvedCount, returnedCount, rejectedCount },
     });

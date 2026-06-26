@@ -19,6 +19,7 @@ import {
   MessageSquare,
   MoreVertical,
   X,
+  Download,
 } from "lucide-react";
 import { format } from "date-fns";
 import { id as idLocale } from "date-fns/locale";
@@ -39,6 +40,7 @@ interface BorrowRequest {
     noBerkas: string | null;
     indeks: string | null;
     status: string;
+    fileUrl?: string | null;
   };
   user: {
     id: string;
@@ -382,10 +384,23 @@ export default function BorrowPage() {
 
                         {/* Status */}
                         <td className="px-5 py-4">
-                          <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${statusCfg.className}`}>
-                            <StatusIcon size={12} />
-                            {statusCfg.label}
-                          </span>
+                          <div className="flex flex-col gap-1.5 items-start">
+                            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-[11px] font-semibold border ${statusCfg.className}`}>
+                              <StatusIcon size={12} />
+                              {statusCfg.label}
+                            </span>
+                            {req.status === "APPROVED" && req.archive.fileUrl && (
+                              <a
+                                href={req.archive.fileUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 px-2.5 py-1 text-[10px] font-semibold text-emerald-700 bg-emerald-50 hover:bg-emerald-100 rounded-lg border border-emerald-200 transition-colors"
+                              >
+                                <Download size={11} />
+                                Buka Dokumen
+                              </a>
+                            )}
+                          </div>
                         </td>
 
                         {/* Catatan Admin */}

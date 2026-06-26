@@ -20,7 +20,7 @@ export function canAccessDivision(
   userDivision: string,
   targetDivision: string
 ): boolean {
-  if (userRole === "SUPER_ADMIN" || userRole === "ADMIN") return true;
+  if (userRole === "SUPER_ADMIN" || userRole === "ADMIN" || userRole === "PEMINJAM") return true;
   return userDivision === targetDivision;
 }
 

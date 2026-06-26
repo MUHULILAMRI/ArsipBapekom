@@ -24,7 +24,10 @@ import {
   BookOpen,
   Box,
   Copy,
+  FileClock,
 } from "lucide-react";
+import { useSession } from "next-auth/react";
+import BorrowModal from "../../../../components/BorrowModal";
 
 interface ArchiveDetail {
   id: string;
@@ -103,10 +106,15 @@ const divisionColors: Record<string, string> = {
 export default function ArchiveDetailPage() {
   const { id } = useParams();
   const router = useRouter();
+  const { data: session } = useSession();
+  const userRole = (session?.user as any)?.role || "USER";
+  const isPeminjam = userRole === "PEMINJAM";
+
   const [archive, setArchive] = useState<ArchiveDetail | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [borrowOpen, setBorrowOpen] = useState(false);
 
   useEffect(() => {
     fetch(`/api/archives/${id}`)
@@ -234,32 +242,44 @@ export default function ArchiveDetailPage() {
           </div>
 
           <div className="flex items-center gap-2">
-            <Link
-              href={`/archives/${archive.id}/edit`}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all shadow-md shadow-amber-200 hover:shadow-lg hover:shadow-amber-300"
-            >
-              <Edit3 size={16} />
-              <span>Ubah</span>
-            </Link>
-            {archive.fileUrl && (
-              <a
-                href={archive.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
+            {isPeminjam ? (
+              <button
+                onClick={() => setBorrowOpen(true)}
+                className="inline-flex items-center gap-2 px-5 py-2.5 bg-gradient-to-r from-indigo-600 to-blue-600 text-white rounded-xl text-sm font-semibold hover:from-indigo-500 hover:to-blue-500 transition-all shadow-lg shadow-indigo-500/20 active:scale-[0.98]"
               >
-                <Download size={16} />
-                <span>Unduh</span>
-              </a>
+                <FileClock size={16} />
+                <span>Ajukan Peminjaman</span>
+              </button>
+            ) : (
+              <>
+                <Link
+                  href={`/archives/${archive.id}/edit`}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-amber-500 to-orange-500 text-white rounded-xl text-sm font-medium hover:from-amber-600 hover:to-orange-600 transition-all shadow-md shadow-amber-200 hover:shadow-lg hover:shadow-amber-300"
+                >
+                  <Edit3 size={16} />
+                  <span>Ubah</span>
+                </Link>
+                {archive.fileUrl && (
+                  <a
+                    href={archive.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl text-sm font-medium hover:from-blue-700 hover:to-indigo-700 transition-all shadow-md shadow-blue-200 hover:shadow-lg hover:shadow-blue-300"
+                  >
+                    <Download size={16} />
+                    <span>Unduh</span>
+                  </a>
+                )}
+                <button
+                  onClick={handleDelete}
+                  disabled={deleting}
+                  className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-600 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
+                >
+                  <Trash2 size={16} />
+                  <span>{deleting ? "Menghapus..." : "Hapus"}</span>
+                </button>
+              </>
             )}
-            <button
-              onClick={handleDelete}
-              disabled={deleting}
-              className="inline-flex items-center gap-2 px-4 py-2.5 bg-white border border-red-200 text-red-600 rounded-xl text-sm font-medium hover:bg-red-50 transition-colors disabled:opacity-50"
-            >
-              <Trash2 size={16} />
-              <span>{deleting ? "Menghapus..." : "Hapus"}</span>
-            </button>
           </div>
         </div>
       </div>
@@ -474,30 +494,44 @@ export default function ArchiveDetailPage() {
               <h2 className="text-sm font-semibold text-gray-900 mb-4">
                 Dokumen File
               </h2>
-              <div className="p-4 bg-gray-50 rounded-xl">
-                <div className="flex items-center gap-3">
-                  <div className="p-2 bg-white rounded-lg shadow-sm">
-                    <FileText size={20} className="text-blue-500" />
+              {isPeminjam ? (
+                <div className="p-4 bg-gray-50 rounded-xl text-center">
+                  <div className="w-12 h-12 bg-indigo-50 rounded-xl flex items-center justify-center mx-auto mb-2 text-indigo-500">
+                    <FileClock size={20} className="animate-pulse" />
                   </div>
-                  <div className="min-w-0 flex-1">
-                    <p className="text-sm font-medium text-gray-900 truncate">
-                      {archive.title}
-                    </p>
-                    <p className="text-xs text-gray-400 mt-0.5">
-                      Google Drive
-                    </p>
-                  </div>
+                  <p className="text-xs font-semibold text-gray-700">File Dokumen Terkunci</p>
+                  <p className="text-[11px] text-gray-400 mt-1 leading-relaxed">
+                    Silakan ajukan permohonan peminjaman untuk mengakses file dokumen ini.
+                  </p>
                 </div>
-              </div>
-              <a
-                href={archive.fileUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
-              >
-                <Download size={16} />
-                <span>Buka File</span>
-              </a>
+              ) : (
+                <>
+                  <div className="p-4 bg-gray-50 rounded-xl">
+                    <div className="flex items-center gap-3">
+                      <div className="p-2 bg-white rounded-lg shadow-sm">
+                        <FileText size={20} className="text-blue-500" />
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-medium text-gray-900 truncate">
+                          {archive.title}
+                        </p>
+                        <p className="text-xs text-gray-400 mt-0.5">
+                          Google Drive
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  <a
+                    href={archive.fileUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="mt-3 w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-gray-900 text-white rounded-xl text-sm font-medium hover:bg-gray-800 transition-colors"
+                  >
+                    <Download size={16} />
+                    <span>Buka File</span>
+                  </a>
+                </>
+              )}
             </div>
           ) : (
             <div className="bg-white rounded-2xl border border-gray-100 p-6 shadow-sm">
@@ -526,6 +560,11 @@ export default function ArchiveDetailPage() {
           </p>
         </div>
       )}
+      <BorrowModal
+        archive={archive}
+        isOpen={borrowOpen}
+        onClose={() => setBorrowOpen(false)}
+      />
     </div>
   );
 }

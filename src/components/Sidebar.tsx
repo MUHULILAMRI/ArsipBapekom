@@ -34,7 +34,7 @@ const navigation = [
   { name: "Statistik", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Profil Saya", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER", "PEMINJAM"], group: "menu" },
   // PEMINJAM-only menu
-  { name: "Cari Arsip", href: "/archives", icon: Archive, roles: ["PEMINJAM"], group: "peminjam" },
+  { name: "Cari Arsip", href: "/archives", icon: Archive, roles: ["PEMINJAM"], group: "menu" },
   // Admin menu
   { name: "Kelola Pengguna", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
   { name: "Kelola Peminjam", href: "/admin/peminjam", icon: UserCheck, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },

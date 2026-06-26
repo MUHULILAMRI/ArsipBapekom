@@ -31,6 +31,7 @@ import {
   FileClock,
 } from "lucide-react";
 import Link from "next/link";
+import { useSession } from "next-auth/react";
 import BorrowModal from "./BorrowModal";
 
 
@@ -85,6 +86,11 @@ export default function ArchiveTable({
   onDelete,
   canDelete = false,
 }: ArchiveTableProps) {
+  const { data: session } = useSession();
+  const userRole = (session?.user as any)?.role || "USER";
+  const isPeminjam = userRole === "PEMINJAM";
+  const isStaffOrAdmin = userRole === "SUPER_ADMIN" || userRole === "ADMIN" || userRole === "USER";
+
   const [sorting, setSorting] = useState<SortingState>([]);
   const [globalFilter, setGlobalFilter] = useState("");
   const [divisionFilter, setDivisionFilter] = useState("");
@@ -271,15 +277,17 @@ export default function ArchiveTable({
             >
               <Eye size={16} />
             </Link>
-            <Link
-              href={`/archives/${info.row.original.id}/edit`}
-              className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
-              title="Ubah"
-              aria-label="Ubah"
-            >
-              <Edit3 size={16} />
-            </Link>
-            {info.row.original.fileUrl && (
+            {isStaffOrAdmin && (
+              <Link
+                href={`/archives/${info.row.original.id}/edit`}
+                className="p-2 text-gray-400 hover:text-amber-600 hover:bg-amber-50 rounded-lg transition-all"
+                title="Ubah"
+                aria-label="Ubah"
+              >
+                <Edit3 size={16} />
+              </Link>
+            )}
+            {isStaffOrAdmin && info.row.original.fileUrl && (
               <a
                 href={info.row.original.fileUrl}
                 target="_blank"
@@ -291,14 +299,16 @@ export default function ArchiveTable({
                 <Download size={16} />
               </a>
             )}
-            <button
-              onClick={() => setBorrowArchive(info.row.original)}
-              className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
-              title="Ajukan Peminjaman"
-              aria-label="Ajukan Peminjaman"
-            >
-              <FileClock size={16} />
-            </button>
+            {isPeminjam && (
+              <button
+                onClick={() => setBorrowArchive(info.row.original)}
+                className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+                title="Ajukan Peminjaman"
+                aria-label="Ajukan Peminjaman"
+              >
+                <FileClock size={16} />
+              </button>
+            )}
             {canDelete && onDelete && (
               <button
                 onClick={() => onDelete(info.row.original.id)}
@@ -313,7 +323,7 @@ export default function ArchiveTable({
         ),
       }),
     ],
-    [canDelete, onDelete]
+    [canDelete, onDelete, isStaffOrAdmin, isPeminjam]
   );
 
   const table = useReactTable({
