@@ -93,13 +93,13 @@ export default function ThemeSettingsPage() {
 
       if (res.ok) {
         await refreshTheme();
-        showToast("Tema berhasil diperbarui!", "success");
+        showToast("success", "Tema berhasil diperbarui!");
       } else {
         const data = await res.json();
-        showToast(data.error || "Gagal menyimpan tema", "error");
+        showToast("error", data.error || "Gagal menyimpan tema");
       }
     } catch {
-      showToast("Terjadi kesalahan saat menyimpan tema", "error");
+      showToast("error", "Terjadi kesalahan saat menyimpan tema");
     } finally {
       setSaving(false);
     }

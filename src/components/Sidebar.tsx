@@ -20,6 +20,7 @@ import {
   FolderOpen,
   UserCircle,
   Palette,
+  FileClock,
 } from "lucide-react";
 import { useState } from "react";
 
@@ -27,6 +28,7 @@ const navigation = [
   { name: "Beranda", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Daftar Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Jelajah Arsip", href: "/archives/browse", icon: FolderOpen, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Peminjaman", href: "/borrow", icon: FileClock, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Statistik", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Profil Saya", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Kelola Pengguna", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },

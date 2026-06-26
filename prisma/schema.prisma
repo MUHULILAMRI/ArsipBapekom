@@ -7,16 +7,17 @@ datasource db {
 }
 
 model User {
-  id            String         @id @default(uuid())
-  name          String
-  email         String         @unique
-  password      String
-  role          Role           @default(USER)
-  division      Division
-  profileImage  String?        @db.Text
-  archives      Archive[]
-  notifications Notification[]
-  createdAt     DateTime       @default(now())
+  id              String          @id @default(uuid())
+  name            String
+  email           String          @unique
+  password        String
+  role            Role            @default(USER)
+  division        Division
+  profileImage    String?         @db.Text
+  archives        Archive[]
+  notifications   Notification[]
+  borrowRequests  BorrowRequest[]
+  createdAt       DateTime        @default(now())
 }
 
 model Notification {
@@ -49,6 +50,7 @@ model Archive {
   user          User          @relation(fields: [createdBy], references: [id])
   createdAt     DateTime      @default(now())
   updatedAt     DateTime      @updatedAt
+  borrowRequests BorrowRequest[]
 
   // Arsip Aktif specific fields
   noBerkas          String?   // No Berkas (shared: Aktif & Inaktif)
@@ -108,4 +110,30 @@ enum Division {
 enum ArchiveStatus {
   AKTIF
   INAKTIF
+}
+
+model BorrowRequest {
+  id          String        @id @default(uuid())
+  archiveId   String
+  archive     Archive       @relation(fields: [archiveId], references: [id])
+  userId      String
+  user        User          @relation(fields: [userId], references: [id])
+  reason      String        @db.Text
+  status      BorrowStatus  @default(PENDING)
+  adminNotes  String?       @db.Text
+  borrowDate  DateTime      @default(now())
+  returnDate  DateTime?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([archiveId])
+  @@index([status])
+}
+
+enum BorrowStatus {
+  PENDING
+  APPROVED
+  REJECTED
+  RETURNED
 }

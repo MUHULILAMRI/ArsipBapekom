@@ -28,8 +28,11 @@ import {
   FileText,
   CheckCircle2,
   XCircle,
+  FileClock,
 } from "lucide-react";
 import Link from "next/link";
+import BorrowModal from "./BorrowModal";
+
 
 interface Archive {
   id: string;
@@ -88,6 +91,8 @@ export default function ArchiveTable({
   const [statusFilter, setStatusFilter] = useState("");
   const [yearFilter, setYearFilter] = useState("");
   const [dateFrom, setDateFrom] = useState("");
+  const [borrowArchive, setBorrowArchive] = useState<Archive | null>(null);
+
   const [dateTo, setDateTo] = useState("");
 
   const hasDateFilter = dateFrom || dateTo;
@@ -286,6 +291,14 @@ export default function ArchiveTable({
                 <Download size={16} />
               </a>
             )}
+            <button
+              onClick={() => setBorrowArchive(info.row.original)}
+              className="p-2 text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all"
+              title="Ajukan Peminjaman"
+              aria-label="Ajukan Peminjaman"
+            >
+              <FileClock size={16} />
+            </button>
             {canDelete && onDelete && (
               <button
                 onClick={() => onDelete(info.row.original.id)}
@@ -317,7 +330,8 @@ export default function ArchiveTable({
   });
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
+    <>
+      <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm">
       {/* Toolbar */}
       <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row gap-3">
         <div className="relative flex-1">
@@ -572,5 +586,12 @@ export default function ArchiveTable({
         </div>
       </div>
     </div>
+      <BorrowModal
+        archive={borrowArchive}
+        isOpen={!!borrowArchive}
+        onClose={() => setBorrowArchive(null)}
+        onSuccess={() => setBorrowArchive(null)}
+      />
+    </>
   );
 }

@@ -4,7 +4,11 @@ type NotificationType =
   | "ARCHIVE_CREATED"
   | "ARCHIVE_UPDATED"
   | "ARCHIVE_DELETED"
-  | "INFO";
+  | "INFO"
+  | "BORROW_REQUEST"
+  | "BORROW_APPROVED"
+  | "BORROW_REJECTED"
+  | "BORROW_RETURNED";
 
 interface CreateNotificationParams {
   userId: string;
