@@ -21,27 +21,35 @@ import {
   UserCircle,
   Palette,
   FileClock,
+  UserCheck,
 } from "lucide-react";
 import { useState } from "react";
 
 const navigation = [
+  // Staff menu (SUPER_ADMIN, ADMIN, USER)
   { name: "Beranda", href: "/dashboard", icon: LayoutDashboard, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Daftar Arsip", href: "/archives", icon: Archive, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
   { name: "Jelajah Arsip", href: "/archives/browse", icon: FolderOpen, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Peminjaman", href: "/borrow", icon: FileClock, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Peminjaman", href: "/borrow", icon: FileClock, roles: ["SUPER_ADMIN", "ADMIN", "USER", "PEMINJAM"], group: "menu" },
   { name: "Statistik", href: "/analytics", icon: BarChart3, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
-  { name: "Profil Saya", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER"], group: "menu" },
+  { name: "Profil Saya", href: "/profile", icon: UserCircle, roles: ["SUPER_ADMIN", "ADMIN", "USER", "PEMINJAM"], group: "menu" },
+  // PEMINJAM-only menu
+  { name: "Cari Arsip", href: "/archives", icon: Archive, roles: ["PEMINJAM"], group: "peminjam" },
+  // Admin menu
   { name: "Kelola Pengguna", href: "/admin/users", icon: Users, roles: ["SUPER_ADMIN"], group: "admin" },
+  { name: "Kelola Peminjam", href: "/admin/peminjam", icon: UserCheck, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
   { name: "Riwayat Aktivitas", href: "/admin/activity", icon: ClipboardList, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
   { name: "Hak Akses", href: "/admin/roles", icon: Shield, roles: ["SUPER_ADMIN"], group: "admin" },
   { name: "Penyimpanan", href: "/admin/storage", icon: HardDrive, roles: ["SUPER_ADMIN", "ADMIN"], group: "admin" },
   { name: "Pengaturan Tema", href: "/admin/theme", icon: Palette, roles: ["SUPER_ADMIN"], group: "admin" },
 ];
 
+
 const roleLabels: Record<string, string> = {
   SUPER_ADMIN: "Super Admin",
   ADMIN: "Admin",
   USER: "Staff",
+  PEMINJAM: "Peminjam",
 };
 
 const divisionLabels: Record<string, string> = {

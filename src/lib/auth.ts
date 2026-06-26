@@ -31,6 +31,11 @@ export const authOptions: NextAuthOptions = {
 
         if (!user) return null;
 
+        // Check if account is active
+        if (!user.isActive) {
+          throw new Error("Akun Anda telah dinonaktifkan. Hubungi administrator.");
+        }
+
         const isValid = await bcrypt.compare(credentials.password, user.password);
         if (!isValid) return null;
 
@@ -40,6 +45,7 @@ export const authOptions: NextAuthOptions = {
           email: user.email,
           role: user.role,
           division: user.division,
+          instansi: user.instansi,
         };
       },
     }),
@@ -50,12 +56,14 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id;
         token.role = (user as any).role;
         token.division = (user as any).division;
+        token.instansi = (user as any).instansi;
       }
       // Handle session update (e.g. after profile edit)
       if (trigger === "update" && updateSession) {
         if (updateSession.name) token.name = updateSession.name;
         if (updateSession.division) token.division = updateSession.division;
         if (updateSession.email) token.email = updateSession.email;
+        if (updateSession.instansi !== undefined) token.instansi = updateSession.instansi;
       }
       return token;
     },
@@ -64,6 +72,7 @@ export const authOptions: NextAuthOptions = {
         (session.user as any).id = token.id;
         (session.user as any).role = token.role;
         (session.user as any).division = token.division;
+        (session.user as any).instansi = token.instansi;
       }
       return session;
     },

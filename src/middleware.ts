@@ -3,7 +3,15 @@ import { getToken } from "next-auth/jwt";
 
 const protectedPaths = ["/dashboard", "/archives", "/admin", "/profile", "/borrow"];
 const adminUserPaths = ["/admin/users"];
-const adminStoragePaths = ["/admin/storage"];
+const adminStoragePaths = ["/admin/storage", "/admin/peminjam"];
+
+// Paths that PEMINJAM role cannot access
+const peminjamBlockedPaths = [
+  "/archives/create",
+  "/archives/browse",
+  "/admin",
+  "/analytics",
+];
 
 export async function middleware(req: NextRequest) {
   const path = req.nextUrl.pathname;
@@ -49,7 +57,17 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Step 4: Role-based access
+  // Step 4: Restrict PEMINJAM from staff-only paths
+  if (token.role === "PEMINJAM") {
+    const isBlocked = peminjamBlockedPaths.some(p => path.startsWith(p));
+    // Also block /archives/[id]/edit
+    const isEditPath = /^\/archives\/[^/]+\/edit/.test(path);
+    if (isBlocked || isEditPath) {
+      return NextResponse.redirect(new URL("/borrow", req.url));
+    }
+  }
+
+  // Step 5: Role-based access for admin paths
   if (adminUserPaths.some(p => path.startsWith(p)) && token.role !== "SUPER_ADMIN") {
     return NextResponse.redirect(new URL("/dashboard", req.url));
   }

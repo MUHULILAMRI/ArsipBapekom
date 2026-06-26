@@ -12,7 +12,9 @@ model User {
   email           String          @unique
   password        String
   role            Role            @default(USER)
-  division        Division
+  division        Division        @default(UMUM)
+  instansi        String?         // Nama instansi/organisasi (khusus PEMINJAM)
+  isActive        Boolean         @default(true) // false = akun ditangguhkan
   profileImage    String?         @db.Text
   archives        Archive[]
   notifications   Notification[]
@@ -98,6 +100,7 @@ enum Role {
   SUPER_ADMIN
   ADMIN
   USER
+  PEMINJAM
 }
 
 enum Division {

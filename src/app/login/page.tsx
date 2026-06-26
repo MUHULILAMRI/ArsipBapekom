@@ -3,6 +3,7 @@
 import { useState, useEffect, type FormEvent } from "react";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { Loader2, Eye, EyeOff, Shield, Lock, Mail } from "lucide-react";
 import Image from "next/image";
 
@@ -274,6 +275,15 @@ export default function LoginPage() {
 
           {/* Footer */}
           <div className="text-center mt-8 animate-fade-in-up stagger-4">
+            <p className="text-blue-300/60 text-sm mb-3">
+              Ingin meminjam arsip?{" "}
+              <Link
+                href="/register"
+                className="text-indigo-300 hover:text-indigo-200 font-semibold transition-colors underline underline-offset-2"
+              >
+                Daftar sebagai Peminjam
+              </Link>
+            </p>
             <p className="text-blue-300/40 text-xs">
               &copy; 2026 Bapekom &mdash; Balai Pengawas Keamanan
             </p>

@@ -1,7 +1,7 @@
 import { getServerSession } from "next-auth";
 import { authOptions } from "./auth";
 
-export type UserRole = "SUPER_ADMIN" | "ADMIN" | "USER";
+export type UserRole = "SUPER_ADMIN" | "ADMIN" | "USER" | "PEMINJAM";
 
 interface SessionUser {
   id: string;
@@ -28,12 +28,16 @@ export function canManageUsers(role: UserRole): boolean {
   return role === "SUPER_ADMIN";
 }
 
+export function canManagePeminjam(role: UserRole): boolean {
+  return role === "SUPER_ADMIN" || role === "ADMIN";
+}
+
 export function canManageStorage(role: UserRole): boolean {
   return role === "SUPER_ADMIN" || role === "ADMIN";
 }
 
 export function canCreateArchive(role: UserRole): boolean {
-  return true; // All roles can create
+  return role === "SUPER_ADMIN" || role === "ADMIN" || role === "USER";
 }
 
 export function canDeleteArchive(role: UserRole): boolean {
@@ -42,4 +46,16 @@ export function canDeleteArchive(role: UserRole): boolean {
 
 export function canEditArchive(role: UserRole): boolean {
   return role === "SUPER_ADMIN" || role === "ADMIN";
+}
+
+export function canBorrow(role: UserRole): boolean {
+  return true; // All roles can borrow
+}
+
+export function isPeminjam(role: UserRole): boolean {
+  return role === "PEMINJAM";
+}
+
+export function isStaff(role: UserRole): boolean {
+  return role === "SUPER_ADMIN" || role === "ADMIN" || role === "USER";
 }
